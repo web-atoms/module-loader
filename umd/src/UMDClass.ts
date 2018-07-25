@@ -28,8 +28,8 @@ class UMDClass {
     }
 
     public async load(path: string, designMode?: boolean): Promise<any> {
-        const { Atom } = await AmdLoader.instance.import("web-atoms-core/dist/Atom");
-        Atom.designMode = designMode;
+        const a: any = await AmdLoader.instance.import("web-atoms-core/dist/Atom");
+        a.Atom.designMode = designMode;
         return await AmdLoader.instance.import(path);
     }
 

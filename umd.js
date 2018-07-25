@@ -288,13 +288,13 @@ var UMDClass = /** @class */ (function () {
     };
     UMDClass.prototype.load = function (path, designMode) {
         return __awaiter(this, void 0, void 0, function () {
-            var Atom;
+            var a;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, AmdLoader.instance.import("web-atoms-core/dist/Atom")];
                     case 1:
-                        Atom = (_a.sent()).Atom;
-                        Atom.designMode = designMode;
+                        a = _a.sent();
+                        a.Atom.designMode = designMode;
                         return [4 /*yield*/, AmdLoader.instance.import(path)];
                     case 2: return [2 /*return*/, _a.sent()];
                 }

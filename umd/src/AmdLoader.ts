@@ -109,11 +109,11 @@ class AmdLoader {
 
     public load(module: Module): Promise<any> {
 
-        if (module.exports) {
-            return new Promise((r1,r2) => {
-                r1(module.exports);
-            });
-        }
+        // if (module.exports) {
+        //     return new Promise((r1,r2) => {
+        //         r1(module.exports);
+        //     });
+        // }
 
         if (module.loader) {
             return module.loader;
@@ -121,10 +121,10 @@ class AmdLoader {
 
         return module.loader = new Promise((resolve, reject) => {
 
-            if (module.exports) {
-                resolve(module.exports);
-                return;
-            }
+            // if (module.exports) {
+            //     resolve(module.exports);
+            //     return;
+            // }
 
             AmdLoader.moduleLoader(module.name, module.url, (r) => {
 

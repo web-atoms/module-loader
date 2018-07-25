@@ -189,19 +189,19 @@ var AmdLoader = /** @class */ (function () {
         });
     };
     AmdLoader.prototype.load = function (module) {
-        if (module.exports) {
-            return new Promise(function (r1, r2) {
-                r1(module.exports);
-            });
-        }
+        // if (module.exports) {
+        //     return new Promise((r1,r2) => {
+        //         r1(module.exports);
+        //     });
+        // }
         if (module.loader) {
             return module.loader;
         }
         return module.loader = new Promise(function (resolve, reject) {
-            if (module.exports) {
-                resolve(module.exports);
-                return;
-            }
+            // if (module.exports) {
+            //     resolve(module.exports);
+            //     return;
+            // }
             AmdLoader.moduleLoader(module.name, module.url, function (r) {
                 AmdLoader.current = module;
                 r();

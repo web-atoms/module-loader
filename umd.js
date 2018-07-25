@@ -91,7 +91,9 @@ var Module = /** @class */ (function () {
             return this.exports;
         }
         this.exports = {};
-        this.factory(this.require, this.exports);
+        if (this.factory) {
+            this.factory(this.require, this.exports);
+        }
         return this.exports;
     };
     return Module;

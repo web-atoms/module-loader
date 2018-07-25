@@ -134,7 +134,7 @@ class AmdLoader {
                 module.ready = true;
 
                 module.onReady(() => {
-                    resolve(module.exports);
+                    resolve(module.getExports());
                 });
 
                 module.finish();

@@ -207,7 +207,7 @@ var AmdLoader = /** @class */ (function () {
                 r();
                 module.ready = true;
                 module.onReady(function () {
-                    resolve(module.exports);
+                    resolve(module.getExports());
                 });
                 module.finish();
             }, function (error) {

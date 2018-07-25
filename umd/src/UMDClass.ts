@@ -35,7 +35,7 @@ class UMDClass {
 
     public async loadView(path: string, designMode?: boolean, appPath?: string): Promise<any> {
         appPath = appPath || this.defaultApp;
-        const m: any = this.load(appPath, designMode);
+        const m: any = await this.load(appPath, designMode);
         const app: any = new (m.default)();
         app.onReady(async () => {
             try {

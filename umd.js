@@ -179,7 +179,9 @@ var AmdLoader = /** @class */ (function () {
                     case 0:
                         module = this.get(name);
                         return [4 /*yield*/, this.load(module)];
-                    case 1: return [2 /*return*/, _a.sent()];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/, module.getExports()];
                 }
             });
         });

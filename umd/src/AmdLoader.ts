@@ -102,7 +102,9 @@ class AmdLoader {
 
         let module: Module = this.get(name);
 
-        return await this.load(module);
+        await this.load(module);
+
+        return module.getExports();
     }
 
     public load(module: Module): Promise<any> {

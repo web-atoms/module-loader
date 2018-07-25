@@ -37,7 +37,10 @@ class AmdLoader {
         try {
             const tokens: string[] = name.split("/");
             const packageName: string = tokens[0];
-            const path: string = this.pathMap[packageName].url;
+            let path: string = this.pathMap[packageName].url;
+            if (path.endsWith("/")) {
+                path = path.substr(0, path.length-1);
+            }
             tokens[0] = path;
             let url: string = tokens.join("/");
             if (defExt && !url.endsWith(".js")) {
@@ -109,22 +112,11 @@ class AmdLoader {
 
     public load(module: Module): Promise<any> {
 
-        // if (module.exports) {
-        //     return new Promise((r1,r2) => {
-        //         r1(module.exports);
-        //     });
-        // }
-
         if (module.loader) {
             return module.loader;
         }
 
         return module.loader = new Promise((resolve, reject) => {
-
-            // if (module.exports) {
-            //     resolve(module.exports);
-            //     return;
-            // }
 
             AmdLoader.moduleLoader(module.name, module.url, (r) => {
 

@@ -135,6 +135,9 @@ var AmdLoader = /** @class */ (function () {
             var tokens = name.split("/");
             var packageName = tokens[0];
             var path = this.pathMap[packageName].url;
+            if (path.endsWith("/")) {
+                path = path.substr(0, path.length - 1);
+            }
             tokens[0] = path;
             var url = tokens.join("/");
             if (defExt && !url.endsWith(".js")) {
@@ -203,19 +206,10 @@ var AmdLoader = /** @class */ (function () {
         });
     };
     AmdLoader.prototype.load = function (module) {
-        // if (module.exports) {
-        //     return new Promise((r1,r2) => {
-        //         r1(module.exports);
-        //     });
-        // }
         if (module.loader) {
             return module.loader;
         }
         return module.loader = new Promise(function (resolve, reject) {
-            // if (module.exports) {
-            //     resolve(module.exports);
-            //     return;
-            // }
             AmdLoader.moduleLoader(module.name, module.url, function (r) {
                 AmdLoader.current = module;
                 r();

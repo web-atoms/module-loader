@@ -1,81 +1,9 @@
+/// <reference path="./ArrayHelper.ts"/>
 /// <reference path="./Module.ts"/>
-
-if(!Array.prototype.find) {
-    Array.prototype.find = function(predicate: (value: any, index: number, obj: any[]) => boolean, thisArg?: any): any | undefined {
-        for (let i: number = 0; i<this.length; i++) {
-            const item: any = this[i];
-            if (predicate(item, i, this)) {
-                return item;
-            }
-        }
-    };
-}
-
-if(!Array.prototype.map) {
-    Array.prototype.map = function(callbackfn: (value: any, index: number, array: any[]) => any, thisArg?: any): any[] {
-        const a: any[] = [];
-        for (let i:number =0; i <this.length; i++) {
-            const r: any = callbackfn(this[i], i, this);
-            if (r !== undefined) {
-                a.push(r);
-            }
-        }
-        return a;
-    };
-}
 
 interface IModuleConfig {
     url: string;
     type: "amd" | "global";
-}
-
-class Module {
-
-    private handlers: Array<() => void> = [];
-
-    public onLoad(f: () => void): void {
-        this.handlers.push(f);
-    }
-
-    public finish(): any {
-
-        for (const iterator of this.dependencies) {
-            if (!iterator.exports) {
-                return;
-            }
-        }
-
-        if(!this.exports) {
-            console.log(`finishing ${this.name}`);
-            this.exports = {};
-            if (this.factory) {
-                this.factory(this.require, this.exports);
-            }
-            // this.handlers.length = 0;
-        }
-        for (const iterator of this.handlers) {
-            iterator();
-        }
-    }
-
-    public name: string;
-
-    public url: string;
-
-    public exports: any;
-
-    public require: (name: string) => any;
-
-    public code: () => Promise<any>;
-
-    public dependencies: Module[] = [];
-
-    public type: "amd" | "global";
-
-    public factory: (r: any, e: any) => void;
-
-    public loader: Promise<any>;
-
 }
 
 class AmdLoader {
@@ -162,7 +90,8 @@ class AmdLoader {
             module.type = (this.pathMap[name] || { type: "amd" }) .type || "amd";
             module.require = (n: string) => {
                 const an: string = this.resolveRelativePath(n, module.name);
-                return this.get(an).exports;
+                const resolvedModule: Module = this.get(an);
+                return resolvedModule.getExports();
             };
             this.modules.push(module);
         }
@@ -184,8 +113,8 @@ class AmdLoader {
             });
         }
 
-        if (module.code) {
-            return module.code();
+        if (module.loader) {
+            return module.loader;
         }
 
         return module.loader = new Promise((resolve, reject) => {
@@ -195,23 +124,18 @@ class AmdLoader {
                 return;
             }
 
-            module.code = (): Promise<any> => {
-                return new Promise((r1,r2) => {
-                    module.onLoad(() => {
-                        r1(module.exports);
-                    });
-                });
-            };
-
             AmdLoader.moduleLoader(module.name, module.url, (r) => {
 
                 AmdLoader.current = module;
-                // tslint:disable-next-line:no-eval
                 r();
 
-                this.finish(() => {
+                module.ready = true;
+
+                module.onReady(() => {
                     resolve(module.exports);
                 });
+
+                module.finish();
 
             }, (error) => {
                 reject(error);
@@ -220,52 +144,4 @@ class AmdLoader {
         });
     }
 
-    public finish(f: ()=> void): void  {
-        for (const iterator of this.modules) {
-            if (!iterator.exports) {
-                iterator.finish();
-            }
-            if(!iterator.exports) {
-                return;
-            }
-        }
-        f();
-    }
-
-
-
 }
-
-var UMD: any = {
-    resolvePath: (n) => {
-        return AmdLoader.instance.resolveSource(n, null);
-    }
-};
-
-
-function define(
-    requires: string[],
-    factory: (r: any, e: any) => void): void {
-    const current: Module = AmdLoader.current;
-    if (current.factory) {
-        return;
-    }
-    // console.log(`Define for ${current.name}`);
-    current.dependencies = [];
-    const loader: AmdLoader = AmdLoader.instance;
-    for (const s of requires) {
-        if(/^(require|exports)$/.test(s)) {
-            continue;
-        }
-
-        // resolve full name...
-        const name: string = loader.resolveRelativePath(s, current.name);
-        // console.log(`dep: ${name} for ${s} in ${current.name}`);
-        const child: Module = loader.get(name);
-        current.dependencies.push(child);
-        loader.load(child);
-    }
-    current.factory = factory;
-}
-
-(define as any).amd = true;

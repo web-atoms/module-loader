@@ -1,5 +1,6 @@
 var fs = require("fs");
 var vm = require("vm");
+var URL = require("url");
 
 function loadScript(file){
     var s = fs.readFileSync(file,'utf-8');
@@ -14,14 +15,18 @@ function loadScript(file){
 
 loadScript("./umd.js");
 
-var http = require("http");
+var http = require("https");
 
 var AmdLoader = global.AmdLoader;
 var define = global.define;
 
+var keepAlive = new http.Agent({ keepAlive: true});
+
 AmdLoader.moduleLoader = function(name, url, success, error) {
     console.log("Loading '" + name + "': " + url);
-    http.get(url, function(res) {
+    var options = new URL.URL(url);
+    options.agent = keepAlive;
+    http.get(options, function(res) {
         res.setEncoding("utf8");
         var rawData = "";
         res.on("data", function(c) {
@@ -30,7 +35,12 @@ AmdLoader.moduleLoader = function(name, url, success, error) {
         res.on("end", function(){
             if (res.statusCode === 200) {
                 success(function() {
-                    var s = new vm.Script(rawData);
+                    var s = new vm.Script(rawData, {
+                        filename: url,
+                        displayErrors: true,
+                        lineOffset: 0,
+                        columnOffset: 0
+                    });
                     s.runInThisContext();
                 });
             } else {
@@ -40,9 +50,9 @@ AmdLoader.moduleLoader = function(name, url, success, error) {
     });
 };
 
-AmdLoader.instance.map("web-atoms-core", "http://cdn.jsdelivr.net/npm/web-atoms-core@1.0.279");
-AmdLoader.instance.map("web-atoms-samples", "http://cdn.jsdelivr.net/npm/web-atoms-samples@1.0.1");
-AmdLoader.instance.map("reflect-metadata", "http://cdn.jsdelivr.net/npm/reflect-metadata@0.1.12/Reflect.js");
+AmdLoader.instance.map("web-atoms-core", "https://cdn.jsdelivr.net/npm/web-atoms-core@1.0.279");
+AmdLoader.instance.map("web-atoms-samples", "https://cdn.jsdelivr.net/npm/web-atoms-samples@1.0.1");
+AmdLoader.instance.map("reflect-metadata", "https://cdn.jsdelivr.net/npm/reflect-metadata@0.1.12/Reflect.js");
 
 AmdLoader.instance.import("web-atoms-samples/dist/web/views/AppHost").then(function(a) {
 

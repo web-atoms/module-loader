@@ -33,7 +33,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-/// <reference path="./Module.ts"/>
 if (!Array.prototype.find) {
     Array.prototype.find = function (predicate, thisArg) {
         for (var i = 0; i < this.length; i++) {
@@ -60,32 +59,45 @@ var Module = /** @class */ (function () {
     function Module() {
         this.handlers = [];
         this.dependencies = [];
+        this.ready = false;
     }
-    Module.prototype.onLoad = function (f) {
-        this.handlers.push(f);
+    Module.prototype.onReady = function (h) {
+        var _this = this;
+        // remove self after execution...
+        var a = {
+            handler: h
+        };
+        a.handler = function () {
+            var index = _this.handlers.indexOf(a.handler);
+            _this.handlers.splice(index, 1);
+            h();
+        };
+        this.handlers.push(a.handler);
     };
     Module.prototype.finish = function () {
         for (var _i = 0, _a = this.dependencies; _i < _a.length; _i++) {
             var iterator = _a[_i];
-            if (!iterator.exports) {
+            if (!iterator.ready) {
                 return;
             }
         }
-        if (!this.exports) {
-            console.log("finishing " + this.name);
-            this.exports = {};
-            if (this.factory) {
-                this.factory(this.require, this.exports);
-            }
-            // this.handlers.length = 0;
-        }
-        for (var _b = 0, _c = this.handlers; _b < _c.length; _b++) {
+        for (var _b = 0, _c = this.handlers.map(function (a) { return a; }); _b < _c.length; _b++) {
             var iterator = _c[_b];
             iterator();
         }
     };
+    Module.prototype.getExports = function () {
+        if (this.exports) {
+            return this.exports;
+        }
+        this.exports = {};
+        this.factory(this.require, this.exports);
+        return this.exports;
+    };
     return Module;
 }());
+/// <reference path="./ArrayHelper.ts"/>
+/// <reference path="./Module.ts"/>
 var AmdLoader = /** @class */ (function () {
     function AmdLoader() {
         this.modules = [];
@@ -152,7 +164,8 @@ var AmdLoader = /** @class */ (function () {
             module.type = (this.pathMap[name] || { type: "amd" }).type || "amd";
             module.require = function (n) {
                 var an = _this.resolveRelativePath(n, module.name);
-                return _this.get(an).exports;
+                var resolvedModule = _this.get(an);
+                return resolvedModule.getExports();
             };
             this.modules.push(module);
         }
@@ -172,60 +185,37 @@ var AmdLoader = /** @class */ (function () {
         });
     };
     AmdLoader.prototype.load = function (module) {
-        var _this = this;
         if (module.exports) {
             return new Promise(function (r1, r2) {
                 r1(module.exports);
             });
         }
-        if (module.code) {
-            return module.code();
+        if (module.loader) {
+            return module.loader;
         }
         return module.loader = new Promise(function (resolve, reject) {
             if (module.exports) {
                 resolve(module.exports);
                 return;
             }
-            module.code = function () {
-                return new Promise(function (r1, r2) {
-                    module.onLoad(function () {
-                        r1(module.exports);
-                    });
-                });
-            };
             AmdLoader.moduleLoader(module.name, module.url, function (r) {
                 AmdLoader.current = module;
-                // tslint:disable-next-line:no-eval
                 r();
-                _this.finish(function () {
+                module.ready = true;
+                module.onReady(function () {
                     resolve(module.exports);
                 });
+                module.finish();
             }, function (error) {
                 reject(error);
             });
         });
     };
-    AmdLoader.prototype.finish = function (f) {
-        for (var _i = 0, _a = this.modules; _i < _a.length; _i++) {
-            var iterator = _a[_i];
-            if (!iterator.exports) {
-                iterator.finish();
-            }
-            if (!iterator.exports) {
-                return;
-            }
-        }
-        f();
-    };
     AmdLoader.instance = new AmdLoader();
     AmdLoader.current = null;
     return AmdLoader;
 }());
-var UMD = {
-    resolvePath: function (n) {
-        return AmdLoader.instance.resolveSource(n, null);
-    }
-};
+/// <reference path="./AmdLoader.ts"/>
 function define(requires, factory) {
     var current = AmdLoader.current;
     if (current.factory) {
@@ -244,9 +234,88 @@ function define(requires, factory) {
         // console.log(`dep: ${name} for ${s} in ${current.name}`);
         var child = loader.get(name_1);
         current.dependencies.push(child);
+        child.onReady(function () {
+            current.finish();
+        });
         loader.load(child);
     }
     current.factory = factory;
 }
 define.amd = true;
+/// <reference path="./AmdLoader.ts"/>
+var UMDClass = /** @class */ (function () {
+    function UMDClass() {
+        this.viewPrefix = "web";
+        this.defaultApp = "web-atoms-core/dist/web/WebApp";
+    }
+    UMDClass.prototype.resolvePath = function (n) {
+        return AmdLoader.instance.resolveSource(n, null);
+    };
+    UMDClass.prototype.resolveViewPath = function (path) {
+        return path.replace("{platform}", this.viewPrefix);
+    };
+    UMDClass.prototype.map = function (name, path, type) {
+        if (type === void 0) { type = "amd"; }
+        AmdLoader.instance.map(name, path, type);
+    };
+    UMDClass.prototype.resolveViewClassAsync = function (path) {
+        return __awaiter(this, void 0, void 0, function () {
+            var e;
+            return __generator(this, function (_a) {
+                path = this.resolveViewPath(path);
+                e = AmdLoader.instance.import(path);
+                return [2 /*return*/, e.default];
+            });
+        });
+    };
+    UMDClass.prototype.load = function (path, designMode) {
+        return __awaiter(this, void 0, void 0, function () {
+            var Atom;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, AmdLoader.instance.import("web-atoms-core/dist/Atom")];
+                    case 1:
+                        Atom = (_a.sent()).Atom;
+                        Atom.designMode = designMode;
+                        return [4 /*yield*/, AmdLoader.instance.import(path)];
+                    case 2: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    UMDClass.prototype.loadView = function (path, designMode, appPath) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            var m, app;
+            return __generator(this, function (_a) {
+                appPath = appPath || this.defaultApp;
+                m = this.load(appPath, designMode);
+                app = new (m.default)();
+                app.onReady(function () { return __awaiter(_this, void 0, void 0, function () {
+                    var viewClass, view, e_1;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                _a.trys.push([0, 2, , 3]);
+                                return [4 /*yield*/, AmdLoader.instance.import(path)];
+                            case 1:
+                                viewClass = _a.sent();
+                                view = new (viewClass.default)(app);
+                                app.root = view;
+                                return [3 /*break*/, 3];
+                            case 2:
+                                e_1 = _a.sent();
+                                console.error(e_1);
+                                return [3 /*break*/, 3];
+                            case 3: return [2 /*return*/];
+                        }
+                    });
+                }); });
+                return [2 /*return*/];
+            });
+        });
+    };
+    return UMDClass;
+}());
+var UMD = new UMDClass();
 //# sourceMappingURL=umd.js.map

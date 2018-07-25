@@ -226,7 +226,7 @@ AmdLoader.moduleLoader = function (name, url, success, error) {
             if (xhr.status === 200) {
                 success(function () {
                     // tslint:disable-next-line:no-eval
-                    eval("\n                    \"use strict\";\n                    " + xhr.responseText);
+                    eval("\n                    \"use strict\";" + xhr.responseText + "\n//# sourceURL=" + url);
                 });
             }
             else {

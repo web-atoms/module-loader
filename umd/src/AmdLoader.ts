@@ -157,8 +157,8 @@ AmdLoader.moduleLoader = (name, url, success, error) => {
                 success(() => {
                     // tslint:disable-next-line:no-eval
                     eval(`
-                    "use strict";
-                    ${xhr.responseText}`);
+                    "use strict";${xhr.responseText}
+//# sourceURL=${url}`);
                 });
             } else {
                 error(xhr.responseText);

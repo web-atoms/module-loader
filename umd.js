@@ -215,6 +215,24 @@ var AmdLoader = /** @class */ (function () {
     AmdLoader.current = null;
     return AmdLoader;
 }());
+AmdLoader.moduleLoader = function (name, url, success, error) {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function (e) {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+                success(function () {
+                    // tslint:disable-next-line:no-eval
+                    eval("\n                    \"use strict\";\n                    " + xhr.responseText);
+                });
+            }
+            else {
+                error(xhr.responseText);
+            }
+        }
+    };
+    xhr.open("GET", url);
+    xhr.send();
+};
 /// <reference path="./AmdLoader.ts"/>
 function define(requires, factory) {
     var current = AmdLoader.current;

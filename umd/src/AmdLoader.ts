@@ -145,3 +145,26 @@ class AmdLoader {
     }
 
 }
+
+AmdLoader.moduleLoader = (name, url, success, error) => {
+
+    const xhr: XMLHttpRequest = new XMLHttpRequest();
+    xhr.onreadystatechange = (e) => {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+                success(() => {
+                    // tslint:disable-next-line:no-eval
+                    eval(`
+                    "use strict";
+                    ${xhr.responseText}`);
+                });
+            } else {
+                error(xhr.responseText);
+            }
+        }
+    };
+
+    xhr.open("GET", url);
+    xhr.send();
+
+};

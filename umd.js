@@ -298,9 +298,14 @@ var UMDClass = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             var e;
             return __generator(this, function (_a) {
-                path = this.resolveViewPath(path);
-                e = AmdLoader.instance.import(path);
-                return [2 /*return*/, e.default];
+                switch (_a.label) {
+                    case 0:
+                        path = this.resolveViewPath(path);
+                        return [4 /*yield*/, AmdLoader.instance.import(path)];
+                    case 1:
+                        e = _a.sent();
+                        return [2 /*return*/, e.default];
+                }
             });
         });
     };

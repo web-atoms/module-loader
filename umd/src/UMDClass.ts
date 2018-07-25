@@ -23,7 +23,7 @@ class UMDClass {
 
     public async resolveViewClassAsync(path: string): Promise<any> {
         path = this.resolveViewPath(path);
-        const e: any = AmdLoader.instance.import(path);
+        const e: any = await AmdLoader.instance.import(path);
         return e.default;
     }
 

@@ -195,8 +195,25 @@ AmdLoader.moduleProgress = (() => {
     progressDiv.appendChild(progressLabel);
     progressLabel.style.color = "#A0A0A0";
 
-    document.body.appendChild(progressDiv);
+    function ready(): void {
+        document.body.appendChild(progressDiv);
+    }
 
+    function completed(): void {
+        document.removeEventListener( "DOMContentLoaded", completed );
+        window.removeEventListener( "load", completed );
+        ready();
+    }
+
+    if ( document.readyState === "complete" ||
+        // tslint:disable-next-line:no-string-literal
+        ( document.readyState !== "loading" && !document.documentElement["doScroll"] ) ) {
+
+        window.setTimeout( ready );
+    } else {
+        document.addEventListener( "DOMContentLoaded", completed );
+        window.addEventListener( "load", completed );
+    }
     return (name, n) => {
         if (n >= 99) {
             progressDiv.style.display = "none";

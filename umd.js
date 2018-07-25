@@ -269,7 +269,23 @@ AmdLoader.moduleProgress = (function () {
     var progressLabel = document.createElement("div");
     progressDiv.appendChild(progressLabel);
     progressLabel.style.color = "#A0A0A0";
-    document.body.appendChild(progressDiv);
+    function ready() {
+        document.body.appendChild(progressDiv);
+    }
+    function completed() {
+        document.removeEventListener("DOMContentLoaded", completed);
+        window.removeEventListener("load", completed);
+        ready();
+    }
+    if (document.readyState === "complete" ||
+        // tslint:disable-next-line:no-string-literal
+        (document.readyState !== "loading" && !document.documentElement["doScroll"])) {
+        window.setTimeout(ready);
+    }
+    else {
+        document.addEventListener("DOMContentLoaded", completed);
+        window.addEventListener("load", completed);
+    }
     return function (name, n) {
         if (n >= 99) {
             progressDiv.style.display = "none";

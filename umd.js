@@ -74,15 +74,29 @@ var Module = /** @class */ (function () {
         };
         this.handlers.push(a.handler);
     };
-    Module.prototype.finish = function () {
+    Module.prototype.isReady = function (visited) {
+        if (!this.ready) {
+            return false;
+        }
+        visited = visited || [];
+        visited.push(this);
         for (var _i = 0, _a = this.dependencies; _i < _a.length; _i++) {
             var iterator = _a[_i];
-            if (!iterator.ready) {
-                return;
+            if (visited.indexOf(iterator) !== -1) {
+                continue;
+            }
+            if (!iterator.isReady(visited)) {
+                return false;
             }
         }
-        for (var _b = 0, _c = this.handlers.map(function (a) { return a; }); _b < _c.length; _b++) {
-            var iterator = _c[_b];
+        return true;
+    };
+    Module.prototype.finish = function () {
+        if (!this.isReady()) {
+            return;
+        }
+        for (var _i = 0, _a = this.handlers.map(function (a) { return a; }); _i < _a.length; _i++) {
+            var iterator = _a[_i];
             iterator();
         }
     };

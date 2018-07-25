@@ -15,13 +15,29 @@ class Module {
         this.handlers.push(a.handler);
     }
 
-    public finish(): any {
-
+    public isReady(visited?: Module[]): boolean {
+        if (!this.ready) {
+            return false;
+        }
+        visited = visited || [];
+        visited.push(this);
         for (const iterator of this.dependencies) {
-            if (!iterator.ready) {
-                return;
+            if (visited.indexOf(iterator) !== -1) {
+                continue;
+            }
+            if (!iterator.isReady(visited)) {
+                return false;
             }
         }
+        return true;
+    }
+
+    public finish(): any {
+
+        if(!this.isReady()) {
+            return;
+        }
+
         for (const iterator of this.handlers.map((a) => a)) {
             iterator();
         }

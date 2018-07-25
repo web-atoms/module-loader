@@ -1,6 +1,7 @@
 declare class Module {
     private handlers;
     onReady(h: () => void): void;
+    isReady(visited?: Module[]): boolean;
     finish(): any;
     name: string;
     url: string;

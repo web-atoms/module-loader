@@ -8,6 +8,8 @@ interface IModuleConfig {
 
 class AmdLoader {
 
+    public static moduleProgress: (name: string, progress: number) => void;
+
     public static moduleLoader: (packageName: string, url: string, success: (r: any) => void, failed: (error: any) => void) => void;
 
     public static instance: AmdLoader = new AmdLoader();
@@ -131,6 +133,14 @@ class AmdLoader {
 
                 module.finish();
 
+                if (AmdLoader.moduleProgress) {
+                    // lets calculate how much...
+                    const total: number = this.modules.length;
+                    const done: number = this.modules.filter( (m) => m.ready ).length;
+
+                    AmdLoader.moduleProgress(module.name, Math.round( (done * 100)/total ));
+                }
+
             }, (error) => {
                 reject(error);
             });
@@ -162,3 +172,37 @@ AmdLoader.moduleLoader = (name, url, success, error) => {
     xhr.send();
 
 };
+
+AmdLoader.moduleProgress = (() => {
+
+    const progressDiv: HTMLDivElement = document.createElement("div");
+    const style: CSSStyleDeclaration = progressDiv.style;
+
+    style.position = "absolute";
+    style.margin = "auto";
+    style.width = "200px";
+    style.height = "100px";
+
+    style.borderStyle = "solid";
+    style.borderWidth = "1px";
+    style.borderColor = "#A0A0A0";
+    style.borderRadius = "5px";
+    style.padding = "5px";
+    style.textAlign = "center";
+    style.verticalAlign = "middle";
+
+    const progressLabel: HTMLDivElement = document.createElement("div");
+    progressDiv.appendChild(progressLabel);
+    progressLabel.style.color = "#A0A0A0";
+
+    document.body.appendChild(progressDiv);
+
+    return (name, n) => {
+        if (n >= 99) {
+            progressDiv.style.display = "none";
+        } else {
+            progressDiv.style.display = "block";
+        }
+        progressLabel.textContent = `Loading ... (${n}%)`;
+    };
+})();

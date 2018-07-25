@@ -206,6 +206,7 @@ var AmdLoader = /** @class */ (function () {
         });
     };
     AmdLoader.prototype.load = function (module) {
+        var _this = this;
         if (module.loader) {
             return module.loader;
         }
@@ -218,6 +219,12 @@ var AmdLoader = /** @class */ (function () {
                     resolve(module.getExports());
                 });
                 module.finish();
+                if (AmdLoader.moduleProgress) {
+                    // lets calculate how much...
+                    var total = _this.modules.length;
+                    var done = _this.modules.filter(function (m) { return m.ready; }).length;
+                    AmdLoader.moduleProgress(module.name, Math.round((done * 100) / total));
+                }
             }, function (error) {
                 reject(error);
             });
@@ -245,6 +252,34 @@ AmdLoader.moduleLoader = function (name, url, success, error) {
     xhr.open("GET", url);
     xhr.send();
 };
+AmdLoader.moduleProgress = (function () {
+    var progressDiv = document.createElement("div");
+    var style = progressDiv.style;
+    style.position = "absolute";
+    style.margin = "auto";
+    style.width = "200px";
+    style.height = "100px";
+    style.borderStyle = "solid";
+    style.borderWidth = "1px";
+    style.borderColor = "#A0A0A0";
+    style.borderRadius = "5px";
+    style.padding = "5px";
+    style.textAlign = "center";
+    style.verticalAlign = "middle";
+    var progressLabel = document.createElement("div");
+    progressDiv.appendChild(progressLabel);
+    progressLabel.style.color = "#A0A0A0";
+    document.body.appendChild(progressDiv);
+    return function (name, n) {
+        if (n >= 99) {
+            progressDiv.style.display = "none";
+        }
+        else {
+            progressDiv.style.display = "block";
+        }
+        progressLabel.textContent = "Loading ... (" + n + "%)";
+    };
+})();
 /// <reference path="./AmdLoader.ts"/>
 function define(requires, factory) {
     var current = AmdLoader.current;

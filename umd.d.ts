@@ -20,6 +20,7 @@ interface IModuleConfig {
     type: "amd" | "global";
 }
 declare class AmdLoader {
+    static moduleProgress: (name: string, progress: number) => void;
     static moduleLoader: (packageName: string, url: string, success: (r: any) => void, failed: (error: any) => void) => void;
     static instance: AmdLoader;
     static current: Module;

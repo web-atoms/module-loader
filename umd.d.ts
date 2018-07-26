@@ -11,15 +11,19 @@ declare class Module {
     code: () => Promise<any>;
     dependencies: Module[];
     type: "amd" | "global";
+    exportVar: string;
     factory: (r: any, e: any) => void;
     loader: Promise<any>;
     ready: boolean;
 }
 interface IModuleConfig {
+    name: string;
     url: string;
     type: "amd" | "global";
+    exportVar?: string;
 }
 declare class AmdLoader {
+    static globalVar: any;
     static moduleProgress: (name: string, progress: number) => void;
     static moduleLoader: (packageName: string, url: string, success: (r: any) => void, failed: (error: any) => void) => void;
     static instance: AmdLoader;
@@ -28,7 +32,7 @@ declare class AmdLoader {
     pathMap: {
         [key: string]: IModuleConfig;
     };
-    map(packageName: string, packageUrl: string, type?: ("amd" | "global")): void;
+    map(packageName: string, packageUrl: string, type?: ("amd" | "global"), exportVar?: string): void;
     resolveSource(name: string, defExt?: string): string;
     resolveRelativePath(name: string, currentPackage: string): string;
     get(name: string): Module;
@@ -41,7 +45,7 @@ declare class UMDClass {
     defaultApp: string;
     resolvePath(n: string): string;
     resolveViewPath(path: string): string;
-    map(name: string, path: string, type?: ("amd" | "global")): void;
+    map(name: string, path: string, type?: ("amd" | "global"), exportVar?: string): void;
     resolveViewClassAsync(path: string): Promise<any>;
     load(path: string, designMode?: boolean): Promise<any>;
     loadView(path: string, designMode?: boolean, appPath?: string): Promise<any>;

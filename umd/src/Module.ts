@@ -68,6 +68,8 @@ class Module {
 
     public type: "amd" | "global";
 
+    public exportVar: string;
+
     public factory: (r: any, e: any) => void;
 
     public loader: Promise<any>;

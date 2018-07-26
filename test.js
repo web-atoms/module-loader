@@ -13,6 +13,7 @@ function loadScript(file){
     script.runInThisContext();
 }
 
+global.document = null;
 loadScript("./umd.js");
 
 var http = require("https");

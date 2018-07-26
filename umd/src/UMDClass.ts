@@ -17,8 +17,9 @@ class UMDClass {
     public map(
         name: string,
         path: string,
-        type: ("amd" | "global") = "amd"): void {
-        AmdLoader.instance.map(name, path, type);
+        type: ("amd" | "global") = "amd",
+        exportVar?: string): void {
+        AmdLoader.instance.map(name, path, type, exportVar);
     }
 
     public async resolveViewClassAsync(path: string): Promise<any> {

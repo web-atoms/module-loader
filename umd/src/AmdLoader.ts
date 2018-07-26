@@ -2,11 +2,15 @@
 /// <reference path="./Module.ts"/>
 
 interface IModuleConfig {
+    name: string;
     url: string;
     type: "amd" | "global";
+    exportVar?: string;
 }
 
 class AmdLoader {
+
+    public static globalVar: any = {};
 
     public static moduleProgress: (name: string, progress: number) => void;
 
@@ -23,15 +27,19 @@ class AmdLoader {
     public map(
         packageName: string,
         packageUrl: string,
-        type: ("amd" | "global") = "amd"): void {
+        type: ("amd" | "global") = "amd",
+        exportVar?: string
+    ): void {
 
         if (/^(reflect\-metadata|systemjs)$/.test(packageName)) {
             type = "global";
         }
 
         this.pathMap[packageName] = {
+            name: packageName,
             url: packageUrl,
-            type: type
+            type: type,
+            exportVar
         };
     }
 
@@ -92,7 +100,13 @@ class AmdLoader {
             module.name = name;
             // module.url = this.resolvePath(name, AmdLoader.current.url);
             module.url = this.resolveSource(name);
-            module.type = (this.pathMap[name] || { type: "amd" }) .type || "amd";
+            const def: IModuleConfig = this.pathMap[name];
+            if (def) {
+                module.type = def.type || "amd";
+                module.exportVar = def.exportVar;
+            } else {
+                module.type = "amd";
+            }
             module.require = (n: string) => {
                 const an: string = this.resolveRelativePath(n, module.name);
                 const resolvedModule: Module = this.get(an);
@@ -127,6 +141,10 @@ class AmdLoader {
 
                 module.ready = true;
 
+                if (module.exportVar) {
+                    module.exports = AmdLoader.globalVar[module.exportVar];
+                }
+
                 module.onReady(() => {
                     resolve(module.getExports());
                 });
@@ -152,6 +170,8 @@ class AmdLoader {
 
 AmdLoader.moduleLoader = (name, url, success, error) => {
 
+    AmdLoader.globalVar = window;
+
     const xhr: XMLHttpRequest = new XMLHttpRequest();
     xhr.onreadystatechange = (e) => {
         if (xhr.readyState === XMLHttpRequest.DONE) {
@@ -174,6 +194,12 @@ AmdLoader.moduleLoader = (name, url, success, error) => {
 };
 
 AmdLoader.moduleProgress = (() => {
+
+    if (!document) {
+        return (name, p) => {
+            console.log(`${name} ${p}%`);
+        };
+    }
 
     const progressDiv: HTMLDivElement = document.createElement("div");
     const style: CSSStyleDeclaration = progressDiv.style;

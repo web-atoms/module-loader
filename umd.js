@@ -119,14 +119,16 @@ var AmdLoader = /** @class */ (function () {
         this.modules = [];
         this.pathMap = {};
     }
-    AmdLoader.prototype.map = function (packageName, packageUrl, type) {
+    AmdLoader.prototype.map = function (packageName, packageUrl, type, exportVar) {
         if (type === void 0) { type = "amd"; }
         if (/^(reflect\-metadata|systemjs)$/.test(packageName)) {
             type = "global";
         }
         this.pathMap[packageName] = {
+            name: packageName,
             url: packageUrl,
-            type: type
+            type: type,
+            exportVar: exportVar
         };
     };
     AmdLoader.prototype.resolveSource = function (name, defExt) {
@@ -180,7 +182,14 @@ var AmdLoader = /** @class */ (function () {
             module.name = name;
             // module.url = this.resolvePath(name, AmdLoader.current.url);
             module.url = this.resolveSource(name);
-            module.type = (this.pathMap[name] || { type: "amd" }).type || "amd";
+            var def = this.pathMap[name];
+            if (def) {
+                module.type = def.type || "amd";
+                module.exportVar = def.exportVar;
+            }
+            else {
+                module.type = "amd";
+            }
             module.require = function (n) {
                 var an = _this.resolveRelativePath(n, module.name);
                 var resolvedModule = _this.get(an);
@@ -215,6 +224,9 @@ var AmdLoader = /** @class */ (function () {
                 AmdLoader.current = module;
                 r();
                 module.ready = true;
+                if (module.exportVar) {
+                    module.exports = AmdLoader.globalVar[module.exportVar];
+                }
                 module.onReady(function () {
                     resolve(module.getExports());
                 });
@@ -230,11 +242,13 @@ var AmdLoader = /** @class */ (function () {
             });
         });
     };
+    AmdLoader.globalVar = {};
     AmdLoader.instance = new AmdLoader();
     AmdLoader.current = null;
     return AmdLoader;
 }());
 AmdLoader.moduleLoader = function (name, url, success, error) {
+    AmdLoader.globalVar = window;
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function (e) {
         if (xhr.readyState === XMLHttpRequest.DONE) {
@@ -253,6 +267,11 @@ AmdLoader.moduleLoader = function (name, url, success, error) {
     xhr.send();
 };
 AmdLoader.moduleProgress = (function () {
+    if (!document) {
+        return function (name, p) {
+            console.log(name + " " + p + "%");
+        };
+    }
     var progressDiv = document.createElement("div");
     var style = progressDiv.style;
     style.position = "absolute";
@@ -335,9 +354,9 @@ var UMDClass = /** @class */ (function () {
     UMDClass.prototype.resolveViewPath = function (path) {
         return path.replace("{platform}", this.viewPrefix);
     };
-    UMDClass.prototype.map = function (name, path, type) {
+    UMDClass.prototype.map = function (name, path, type, exportVar) {
         if (type === void 0) { type = "amd"; }
-        AmdLoader.instance.map(name, path, type);
+        AmdLoader.instance.map(name, path, type, exportVar);
     };
     UMDClass.prototype.resolveViewClassAsync = function (path) {
         return __awaiter(this, void 0, void 0, function () {

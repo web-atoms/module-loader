@@ -21,3 +21,26 @@ if(!Array.prototype.map) {
         return a;
     };
 }
+
+if(!String.prototype.endsWith) {
+    String.prototype.endsWith = function(searchString: string, endPosition?: number): boolean {
+        const index: number = (this as string).lastIndexOf(searchString, endPosition);
+        if (index === -1) {
+            return false;
+        }
+        const l: number = (this as string).length - index;
+        return l === searchString.length;
+    };
+}
+
+
+if(!String.prototype.endsWith) {
+    String.prototype.endsWith = function(searchString: string, endPosition?: number): boolean {
+        const index: number = (this as string).lastIndexOf(searchString, endPosition);
+        if (index === -1) {
+            return false;
+        }
+        const l: number = (this as string).length - index;
+        return l === searchString.length;
+    };
+}

@@ -56,9 +56,10 @@ class AmdLoader {
             if (defExt && !url.endsWith(".js")) {
                 url = url + ".js";
             }
+            console.log(`Url ${url} resolved for ${name}`);
             return url;
         } catch(e) {
-            console.error(`Failed to resolve ${name}`);
+            console.error(`Failed to resolve ${name} with error ${JSON.stringify(e)}`);
             console.error(e);
         }
     }
@@ -100,6 +101,9 @@ class AmdLoader {
             module.name = name;
             // module.url = this.resolvePath(name, AmdLoader.current.url);
             module.url = this.resolveSource(name);
+            if (!module.url) {
+                throw new Error(`No url mapped for ${name}`);
+            }
             const def: IModuleConfig = this.pathMap[name];
             if (def) {
                 module.type = def.type || "amd";

@@ -55,6 +55,26 @@ if (!Array.prototype.map) {
         return a;
     };
 }
+if (!String.prototype.endsWith) {
+    String.prototype.endsWith = function (searchString, endPosition) {
+        var index = this.lastIndexOf(searchString, endPosition);
+        if (index === -1) {
+            return false;
+        }
+        var l = this.length - index;
+        return l === searchString.length;
+    };
+}
+if (!String.prototype.endsWith) {
+    String.prototype.endsWith = function (searchString, endPosition) {
+        var index = this.lastIndexOf(searchString, endPosition);
+        if (index === -1) {
+            return false;
+        }
+        var l = this.length - index;
+        return l === searchString.length;
+    };
+}
 var Module = /** @class */ (function () {
     function Module() {
         this.handlers = [];
@@ -145,10 +165,11 @@ var AmdLoader = /** @class */ (function () {
             if (defExt && !url.endsWith(".js")) {
                 url = url + ".js";
             }
+            console.log("Url " + url + " resolved for " + name);
             return url;
         }
         catch (e) {
-            console.error("Failed to resolve " + name);
+            console.error("Failed to resolve " + name + " with error " + JSON.stringify(e));
             console.error(e);
         }
     };
@@ -182,6 +203,9 @@ var AmdLoader = /** @class */ (function () {
             module.name = name;
             // module.url = this.resolvePath(name, AmdLoader.current.url);
             module.url = this.resolveSource(name);
+            if (!module.url) {
+                throw new Error("No url mapped for " + name);
+            }
             var def = this.pathMap[name];
             if (def) {
                 module.type = def.type || "amd";

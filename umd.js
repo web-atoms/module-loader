@@ -154,6 +154,9 @@ var AmdLoader = /** @class */ (function () {
     AmdLoader.prototype.resolveSource = function (name, defExt) {
         if (defExt === void 0) { defExt = ".js"; }
         try {
+            if (name.startsWith("http://") || name.startsWith("https://") || name.startsWith("/")) {
+                return name;
+            }
             var tokens = name.split("/");
             var packageName = tokens[0];
             var path = this.pathMap[packageName].url;

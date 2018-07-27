@@ -45,6 +45,9 @@ class AmdLoader {
 
     public resolveSource(name: string, defExt: string = ".js"): string {
         try {
+            if (name.startsWith("http://") || name.startsWith("https://") || name.startsWith("/")) {
+                return name;
+            }
             const tokens: string[] = name.split("/");
             const packageName: string = tokens[0];
             let path: string = this.pathMap[packageName].url;

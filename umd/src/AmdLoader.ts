@@ -166,7 +166,10 @@ class AmdLoader {
                 const iterator:MockType = mts[key];
                 if(!iterator.loaded) {
 
-                    const ex: any = await this.import(`${module.folder}/${iterator.moduleName}`);
+                    const path: string = `${module.folder}/${iterator.moduleName}`;
+                    const resolvedName: string = this.resolveRelativePath(path, module.name);
+
+                    const ex: any = await this.import(resolvedName);
                     const type: any = ex[iterator.exportName];
                     iterator.replaced = type;
                     iterator.loaded = true;

@@ -149,8 +149,8 @@ var AmdLoader = /** @class */ (function () {
         this.modules = [];
         this.pathMap = {};
     }
-    AmdLoader.prototype.mock = function (type, name) {
-        this.mockTypes.push(new MockType(type, name));
+    AmdLoader.prototype.replace = function (type, name, mock) {
+        this.mockTypes.push(new MockType(type, name, mock));
     };
     AmdLoader.prototype.map = function (packageName, packageUrl, type, exportVar) {
         if (type === void 0) { type = "amd"; }
@@ -248,8 +248,9 @@ var AmdLoader = /** @class */ (function () {
                         return [4 /*yield*/, this.load(module)];
                     case 1:
                         _c.sent();
+                        this.mockTypes = [];
                         exports = module.getExports();
-                        if (!this.enableMock) return [3 /*break*/, 6];
+                        if (!this.mockTypes.length) return [3 /*break*/, 6];
                         mts = {};
                         if (!exports.__mockReplaced) {
                             exports.__mockReplaced = true;
@@ -257,7 +258,9 @@ var AmdLoader = /** @class */ (function () {
                                 if (exports.hasOwnProperty(key)) {
                                     var element_1 = exports[key];
                                     var mt = this_1.mockTypes.find(function (m) { return m.type === element_1; });
-                                    mts[key] = mt;
+                                    if (!mt.mock || this_1.enableMock) {
+                                        mts[key] = mt;
+                                    }
                                 }
                             };
                             this_1 = this;
@@ -282,11 +285,11 @@ var AmdLoader = /** @class */ (function () {
                     case 3:
                         ex = _c.sent();
                         type = ex[iterator.exportName];
-                        iterator.mock = type;
+                        iterator.replaced = type;
                         iterator.loaded = true;
                         _c.label = 4;
                     case 4:
-                        exports[key] = iterator.mock;
+                        exports[key] = iterator.replaced;
                         _c.label = 5;
                     case 5:
                         _i++;
@@ -425,12 +428,14 @@ function define(requires, factory) {
 }
 define.amd = true;
 var MockType = /** @class */ (function () {
-    function MockType(type, name, moduleName, exportName) {
+    function MockType(type, name, mock, moduleName, exportName) {
         this.type = type;
         this.name = name;
+        this.mock = mock;
         this.moduleName = moduleName;
         this.exportName = exportName;
         this.loaded = false;
+        name = name.replace("{lang}", UMD.lang);
         if (name.indexOf(".") !== -1) {
             var tokens = name.split(".");
             moduleName = tokens[0];
@@ -448,6 +453,7 @@ var UMDClass = /** @class */ (function () {
     function UMDClass() {
         this.viewPrefix = "web";
         this.defaultApp = "web-atoms-core/dist/web/WebApp";
+        this.lang = "en-US";
     }
     UMDClass.prototype.resolvePath = function (n) {
         return AmdLoader.instance.resolveSource(n, null);
@@ -460,7 +466,10 @@ var UMDClass = /** @class */ (function () {
         AmdLoader.instance.map(name, path, type, exportVar);
     };
     UMDClass.prototype.mockType = function (type, name) {
-        AmdLoader.instance.mock(type, name);
+        AmdLoader.instance.replace(type, name, true);
+    };
+    UMDClass.prototype.inject = function (type, name) {
+        AmdLoader.instance.replace(type, name, false);
     };
     UMDClass.prototype.mock = function () {
         AmdLoader.instance.enableMock = true;

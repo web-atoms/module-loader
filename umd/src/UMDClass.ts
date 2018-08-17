@@ -6,6 +6,8 @@ class UMDClass {
 
     public defaultApp = "web-atoms-core/dist/web/WebApp";
 
+    public lang = "en-US";
+
     public resolvePath(n: string): string {
         return AmdLoader.instance.resolveSource(n, null);
     }
@@ -23,7 +25,11 @@ class UMDClass {
     }
 
     public mockType(type: any, name: string): void {
-        AmdLoader.instance.mock(type, name);
+        AmdLoader.instance.replace(type, name, true);
+    }
+
+    public inject(type: any, name: string): void {
+        AmdLoader.instance.replace(type, name, false);
     }
 
     public mock(): void {

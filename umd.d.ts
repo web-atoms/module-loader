@@ -36,7 +36,7 @@ declare class AmdLoader {
         [key: string]: IModuleConfig;
     };
     enableMock: boolean;
-    mock(type: any, name: string): void;
+    replace(type: any, name: string, mock: boolean): void;
     map(packageName: string, packageUrl: string, type?: ("amd" | "global"), exportVar?: string): void;
     resolveSource(name: string, defExt?: string): string;
     resolveRelativePath(name: string, currentPackage: string): string;
@@ -48,19 +48,22 @@ declare function define(requires: string[], factory: (r: any, e: any) => void): 
 declare class MockType {
     type: any;
     name: string;
+    mock: boolean;
     readonly moduleName: string;
     readonly exportName: string;
     loaded: boolean;
-    mock: any;
-    constructor(type: any, name: string, moduleName?: string, exportName?: string);
+    replaced: any;
+    constructor(type: any, name: string, mock: boolean, moduleName?: string, exportName?: string);
 }
 declare class UMDClass {
     viewPrefix: string;
     defaultApp: string;
+    lang: string;
     resolvePath(n: string): string;
     resolveViewPath(path: string): string;
     map(name: string, path: string, type?: ("amd" | "global"), exportVar?: string): void;
     mockType(type: any, name: string): void;
+    inject(type: any, name: string): void;
     mock(): void;
     resolveViewClassAsync(path: string): Promise<any>;
     load(path: string, designMode?: boolean): Promise<any>;

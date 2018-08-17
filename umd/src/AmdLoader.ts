@@ -28,8 +28,8 @@ class AmdLoader {
     public pathMap: { [key: string]: IModuleConfig } = {};
     enableMock: boolean;
 
-    public mock(type: any, name: string): void {
-        this.mockTypes.push(new MockType(type, name));
+    public replace(type: any, name: string, mock: boolean): void {
+        this.mockTypes.push(new MockType(type, name, mock));
     }
 
     public map(
@@ -137,10 +137,12 @@ class AmdLoader {
 
         await this.load(module);
 
+        this.mockTypes = [];
+
         // tslint:disable-next-line:typedef
         const exports = module.getExports();
 
-        if (this.enableMock) {
+        if (this.mockTypes.length) {
 
             const mts: { [key: string]: MockType } = {};
 
@@ -150,7 +152,9 @@ class AmdLoader {
                     if (exports.hasOwnProperty(key)) {
                         const element: any = exports[key];
                         const mt: MockType = this.mockTypes.find((m) => m.type === element);
-                        mts[key] = mt;
+                        if(!mt.mock || this.enableMock) {
+                            mts[key] = mt;
+                        }
                     }
                 }
             }
@@ -164,10 +168,10 @@ class AmdLoader {
 
                     const ex: any = await this.import(`${module.folder}/${iterator.moduleName}`);
                     const type: any = ex[iterator.exportName];
-                    iterator.mock = type;
+                    iterator.replaced = type;
                     iterator.loaded = true;
                 }
-                exports[key] = iterator.mock;
+                exports[key] = iterator.replaced;
             }
         }
 

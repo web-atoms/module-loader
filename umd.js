@@ -532,7 +532,9 @@ var UMDClass = /** @class */ (function () {
             var a, al;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, AmdLoader.instance.import("web-atoms-core/dist/Atom")];
+                    case 0:
+                        this.mock = designMode;
+                        return [4 /*yield*/, AmdLoader.instance.import("web-atoms-core/dist/Atom")];
                     case 1:
                         a = _a.sent();
                         a.Atom.designMode = designMode;
@@ -552,6 +554,7 @@ var UMDClass = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        this.mock = designMode;
                         appPath = appPath || this.defaultApp;
                         return [4 /*yield*/, this.load(appPath, designMode)];
                     case 1:

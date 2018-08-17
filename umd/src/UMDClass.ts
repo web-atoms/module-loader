@@ -51,6 +51,7 @@ class UMDClass {
     }
 
     public async load(path: string, designMode?: boolean): Promise<any> {
+        this.mock = designMode;
         const a: any = await AmdLoader.instance.import("web-atoms-core/dist/Atom");
         a.Atom.designMode = designMode;
         const al: any = await AmdLoader.instance.import("web-atoms-core/dist/core/AtomList");
@@ -58,6 +59,7 @@ class UMDClass {
     }
 
     public async loadView(path: string, designMode?: boolean, appPath?: string): Promise<any> {
+        this.mock = designMode;
         appPath = appPath || this.defaultApp;
         const m: any = await this.load(appPath, designMode);
         const app: any = new (m.default)();

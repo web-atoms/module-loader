@@ -276,12 +276,12 @@ var AmdLoader = /** @class */ (function () {
                         iterator = pendings_1[_i];
                         containerModule = this.findModule(iterator.type);
                         resolvedName = this.resolveRelativePath(iterator.moduleName, containerModule.name);
+                        iterator.loaded = true;
                         return [4 /*yield*/, this.import(resolvedName)];
                     case 3:
                         ex = _a.sent();
                         type = ex[iterator.exportName];
                         iterator.replaced = type;
-                        iterator.loaded = true;
                         _a.label = 4;
                     case 4:
                         _i++;

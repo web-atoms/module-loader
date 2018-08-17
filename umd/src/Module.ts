@@ -2,6 +2,18 @@ class Module {
 
     private handlers: Array<() => void> = [];
 
+    constructor(
+        public readonly name: string,
+        public readonly folder?: string
+    ) {
+        const index: number = name.lastIndexOf("/");
+        if (index === -1) {
+            folder = "";
+        } else {
+            folder = name.substr(0, index);
+        }
+    }
+
     public onReady(h: () => void): void {
         // remove self after execution...
         const a: any = {
@@ -42,8 +54,6 @@ class Module {
             iterator();
         }
     }
-
-    public name: string;
 
     public url: string;
 

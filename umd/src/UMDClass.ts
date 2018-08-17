@@ -22,6 +22,14 @@ class UMDClass {
         AmdLoader.instance.map(name, path, type, exportVar);
     }
 
+    public mockType(type: any, name: string): void {
+        AmdLoader.instance.mock(type, name);
+    }
+
+    public mock(): void {
+        AmdLoader.instance.enableMock = true;
+    }
+
     public async resolveViewClassAsync(path: string): Promise<any> {
         path = this.resolveViewPath(path);
         const e: any = await AmdLoader.instance.import(path);

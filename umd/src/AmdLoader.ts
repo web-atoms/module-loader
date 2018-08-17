@@ -10,6 +10,9 @@ interface IModuleConfig {
 
 class AmdLoader {
 
+
+    private mockTypes: MockType[] = [];
+
     public static globalVar: any = {};
 
     public static moduleProgress: (name: string, progress: number) => void;
@@ -23,6 +26,11 @@ class AmdLoader {
     public modules: Module[] = [];
 
     public pathMap: { [key: string]: IModuleConfig } = {};
+    enableMock: boolean;
+
+    public mock(type: any, name: string): void {
+        this.mockTypes.push(new MockType(type, name));
+    }
 
     public map(
         packageName: string,
@@ -100,8 +108,7 @@ class AmdLoader {
     public get(name: string): Module {
         let module: Module = this.modules.find( (x) => x.name === name);
         if (!module) {
-            module = new Module();
-            module.name = name;
+            module = new Module(name);
             // module.url = this.resolvePath(name, AmdLoader.current.url);
             module.url = this.resolveSource(name);
             if (!module.url) {
@@ -130,7 +137,41 @@ class AmdLoader {
 
         await this.load(module);
 
-        return module.getExports();
+        // tslint:disable-next-line:typedef
+        const exports = module.getExports();
+
+        if (this.enableMock) {
+
+            const mts: { [key: string]: MockType } = {};
+
+            if(!exports.__mockReplaced) {
+                exports.__mockReplaced = true;
+                for (const key in exports) {
+                    if (exports.hasOwnProperty(key)) {
+                        const element: any = exports[key];
+                        const mt: MockType = this.mockTypes.find((m) => m.type === element);
+                        mts[key] = mt;
+                    }
+                }
+            }
+
+            for (const key in mts) {
+                if(!mts.hasOwnProperty(key)) {
+                    continue;
+                }
+                const iterator:MockType = mts[key];
+                if(!iterator.loaded) {
+
+                    const ex: any = await this.import(`${module.folder}/${iterator.moduleName}`);
+                    const type: any = ex[iterator.exportName];
+                    iterator.mock = type;
+                    iterator.loaded = true;
+                }
+                exports[key] = iterator.mock;
+            }
+        }
+
+        return exports;
     }
 
     public load(module: Module): Promise<any> {

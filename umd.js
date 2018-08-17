@@ -248,25 +248,23 @@ var AmdLoader = /** @class */ (function () {
                         return [4 /*yield*/, this.load(module)];
                     case 1:
                         _c.sent();
-                        this.mockTypes = [];
                         exports = module.getExports();
                         if (!this.mockTypes.length) return [3 /*break*/, 6];
+                        if (!!exports.__mockReplaced) return [3 /*break*/, 6];
                         mts = {};
-                        if (!exports.__mockReplaced) {
-                            exports.__mockReplaced = true;
-                            _loop_1 = function (key) {
-                                if (exports.hasOwnProperty(key)) {
-                                    var element_1 = exports[key];
-                                    var mt = this_1.mockTypes.find(function (m) { return m.type === element_1; });
-                                    if (!mt.mock || this_1.enableMock) {
-                                        mts[key] = mt;
-                                    }
+                        exports.__mockReplaced = true;
+                        _loop_1 = function (key) {
+                            if (exports.hasOwnProperty(key)) {
+                                var element_1 = exports[key];
+                                var mt = this_1.mockTypes.find(function (m) { return m.type === element_1; });
+                                if (!mt.mock || this_1.enableMock) {
+                                    mts[key] = mt;
                                 }
-                            };
-                            this_1 = this;
-                            for (key in exports) {
-                                _loop_1(key);
                             }
+                        };
+                        this_1 = this;
+                        for (key in exports) {
+                            _loop_1(key);
                         }
                         _a = [];
                         for (_b in mts)

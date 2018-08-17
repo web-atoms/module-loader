@@ -137,16 +137,13 @@ class AmdLoader {
 
         await this.load(module);
 
-        this.mockTypes = [];
-
         // tslint:disable-next-line:typedef
         const exports = module.getExports();
 
         if (this.mockTypes.length) {
 
-            const mts: { [key: string]: MockType } = {};
-
             if(!exports.__mockReplaced) {
+                const mts: { [key: string]: MockType } = {};
                 exports.__mockReplaced = true;
                 for (const key in exports) {
                     if (exports.hasOwnProperty(key)) {
@@ -157,24 +154,24 @@ class AmdLoader {
                         }
                     }
                 }
-            }
 
-            for (const key in mts) {
-                if(!mts.hasOwnProperty(key)) {
-                    continue;
+                for (const key in mts) {
+                    if(!mts.hasOwnProperty(key)) {
+                        continue;
+                    }
+                    const iterator:MockType = mts[key];
+                    if(!iterator.loaded) {
+
+                        const path: string = `${module.folder}/${iterator.moduleName}`;
+                        const resolvedName: string = this.resolveRelativePath(path, module.name);
+
+                        const ex: any = await this.import(resolvedName);
+                        const type: any = ex[iterator.exportName];
+                        iterator.replaced = type;
+                        iterator.loaded = true;
+                    }
+                    exports[key] = iterator.replaced;
                 }
-                const iterator:MockType = mts[key];
-                if(!iterator.loaded) {
-
-                    const path: string = `${module.folder}/${iterator.moduleName}`;
-                    const resolvedName: string = this.resolveRelativePath(path, module.name);
-
-                    const ex: any = await this.import(resolvedName);
-                    const type: any = ex[iterator.exportName];
-                    iterator.replaced = type;
-                    iterator.loaded = true;
-                }
-                exports[key] = iterator.replaced;
             }
         }
 

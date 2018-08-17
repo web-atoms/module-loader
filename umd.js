@@ -257,7 +257,7 @@ var AmdLoader = /** @class */ (function () {
                             if (exports.hasOwnProperty(key)) {
                                 var element_1 = exports[key];
                                 var mt = this_1.mockTypes.find(function (m) { return m.type === element_1; });
-                                if (!mt.mock || this_1.enableMock) {
+                                if (mt && (!mt.mock || this_1.enableMock)) {
                                     mts[key] = mt;
                                 }
                             }

@@ -149,7 +149,7 @@ class AmdLoader {
                     if (exports.hasOwnProperty(key)) {
                         const element: any = exports[key];
                         const mt: MockType = this.mockTypes.find((m) => m.type === element);
-                        if(!mt.mock || this.enableMock) {
+                        if(mt && ( !mt.mock || this.enableMock)) {
                             mts[key] = mt;
                         }
                     }

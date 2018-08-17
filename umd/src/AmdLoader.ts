@@ -162,6 +162,9 @@ class AmdLoader {
 
         const pendings: MockType[] = this.mockTypes.filter((t) => !t.loaded );
         for (const iterator of pendings) {
+            iterator.loaded = true;
+        }
+        for (const iterator of pendings) {
             const containerModule: Module = this.findModule(iterator.type);
             // const path: string = `${containerModule.folder}/${iterator.moduleName}`;
             const resolvedName: string = this.resolveRelativePath(iterator.moduleName, containerModule.name);

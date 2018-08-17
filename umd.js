@@ -259,32 +259,36 @@ var AmdLoader = /** @class */ (function () {
     };
     AmdLoader.prototype.import = function (name) {
         return __awaiter(this, void 0, void 0, function () {
-            var module, exports, pendings, _i, pendings_1, iterator, containerModule, resolvedName, ex, type;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var module, exports, pendings, _i, pendings_1, iterator, _a, pendings_2, iterator, containerModule, resolvedName, ex, type;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         module = this.get(name);
                         return [4 /*yield*/, this.load(module)];
                     case 1:
-                        _a.sent();
+                        _b.sent();
                         exports = module.getExports();
                         pendings = this.mockTypes.filter(function (t) { return !t.loaded; });
-                        _i = 0, pendings_1 = pendings;
-                        _a.label = 2;
+                        for (_i = 0, pendings_1 = pendings; _i < pendings_1.length; _i++) {
+                            iterator = pendings_1[_i];
+                            iterator.loaded = true;
+                        }
+                        _a = 0, pendings_2 = pendings;
+                        _b.label = 2;
                     case 2:
-                        if (!(_i < pendings_1.length)) return [3 /*break*/, 5];
-                        iterator = pendings_1[_i];
+                        if (!(_a < pendings_2.length)) return [3 /*break*/, 5];
+                        iterator = pendings_2[_a];
                         containerModule = this.findModule(iterator.type);
                         resolvedName = this.resolveRelativePath(iterator.moduleName, containerModule.name);
                         iterator.loaded = true;
                         return [4 /*yield*/, this.import(resolvedName)];
                     case 3:
-                        ex = _a.sent();
+                        ex = _b.sent();
                         type = ex[iterator.exportName];
                         iterator.replaced = type;
-                        _a.label = 4;
+                        _b.label = 4;
                     case 4:
-                        _i++;
+                        _a++;
                         return [3 /*break*/, 2];
                     case 5: 
                     // load all mocks and injects...

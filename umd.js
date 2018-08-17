@@ -268,7 +268,7 @@ var AmdLoader = /** @class */ (function () {
                     case 1:
                         _a.sent();
                         exports = module.getExports();
-                        pendings = this.mockTypes.filter(function (t) { return !t.replaced; });
+                        pendings = this.mockTypes.filter(function (t) { return !t.loaded; });
                         _i = 0, pendings_1 = pendings;
                         _a.label = 2;
                     case 2:

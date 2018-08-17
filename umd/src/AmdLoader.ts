@@ -160,7 +160,7 @@ class AmdLoader {
         // tslint:disable-next-line:typedef
         const exports = module.getExports();
 
-        const pendings: MockType[] = this.mockTypes.filter((t) => !t.replaced );
+        const pendings: MockType[] = this.mockTypes.filter((t) => !t.loaded );
         for (const iterator of pendings) {
             const containerModule: Module = this.findModule(iterator.type);
             // const path: string = `${containerModule.folder}/${iterator.moduleName}`;

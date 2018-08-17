@@ -8,9 +8,9 @@ class Module {
     ) {
         const index: number = name.lastIndexOf("/");
         if (index === -1) {
-            folder = "";
+            this.folder = "";
         } else {
-            folder = name.substr(0, index);
+            this.folder = name.substr(0, index);
         }
     }
 

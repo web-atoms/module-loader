@@ -10,15 +10,15 @@ class MockType {
         public readonly moduleName?: string,
         public readonly exportName?: string) {
 
-            name = name.replace("{lang}", UMD.lang);
+            this.name = name = name.replace("{lang}", UMD.lang);
 
             if(name.indexOf(".") !== -1) {
                 const tokens: string[] = name.split(".");
-                moduleName = tokens[0];
-                exportName = tokens[1];
+                this.moduleName = tokens[0];
+                this.exportName = tokens[1];
             } else {
-                moduleName = name;
-                exportName = "default";
+                this.moduleName = name;
+                this.exportName = "default";
             }
         }
 

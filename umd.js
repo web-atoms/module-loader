@@ -84,10 +84,10 @@ var Module = /** @class */ (function () {
         this.ready = false;
         var index = name.lastIndexOf("/");
         if (index === -1) {
-            folder = "";
+            this.folder = "";
         }
         else {
-            folder = name.substr(0, index);
+            this.folder = name.substr(0, index);
         }
     }
     Module.prototype.onReady = function (h) {
@@ -460,15 +460,15 @@ var MockType = /** @class */ (function () {
         this.moduleName = moduleName;
         this.exportName = exportName;
         this.loaded = false;
-        name = name.replace("{lang}", UMD.lang);
+        this.name = name = name.replace("{lang}", UMD.lang);
         if (name.indexOf(".") !== -1) {
             var tokens = name.split(".");
-            moduleName = tokens[0];
-            exportName = tokens[1];
+            this.moduleName = tokens[0];
+            this.exportName = tokens[1];
         }
         else {
-            moduleName = name;
-            exportName = "default";
+            this.moduleName = name;
+            this.exportName = "default";
         }
     }
     return MockType;

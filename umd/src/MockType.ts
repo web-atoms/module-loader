@@ -12,8 +12,8 @@ class MockType {
 
             this.name = name = name.replace("{lang}", UMD.lang);
 
-            if(name.indexOf(".") !== -1) {
-                const tokens: string[] = name.split(".");
+            if(name.indexOf("$") !== -1) {
+                const tokens: string[] = name.split("$");
                 this.moduleName = tokens[0];
                 this.exportName = tokens[1];
             } else {

@@ -275,7 +275,7 @@ var AmdLoader = /** @class */ (function () {
                         if (!(_i < pendings_1.length)) return [3 /*break*/, 5];
                         iterator = pendings_1[_i];
                         containerModule = this.findModule(iterator.type);
-                        path = module.folder + "/" + iterator.moduleName;
+                        path = containerModule.folder + "/" + iterator.moduleName;
                         resolvedName = this.resolveRelativePath(path, containerModule.name);
                         return [4 /*yield*/, this.import(resolvedName)];
                     case 3:
@@ -461,8 +461,8 @@ var MockType = /** @class */ (function () {
         this.exportName = exportName;
         this.loaded = false;
         this.name = name = name.replace("{lang}", UMD.lang);
-        if (name.indexOf(".") !== -1) {
-            var tokens = name.split(".");
+        if (name.indexOf("$") !== -1) {
+            var tokens = name.split("$");
             this.moduleName = tokens[0];
             this.exportName = tokens[1];
         }

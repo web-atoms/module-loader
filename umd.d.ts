@@ -59,12 +59,12 @@ declare class UMDClass {
     viewPrefix: string;
     defaultApp: string;
     lang: string;
+    mock: boolean;
     resolvePath(n: string): string;
     resolveViewPath(path: string): string;
     map(name: string, path: string, type?: ("amd" | "global"), exportVar?: string): void;
     mockType(type: any, name: string): void;
     inject(type: any, name: string): void;
-    mock(): void;
     resolveViewClassAsync(path: string): Promise<any>;
     load(path: string, designMode?: boolean): Promise<any>;
     loadView(path: string, designMode?: boolean, appPath?: string): Promise<any>;

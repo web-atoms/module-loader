@@ -455,6 +455,16 @@ var UMDClass = /** @class */ (function () {
         this.defaultApp = "web-atoms-core/dist/web/WebApp";
         this.lang = "en-US";
     }
+    Object.defineProperty(UMDClass.prototype, "mock", {
+        get: function () {
+            return AmdLoader.instance.enableMock;
+        },
+        set: function (v) {
+            AmdLoader.instance.enableMock = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
     UMDClass.prototype.resolvePath = function (n) {
         return AmdLoader.instance.resolveSource(n, null);
     };
@@ -470,9 +480,6 @@ var UMDClass = /** @class */ (function () {
     };
     UMDClass.prototype.inject = function (type, name) {
         AmdLoader.instance.replace(type, name, false);
-    };
-    UMDClass.prototype.mock = function () {
-        AmdLoader.instance.enableMock = true;
     };
     UMDClass.prototype.resolveViewClassAsync = function (path) {
         return __awaiter(this, void 0, void 0, function () {

@@ -8,6 +8,14 @@ class UMDClass {
 
     public lang = "en-US";
 
+    public get mock(): boolean {
+        return AmdLoader.instance.enableMock;
+    }
+
+    public set mock(v: boolean) {
+        AmdLoader.instance.enableMock = v;
+    }
+
     public resolvePath(n: string): string {
         return AmdLoader.instance.resolveSource(n, null);
     }
@@ -30,10 +38,6 @@ class UMDClass {
 
     public inject(type: any, name: string): void {
         AmdLoader.instance.replace(type, name, false);
-    }
-
-    public mock(): void {
-        AmdLoader.instance.enableMock = true;
     }
 
     public async resolveViewClassAsync(path: string): Promise<any> {

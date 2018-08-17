@@ -163,8 +163,8 @@ class AmdLoader {
         const pendings: MockType[] = this.mockTypes.filter((t) => !t.replaced );
         for (const iterator of pendings) {
             const containerModule: Module = this.findModule(iterator.type);
-            const path: string = `${containerModule.folder}/${iterator.moduleName}`;
-            const resolvedName: string = this.resolveRelativePath(path, containerModule.name);
+            // const path: string = `${containerModule.folder}/${iterator.moduleName}`;
+            const resolvedName: string = this.resolveRelativePath(iterator.moduleName, containerModule.name);
 
             const ex: any = await this.import(resolvedName);
             const type: any = ex[iterator.exportName];

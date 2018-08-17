@@ -259,7 +259,7 @@ var AmdLoader = /** @class */ (function () {
     };
     AmdLoader.prototype.import = function (name) {
         return __awaiter(this, void 0, void 0, function () {
-            var module, exports, pendings, _i, pendings_1, iterator, containerModule, path, resolvedName, ex, type;
+            var module, exports, pendings, _i, pendings_1, iterator, containerModule, resolvedName, ex, type;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -275,8 +275,7 @@ var AmdLoader = /** @class */ (function () {
                         if (!(_i < pendings_1.length)) return [3 /*break*/, 5];
                         iterator = pendings_1[_i];
                         containerModule = this.findModule(iterator.type);
-                        path = containerModule.folder + "/" + iterator.moduleName;
-                        resolvedName = this.resolveRelativePath(path, containerModule.name);
+                        resolvedName = this.resolveRelativePath(iterator.moduleName, containerModule.name);
                         return [4 /*yield*/, this.import(resolvedName)];
                     case 3:
                         ex = _a.sent();

@@ -24,6 +24,10 @@ class UMDClass {
         return path.replace("{platform}", this.viewPrefix);
     }
 
+    public resolveType(type: any): any {
+        return AmdLoader.instance.resolveType(type);
+    }
+
     public map(
         name: string,
         path: string,

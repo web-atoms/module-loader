@@ -32,6 +32,11 @@ class AmdLoader {
         this.mockTypes.push(new MockType(type, name, mock));
     }
 
+    public resolveType(type: any): any {
+        const t: MockType = this.mockTypes.find((t) => t.type === type);
+        return t ? t.replaced : type;
+    }
+
     public map(
         packageName: string,
         packageUrl: string,
@@ -131,6 +136,21 @@ class AmdLoader {
         return module;
     }
 
+    public findModule(type: any): Module {
+        for (const iterator of this.modules) {
+            const exports: any = iterator.getExports();
+            for (const key in exports) {
+                if (exports.hasOwnProperty(key)) {
+                    const element: any = exports[key];
+                    if (element === type) {
+                        return iterator;
+                    }
+                }
+            }
+        }
+        throw new Error(`No module found containing type ${type}`);
+    }
+
     public async import(name: string): Promise<any> {
 
         let module: Module = this.get(name);
@@ -140,40 +160,54 @@ class AmdLoader {
         // tslint:disable-next-line:typedef
         const exports = module.getExports();
 
-        if (this.mockTypes.length) {
+        const pendings: MockType[] = this.mockTypes.filter((t) => !t.replaced );
+        for (const iterator of pendings) {
+            const containerModule: Module = this.findModule(iterator.type);
+            const path: string = `${module.folder}/${iterator.moduleName}`;
+            const resolvedName: string = this.resolveRelativePath(path, containerModule.name);
 
-            if(!exports.__mockReplaced) {
-                const mts: { [key: string]: MockType } = {};
-                exports.__mockReplaced = true;
-                for (const key in exports) {
-                    if (exports.hasOwnProperty(key)) {
-                        const element: any = exports[key];
-                        const mt: MockType = this.mockTypes.find((m) => m.type === element);
-                        if(mt && ( !mt.mock || this.enableMock)) {
-                            mts[key] = mt;
-                        }
-                    }
-                }
-
-                for (const key in mts) {
-                    if(!mts.hasOwnProperty(key)) {
-                        continue;
-                    }
-                    const iterator:MockType = mts[key];
-                    if(!iterator.loaded) {
-
-                        const path: string = `${module.folder}/${iterator.moduleName}`;
-                        const resolvedName: string = this.resolveRelativePath(path, module.name);
-
-                        const ex: any = await this.import(resolvedName);
-                        const type: any = ex[iterator.exportName];
-                        iterator.replaced = type;
-                        iterator.loaded = true;
-                    }
-                    exports[key] = iterator.replaced;
-                }
-            }
+            const ex: any = await this.import(resolvedName);
+            const type: any = ex[iterator.exportName];
+            iterator.replaced = type;
+            iterator.loaded = true;
         }
+
+        // load all mocks and injects...
+
+        // if (this.mockTypes.length) {
+
+        //     if(!exports.__mockReplaced) {
+        //         const mts: { [key: string]: MockType } = {};
+        //         exports.__mockReplaced = true;
+        //         for (const key in exports) {
+        //             if (exports.hasOwnProperty(key)) {
+        //                 const element: any = exports[key];
+        //                 const mt: MockType = this.mockTypes.find((m) => m.type === element);
+        //                 if(mt && ( !mt.mock || this.enableMock)) {
+        //                     mts[key] = mt;
+        //                 }
+        //             }
+        //         }
+
+        //         for (const key in mts) {
+        //             if(!mts.hasOwnProperty(key)) {
+        //                 continue;
+        //             }
+        //             const iterator:MockType = mts[key];
+        //             if(!iterator.loaded) {
+
+        //                 const path: string = `${module.folder}/${iterator.moduleName}`;
+        //                 const resolvedName: string = this.resolveRelativePath(path, module.name);
+
+        //                 const ex: any = await this.import(resolvedName);
+        //                 const type: any = ex[iterator.exportName];
+        //                 iterator.replaced = type;
+        //                 iterator.loaded = true;
+        //             }
+        //             exports[key] = iterator.replaced;
+        //         }
+        //     }
+        // }
 
         return exports;
     }

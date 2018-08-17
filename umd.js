@@ -152,6 +152,10 @@ var AmdLoader = /** @class */ (function () {
     AmdLoader.prototype.replace = function (type, name, mock) {
         this.mockTypes.push(new MockType(type, name, mock));
     };
+    AmdLoader.prototype.resolveType = function (type) {
+        var t = this.mockTypes.find(function (t) { return t.type === type; });
+        return t ? t.replaced : type;
+    };
     AmdLoader.prototype.map = function (packageName, packageUrl, type, exportVar) {
         if (type === void 0) { type = "amd"; }
         if (/^(reflect\-metadata|systemjs)$/.test(packageName)) {
@@ -238,63 +242,84 @@ var AmdLoader = /** @class */ (function () {
         }
         return module;
     };
+    AmdLoader.prototype.findModule = function (type) {
+        for (var _i = 0, _a = this.modules; _i < _a.length; _i++) {
+            var iterator = _a[_i];
+            var exports_1 = iterator.getExports();
+            for (var key in exports_1) {
+                if (exports_1.hasOwnProperty(key)) {
+                    var element = exports_1[key];
+                    if (element === type) {
+                        return iterator;
+                    }
+                }
+            }
+        }
+        throw new Error("No module found containing type " + type);
+    };
     AmdLoader.prototype.import = function (name) {
         return __awaiter(this, void 0, void 0, function () {
-            var module, exports, mts, _loop_1, this_1, key, _a, _b, _i, key, iterator, path, resolvedName, ex, type;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var module, exports, pendings, _i, pendings_1, iterator, containerModule, path, resolvedName, ex, type;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
                         module = this.get(name);
                         return [4 /*yield*/, this.load(module)];
                     case 1:
-                        _c.sent();
+                        _a.sent();
                         exports = module.getExports();
-                        if (!this.mockTypes.length) return [3 /*break*/, 6];
-                        if (!!exports.__mockReplaced) return [3 /*break*/, 6];
-                        mts = {};
-                        exports.__mockReplaced = true;
-                        _loop_1 = function (key) {
-                            if (exports.hasOwnProperty(key)) {
-                                var element_1 = exports[key];
-                                var mt = this_1.mockTypes.find(function (m) { return m.type === element_1; });
-                                if (mt && (!mt.mock || this_1.enableMock)) {
-                                    mts[key] = mt;
-                                }
-                            }
-                        };
-                        this_1 = this;
-                        for (key in exports) {
-                            _loop_1(key);
-                        }
-                        _a = [];
-                        for (_b in mts)
-                            _a.push(_b);
-                        _i = 0;
-                        _c.label = 2;
+                        pendings = this.mockTypes.filter(function (t) { return !t.replaced; });
+                        _i = 0, pendings_1 = pendings;
+                        _a.label = 2;
                     case 2:
-                        if (!(_i < _a.length)) return [3 /*break*/, 6];
-                        key = _a[_i];
-                        if (!mts.hasOwnProperty(key)) {
-                            return [3 /*break*/, 5];
-                        }
-                        iterator = mts[key];
-                        if (!!iterator.loaded) return [3 /*break*/, 4];
+                        if (!(_i < pendings_1.length)) return [3 /*break*/, 5];
+                        iterator = pendings_1[_i];
+                        containerModule = this.findModule(iterator.type);
                         path = module.folder + "/" + iterator.moduleName;
-                        resolvedName = this.resolveRelativePath(path, module.name);
+                        resolvedName = this.resolveRelativePath(path, containerModule.name);
                         return [4 /*yield*/, this.import(resolvedName)];
                     case 3:
-                        ex = _c.sent();
+                        ex = _a.sent();
                         type = ex[iterator.exportName];
                         iterator.replaced = type;
                         iterator.loaded = true;
-                        _c.label = 4;
+                        _a.label = 4;
                     case 4:
-                        exports[key] = iterator.replaced;
-                        _c.label = 5;
-                    case 5:
                         _i++;
                         return [3 /*break*/, 2];
-                    case 6: return [2 /*return*/, exports];
+                    case 5: 
+                    // load all mocks and injects...
+                    // if (this.mockTypes.length) {
+                    //     if(!exports.__mockReplaced) {
+                    //         const mts: { [key: string]: MockType } = {};
+                    //         exports.__mockReplaced = true;
+                    //         for (const key in exports) {
+                    //             if (exports.hasOwnProperty(key)) {
+                    //                 const element: any = exports[key];
+                    //                 const mt: MockType = this.mockTypes.find((m) => m.type === element);
+                    //                 if(mt && ( !mt.mock || this.enableMock)) {
+                    //                     mts[key] = mt;
+                    //                 }
+                    //             }
+                    //         }
+                    //         for (const key in mts) {
+                    //             if(!mts.hasOwnProperty(key)) {
+                    //                 continue;
+                    //             }
+                    //             const iterator:MockType = mts[key];
+                    //             if(!iterator.loaded) {
+                    //                 const path: string = `${module.folder}/${iterator.moduleName}`;
+                    //                 const resolvedName: string = this.resolveRelativePath(path, module.name);
+                    //                 const ex: any = await this.import(resolvedName);
+                    //                 const type: any = ex[iterator.exportName];
+                    //                 iterator.replaced = type;
+                    //                 iterator.loaded = true;
+                    //             }
+                    //             exports[key] = iterator.replaced;
+                    //         }
+                    //     }
+                    // }
+                    return [2 /*return*/, exports];
                 }
             });
         });
@@ -470,6 +495,9 @@ var UMDClass = /** @class */ (function () {
     };
     UMDClass.prototype.resolveViewPath = function (path) {
         return path.replace("{platform}", this.viewPrefix);
+    };
+    UMDClass.prototype.resolveType = function (type) {
+        return AmdLoader.instance.resolveType(type);
     };
     UMDClass.prototype.map = function (name, path, type, exportVar) {
         if (type === void 0) { type = "amd"; }

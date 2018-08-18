@@ -150,6 +150,9 @@ var AmdLoader = /** @class */ (function () {
         this.pathMap = {};
     }
     AmdLoader.prototype.replace = function (type, name, mock) {
+        if (mock && !this.enableMock) {
+            return;
+        }
         this.mockTypes.push(new MockType(type, name, mock));
     };
     AmdLoader.prototype.resolveType = function (type) {

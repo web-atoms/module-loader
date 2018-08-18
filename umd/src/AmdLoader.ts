@@ -29,6 +29,9 @@ class AmdLoader {
     enableMock: boolean;
 
     public replace(type: any, name: string, mock: boolean): void {
+        if (mock && !this.enableMock) {
+            return;
+        }
         this.mockTypes.push(new MockType(type, name, mock));
     }
 

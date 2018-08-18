@@ -31,7 +31,7 @@ declare class AmdLoader {
     static moduleLoader: (packageName: string, url: string, success: (r: any) => void, failed: (error: any) => void) => void;
     static instance: AmdLoader;
     static current: Module;
-    static currentInitializingModule: Module;
+    currentStack: Module[];
     modules: Module[];
     pathMap: {
         [key: string]: IModuleConfig;

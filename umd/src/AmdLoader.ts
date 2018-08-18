@@ -23,7 +23,7 @@ class AmdLoader {
 
     public static current: Module = null;
 
-    public static currentInitializingModule: Module = null;
+    public currentStack: Module[] = [];
 
     public modules: Module[] = [];
 
@@ -34,7 +34,8 @@ class AmdLoader {
         if (mock && !this.enableMock) {
             return;
         }
-        this.mockTypes.push(new MockType(AmdLoader.currentInitializingModule, type, name, mock));
+        const peek: Module = this.currentStack[this.currentStack.length-1];
+        this.mockTypes.push(new MockType(peek, type, name, mock));
     }
 
     public resolveType(type: any): any {

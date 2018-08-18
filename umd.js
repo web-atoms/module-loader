@@ -135,8 +135,9 @@ var Module = /** @class */ (function () {
         }
         this.exports = {};
         if (this.factory) {
-            AmdLoader.currentInitializingModule = this;
+            AmdLoader.instance.currentStack.push(this);
             this.factory(this.require, this.exports);
+            AmdLoader.instance.currentStack.pop();
         }
         return this.exports;
     };
@@ -147,6 +148,7 @@ var Module = /** @class */ (function () {
 var AmdLoader = /** @class */ (function () {
     function AmdLoader() {
         this.mockTypes = [];
+        this.currentStack = [];
         this.modules = [];
         this.pathMap = {};
     }
@@ -154,7 +156,8 @@ var AmdLoader = /** @class */ (function () {
         if (mock && !this.enableMock) {
             return;
         }
-        this.mockTypes.push(new MockType(AmdLoader.currentInitializingModule, type, name, mock));
+        var peek = this.currentStack[this.currentStack.length - 1];
+        this.mockTypes.push(new MockType(peek, type, name, mock));
     };
     AmdLoader.prototype.resolveType = function (type) {
         var t = this.mockTypes.find(function (t) { return t.type === type; });
@@ -315,7 +318,6 @@ var AmdLoader = /** @class */ (function () {
     AmdLoader.globalVar = {};
     AmdLoader.instance = new AmdLoader();
     AmdLoader.current = null;
-    AmdLoader.currentInitializingModule = null;
     return AmdLoader;
 }());
 AmdLoader.moduleLoader = function (name, url, success, error) {

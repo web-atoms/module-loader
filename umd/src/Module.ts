@@ -65,6 +65,7 @@ class Module {
         }
         this.exports = {};
         if (this.factory) {
+            AmdLoader.currentInitializingModule = this;
             this.factory(this.require, this.exports);
         }
         return this.exports;

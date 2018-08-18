@@ -4,6 +4,7 @@ class MockType {
     public replaced: any;
 
     constructor(
+        public readonly module: Module,
         public type: any,
         public name: string,
         public mock: boolean,

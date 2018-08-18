@@ -23,6 +23,8 @@ class AmdLoader {
 
     public static current: Module = null;
 
+    public static currentInitializingModule: Module = null;
+
     public modules: Module[] = [];
 
     public pathMap: { [key: string]: IModuleConfig } = {};
@@ -32,7 +34,7 @@ class AmdLoader {
         if (mock && !this.enableMock) {
             return;
         }
-        this.mockTypes.push(new MockType(type, name, mock));
+        this.mockTypes.push(new MockType(AmdLoader.currentInitializingModule, type, name, mock));
     }
 
     public resolveType(type: any): any {
@@ -139,21 +141,6 @@ class AmdLoader {
         return module;
     }
 
-    public findModule(type: any): Module {
-        for (const iterator of this.modules) {
-            const exports: any = iterator.getExports();
-            for (const key in exports) {
-                if (exports.hasOwnProperty(key)) {
-                    const element: any = exports[key];
-                    if (element === type) {
-                        return iterator;
-                    }
-                }
-            }
-        }
-        throw new Error(`No module found containing type ${type}`);
-    }
-
     public async import(name: string): Promise<any> {
 
         let module: Module = this.get(name);
@@ -163,56 +150,22 @@ class AmdLoader {
         // tslint:disable-next-line:typedef
         const exports = module.getExports();
 
+        // load requested dependencies for mock or abstract injects
         const pendings: MockType[] = this.mockTypes.filter((t) => !t.loaded );
-        for (const iterator of pendings) {
-            iterator.loaded = true;
+        if (pendings.length) {
+            for (const iterator of pendings) {
+                iterator.loaded = true;
+            }
+            for (const iterator of pendings) {
+                const containerModule: Module = iterator.module;
+                // const path: string = `${containerModule.folder}/${iterator.moduleName}`;
+                const resolvedName: string = this.resolveRelativePath(iterator.moduleName, containerModule.name);
+                iterator.loaded = true;
+                const ex: any = await this.import(resolvedName);
+                const type: any = ex[iterator.exportName];
+                iterator.replaced = type;
+            }
         }
-        for (const iterator of pendings) {
-            const containerModule: Module = this.findModule(iterator.type);
-            // const path: string = `${containerModule.folder}/${iterator.moduleName}`;
-            const resolvedName: string = this.resolveRelativePath(iterator.moduleName, containerModule.name);
-            iterator.loaded = true;
-            const ex: any = await this.import(resolvedName);
-            const type: any = ex[iterator.exportName];
-            iterator.replaced = type;
-        }
-
-        // load all mocks and injects...
-
-        // if (this.mockTypes.length) {
-
-        //     if(!exports.__mockReplaced) {
-        //         const mts: { [key: string]: MockType } = {};
-        //         exports.__mockReplaced = true;
-        //         for (const key in exports) {
-        //             if (exports.hasOwnProperty(key)) {
-        //                 const element: any = exports[key];
-        //                 const mt: MockType = this.mockTypes.find((m) => m.type === element);
-        //                 if(mt && ( !mt.mock || this.enableMock)) {
-        //                     mts[key] = mt;
-        //                 }
-        //             }
-        //         }
-
-        //         for (const key in mts) {
-        //             if(!mts.hasOwnProperty(key)) {
-        //                 continue;
-        //             }
-        //             const iterator:MockType = mts[key];
-        //             if(!iterator.loaded) {
-
-        //                 const path: string = `${module.folder}/${iterator.moduleName}`;
-        //                 const resolvedName: string = this.resolveRelativePath(path, module.name);
-
-        //                 const ex: any = await this.import(resolvedName);
-        //                 const type: any = ex[iterator.exportName];
-        //                 iterator.replaced = type;
-        //                 iterator.loaded = true;
-        //             }
-        //             exports[key] = iterator.replaced;
-        //         }
-        //     }
-        // }
 
         return exports;
     }

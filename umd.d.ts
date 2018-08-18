@@ -31,6 +31,7 @@ declare class AmdLoader {
     static moduleLoader: (packageName: string, url: string, success: (r: any) => void, failed: (error: any) => void) => void;
     static instance: AmdLoader;
     static current: Module;
+    static currentInitializingModule: Module;
     modules: Module[];
     pathMap: {
         [key: string]: IModuleConfig;
@@ -42,12 +43,12 @@ declare class AmdLoader {
     resolveSource(name: string, defExt?: string): string;
     resolveRelativePath(name: string, currentPackage: string): string;
     get(name: string): Module;
-    findModule(type: any): Module;
     import(name: string): Promise<any>;
     load(module: Module): Promise<any>;
 }
 declare function define(requires: string[], factory: (r: any, e: any) => void): void;
 declare class MockType {
+    readonly module: Module;
     type: any;
     name: string;
     mock: boolean;
@@ -55,7 +56,7 @@ declare class MockType {
     readonly exportName: string;
     loaded: boolean;
     replaced: any;
-    constructor(type: any, name: string, mock: boolean, moduleName?: string, exportName?: string);
+    constructor(module: Module, type: any, name: string, mock: boolean, moduleName?: string, exportName?: string);
 }
 declare class UMDClass {
     viewPrefix: string;

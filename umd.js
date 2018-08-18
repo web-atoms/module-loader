@@ -135,6 +135,7 @@ var Module = /** @class */ (function () {
         }
         this.exports = {};
         if (this.factory) {
+            AmdLoader.currentInitializingModule = this;
             this.factory(this.require, this.exports);
         }
         return this.exports;
@@ -153,7 +154,7 @@ var AmdLoader = /** @class */ (function () {
         if (mock && !this.enableMock) {
             return;
         }
-        this.mockTypes.push(new MockType(type, name, mock));
+        this.mockTypes.push(new MockType(AmdLoader.currentInitializingModule, type, name, mock));
     };
     AmdLoader.prototype.resolveType = function (type) {
         var t = this.mockTypes.find(function (t) { return t.type === type; });
@@ -245,21 +246,6 @@ var AmdLoader = /** @class */ (function () {
         }
         return module;
     };
-    AmdLoader.prototype.findModule = function (type) {
-        for (var _i = 0, _a = this.modules; _i < _a.length; _i++) {
-            var iterator = _a[_i];
-            var exports_1 = iterator.getExports();
-            for (var key in exports_1) {
-                if (exports_1.hasOwnProperty(key)) {
-                    var element = exports_1[key];
-                    if (element === type) {
-                        return iterator;
-                    }
-                }
-            }
-        }
-        throw new Error("No module found containing type " + type);
-    };
     AmdLoader.prototype.import = function (name) {
         return __awaiter(this, void 0, void 0, function () {
             var module, exports, pendings, _i, pendings_1, iterator, _a, pendings_2, iterator, containerModule, resolvedName, ex, type;
@@ -272,6 +258,7 @@ var AmdLoader = /** @class */ (function () {
                         _b.sent();
                         exports = module.getExports();
                         pendings = this.mockTypes.filter(function (t) { return !t.loaded; });
+                        if (!pendings.length) return [3 /*break*/, 5];
                         for (_i = 0, pendings_1 = pendings; _i < pendings_1.length; _i++) {
                             iterator = pendings_1[_i];
                             iterator.loaded = true;
@@ -281,7 +268,7 @@ var AmdLoader = /** @class */ (function () {
                     case 2:
                         if (!(_a < pendings_2.length)) return [3 /*break*/, 5];
                         iterator = pendings_2[_a];
-                        containerModule = this.findModule(iterator.type);
+                        containerModule = iterator.module;
                         resolvedName = this.resolveRelativePath(iterator.moduleName, containerModule.name);
                         iterator.loaded = true;
                         return [4 /*yield*/, this.import(resolvedName)];
@@ -293,39 +280,7 @@ var AmdLoader = /** @class */ (function () {
                     case 4:
                         _a++;
                         return [3 /*break*/, 2];
-                    case 5: 
-                    // load all mocks and injects...
-                    // if (this.mockTypes.length) {
-                    //     if(!exports.__mockReplaced) {
-                    //         const mts: { [key: string]: MockType } = {};
-                    //         exports.__mockReplaced = true;
-                    //         for (const key in exports) {
-                    //             if (exports.hasOwnProperty(key)) {
-                    //                 const element: any = exports[key];
-                    //                 const mt: MockType = this.mockTypes.find((m) => m.type === element);
-                    //                 if(mt && ( !mt.mock || this.enableMock)) {
-                    //                     mts[key] = mt;
-                    //                 }
-                    //             }
-                    //         }
-                    //         for (const key in mts) {
-                    //             if(!mts.hasOwnProperty(key)) {
-                    //                 continue;
-                    //             }
-                    //             const iterator:MockType = mts[key];
-                    //             if(!iterator.loaded) {
-                    //                 const path: string = `${module.folder}/${iterator.moduleName}`;
-                    //                 const resolvedName: string = this.resolveRelativePath(path, module.name);
-                    //                 const ex: any = await this.import(resolvedName);
-                    //                 const type: any = ex[iterator.exportName];
-                    //                 iterator.replaced = type;
-                    //                 iterator.loaded = true;
-                    //             }
-                    //             exports[key] = iterator.replaced;
-                    //         }
-                    //     }
-                    // }
-                    return [2 /*return*/, exports];
+                    case 5: return [2 /*return*/, exports];
                 }
             });
         });
@@ -361,6 +316,7 @@ var AmdLoader = /** @class */ (function () {
     AmdLoader.globalVar = {};
     AmdLoader.instance = new AmdLoader();
     AmdLoader.current = null;
+    AmdLoader.currentInitializingModule = null;
     return AmdLoader;
 }());
 AmdLoader.moduleLoader = function (name, url, success, error) {
@@ -459,7 +415,8 @@ function define(requires, factory) {
 }
 define.amd = true;
 var MockType = /** @class */ (function () {
-    function MockType(type, name, mock, moduleName, exportName) {
+    function MockType(module, type, name, mock, moduleName, exportName) {
+        this.module = module;
         this.type = type;
         this.name = name;
         this.mock = mock;

@@ -270,7 +270,6 @@ var AmdLoader = /** @class */ (function () {
                         iterator = pendings_2[_a];
                         containerModule = iterator.module;
                         resolvedName = this.resolveRelativePath(iterator.moduleName, containerModule.name);
-                        iterator.loaded = true;
                         return [4 /*yield*/, this.import(resolvedName)];
                     case 3:
                         ex = _b.sent();

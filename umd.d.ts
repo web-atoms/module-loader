@@ -32,7 +32,9 @@ declare class AmdLoader {
     static instance: AmdLoader;
     static current: Module;
     currentStack: Module[];
-    modules: Module[];
+    modules: {
+        [key: string]: Module;
+    };
     pathMap: {
         [key: string]: IModuleConfig;
     };

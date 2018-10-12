@@ -149,7 +149,7 @@ var AmdLoader = /** @class */ (function () {
     function AmdLoader() {
         this.mockTypes = [];
         this.currentStack = [];
-        this.modules = [];
+        this.modules = {};
         this.pathMap = {};
     }
     AmdLoader.prototype.replace = function (type, name, mock) {
@@ -224,7 +224,7 @@ var AmdLoader = /** @class */ (function () {
     };
     AmdLoader.prototype.get = function (name) {
         var _this = this;
-        var module = this.modules.find(function (x) { return x.name === name; });
+        var module = this.modules[name];
         if (!module) {
             module = new Module(name);
             // module.url = this.resolvePath(name, AmdLoader.current.url);
@@ -245,7 +245,7 @@ var AmdLoader = /** @class */ (function () {
                 var resolvedModule = _this.get(an);
                 return resolvedModule.getExports();
             };
-            this.modules.push(module);
+            this.modules[name] = module;
         }
         return module;
     };
@@ -306,8 +306,21 @@ var AmdLoader = /** @class */ (function () {
                 module.finish();
                 if (AmdLoader.moduleProgress) {
                     // lets calculate how much...
-                    var total = _this.modules.length;
-                    var done = _this.modules.filter(function (m) { return m.ready; }).length;
+                    // const total: number = this.modules.length;
+                    // const done: number = this.modules.filter( (m) => m.ready ).length;
+                    var total = 0;
+                    var done = 0;
+                    for (var key in _this.modules) {
+                        if (_this.modules.hasOwnProperty(key)) {
+                            var mitem = _this.modules[key];
+                            if (mitem instanceof Module) {
+                                if (mitem.ready) {
+                                    done++;
+                                }
+                                total++;
+                            }
+                        }
+                    }
                     AmdLoader.moduleProgress(module.name, Math.round((done * 100) / total));
                 }
             }, function (error) {

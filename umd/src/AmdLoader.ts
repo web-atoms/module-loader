@@ -25,7 +25,7 @@ class AmdLoader {
 
     public currentStack: Module[] = [];
 
-    public modules: Module[] = [];
+    public modules: { [key: string]: Module } = {};
 
     public pathMap: { [key: string]: IModuleConfig } = {};
     enableMock: boolean;
@@ -117,7 +117,7 @@ class AmdLoader {
     }
 
     public get(name: string): Module {
-        let module: Module = this.modules.find( (x) => x.name === name);
+        let module: Module = this.modules[name];
         if (!module) {
             module = new Module(name);
             // module.url = this.resolvePath(name, AmdLoader.current.url);
@@ -137,7 +137,7 @@ class AmdLoader {
                 const resolvedModule: Module = this.get(an);
                 return resolvedModule.getExports();
             };
-            this.modules.push(module);
+            this.modules[name] = module;
         }
         return module;
     }
@@ -196,8 +196,23 @@ class AmdLoader {
 
                 if (AmdLoader.moduleProgress) {
                     // lets calculate how much...
-                    const total: number = this.modules.length;
-                    const done: number = this.modules.filter( (m) => m.ready ).length;
+                    // const total: number = this.modules.length;
+                    // const done: number = this.modules.filter( (m) => m.ready ).length;
+
+                    let total: number = 0;
+                    let done: number = 0;
+
+                    for (const key in this.modules) {
+                        if (this.modules.hasOwnProperty(key)) {
+                            const mitem: any = this.modules[key];
+                            if (mitem instanceof Module) {
+                                if (mitem.ready) {
+                                    done ++;
+                                }
+                                total ++;
+                            }
+                        }
+                    }
 
                     AmdLoader.moduleProgress(module.name, Math.round( (done * 100)/total ));
                 }

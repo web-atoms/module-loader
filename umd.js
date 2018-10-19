@@ -192,7 +192,7 @@ var AmdLoader = /** @class */ (function () {
             if (defExt && !url.endsWith(".js")) {
                 url = url + ".js";
             }
-            console.log("Url " + url + " resolved for " + name);
+            // console.log(`Url ${url} resolved for ${name}`);
             return url;
         }
         catch (e) {
@@ -364,6 +364,7 @@ AmdLoader.moduleProgress = (function () {
     style.margin = "auto";
     style.width = "200px";
     style.height = "100px";
+    style.top = style.left = style.right = style.bottom = "0";
     style.borderStyle = "solid";
     style.borderWidth = "1px";
     style.borderColor = "#A0A0A0";

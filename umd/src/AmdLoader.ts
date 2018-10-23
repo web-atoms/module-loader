@@ -64,9 +64,7 @@ class AmdLoader {
 
     public resolveSource(name: string, defExt: string = ".js"): string {
         try {
-            if (name.startsWith("http://") ||
-                name.startsWith("https://") ||
-                name.startsWith("/")) {
+            if (/^((\/)|((http|https)\:\/\/))/i.test(name)) {
                 return name;
             }
             let path: string = null;
@@ -87,15 +85,6 @@ class AmdLoader {
                     }
                 }
             }
-            // const tokens: string[] = name.split("/");
-            // const packageName: string = tokens[0];
-            // tokens[0] = path;
-            // let url: string = tokens.join("/");
-            // if (defExt && !url.endsWith(".js")) {
-            //     url = url + ".js";
-            // }
-            // // console.log(`Url ${url} resolved for ${name}`);
-            // return url;
             return name;
         } catch(e) {
             console.error(`Failed to resolve ${name} with error ${JSON.stringify(e)}`);
@@ -104,8 +93,6 @@ class AmdLoader {
     }
 
     public resolveRelativePath(name: string, currentPackage: string): string {
-
-        // const absolutePath: string = this.pathMap[currentPackage].url;
 
         if (name.charAt(0) !== ".") {
             return name;

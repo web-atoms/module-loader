@@ -178,9 +178,7 @@ var AmdLoader = /** @class */ (function () {
     AmdLoader.prototype.resolveSource = function (name, defExt) {
         if (defExt === void 0) { defExt = ".js"; }
         try {
-            if (name.startsWith("http://") ||
-                name.startsWith("https://") ||
-                name.startsWith("/")) {
+            if (/^((\/)|((http|https)\:\/\/))/i.test(name)) {
                 return name;
             }
             var path = null;
@@ -201,15 +199,6 @@ var AmdLoader = /** @class */ (function () {
                     }
                 }
             }
-            // const tokens: string[] = name.split("/");
-            // const packageName: string = tokens[0];
-            // tokens[0] = path;
-            // let url: string = tokens.join("/");
-            // if (defExt && !url.endsWith(".js")) {
-            //     url = url + ".js";
-            // }
-            // // console.log(`Url ${url} resolved for ${name}`);
-            // return url;
             return name;
         }
         catch (e) {
@@ -218,7 +207,6 @@ var AmdLoader = /** @class */ (function () {
         }
     };
     AmdLoader.prototype.resolveRelativePath = function (name, currentPackage) {
-        // const absolutePath: string = this.pathMap[currentPackage].url;
         if (name.charAt(0) !== ".") {
             return name;
         }

@@ -23,6 +23,10 @@ var define = global.define;
 
 var keepAlive = new http.Agent({ keepAlive: true});
 
+AmdLoader.moduleProgress = function() {
+    
+};
+
 AmdLoader.moduleLoader = function(name, url, success, error) {
     console.log("Loading '" + name + "': " + url);
     var options = new URL.URL(url);

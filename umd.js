@@ -178,22 +178,39 @@ var AmdLoader = /** @class */ (function () {
     AmdLoader.prototype.resolveSource = function (name, defExt) {
         if (defExt === void 0) { defExt = ".js"; }
         try {
-            if (name.startsWith("http://") || name.startsWith("https://") || name.startsWith("/")) {
+            if (name.startsWith("http://") ||
+                name.startsWith("https://") ||
+                name.startsWith("/")) {
                 return name;
             }
-            var tokens = name.split("/");
-            var packageName = tokens[0];
-            var path = this.pathMap[packageName].url;
-            if (path.endsWith("/")) {
-                path = path.substr(0, path.length - 1);
+            var path = null;
+            for (var key in this.pathMap) {
+                if (this.pathMap.hasOwnProperty(key)) {
+                    var packageName = key + "/";
+                    if (name.startsWith(packageName)) {
+                        name = name.substr(packageName.length);
+                        path = this.pathMap[key].url;
+                        if (path.endsWith("/")) {
+                            path = path.substr(0, path.length - 1);
+                        }
+                        path = path + "/" + name;
+                        if (defExt && !path.endsWith(".js")) {
+                            path = path + ".js";
+                        }
+                        return path;
+                    }
+                }
             }
-            tokens[0] = path;
-            var url = tokens.join("/");
-            if (defExt && !url.endsWith(".js")) {
-                url = url + ".js";
-            }
-            // console.log(`Url ${url} resolved for ${name}`);
-            return url;
+            // const tokens: string[] = name.split("/");
+            // const packageName: string = tokens[0];
+            // tokens[0] = path;
+            // let url: string = tokens.join("/");
+            // if (defExt && !url.endsWith(".js")) {
+            //     url = url + ".js";
+            // }
+            // // console.log(`Url ${url} resolved for ${name}`);
+            // return url;
+            return name;
         }
         catch (e) {
             console.error("Failed to resolve " + name + " with error " + JSON.stringify(e));

@@ -64,22 +64,39 @@ class AmdLoader {
 
     public resolveSource(name: string, defExt: string = ".js"): string {
         try {
-            if (name.startsWith("http://") || name.startsWith("https://") || name.startsWith("/")) {
+            if (name.startsWith("http://") ||
+                name.startsWith("https://") ||
+                name.startsWith("/")) {
                 return name;
             }
-            const tokens: string[] = name.split("/");
-            const packageName: string = tokens[0];
-            let path: string = this.pathMap[packageName].url;
-            if (path.endsWith("/")) {
-                path = path.substr(0, path.length-1);
+            let path: string = null;
+            for (const key in this.pathMap) {
+                if (this.pathMap.hasOwnProperty(key)) {
+                    const packageName: string = key + "/";
+                    if (name.startsWith(packageName)) {
+                        name = name.substr(packageName.length);
+                        path = this.pathMap[key].url;
+                        if (path.endsWith("/")) {
+                            path = path.substr(0, path.length-1);
+                        }
+                        path = path + "/" + name;
+                        if (defExt && !path.endsWith(".js")) {
+                            path = path + ".js";
+                        }
+                        return path;
+                    }
+                }
             }
-            tokens[0] = path;
-            let url: string = tokens.join("/");
-            if (defExt && !url.endsWith(".js")) {
-                url = url + ".js";
-            }
-            // console.log(`Url ${url} resolved for ${name}`);
-            return url;
+            // const tokens: string[] = name.split("/");
+            // const packageName: string = tokens[0];
+            // tokens[0] = path;
+            // let url: string = tokens.join("/");
+            // if (defExt && !url.endsWith(".js")) {
+            //     url = url + ".js";
+            // }
+            // // console.log(`Url ${url} resolved for ${name}`);
+            // return url;
+            return name;
         } catch(e) {
             console.error(`Failed to resolve ${name} with error ${JSON.stringify(e)}`);
             console.error(e);

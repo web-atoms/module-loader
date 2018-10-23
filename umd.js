@@ -179,15 +179,24 @@ var AmdLoader = /** @class */ (function () {
         if (defExt === void 0) { defExt = ".js"; }
         try {
             if (/^((\/)|((http|https)\:\/\/))/i.test(name)) {
+                // console.log(`ResolveSource fail: ${name}`);
                 return name;
             }
             var path = null;
             for (var key in this.pathMap) {
                 if (this.pathMap.hasOwnProperty(key)) {
-                    var packageName = key + "/";
+                    var packageName = key;
                     if (name.startsWith(packageName)) {
-                        name = name.substr(packageName.length);
                         path = this.pathMap[key].url;
+                        if (name.length !== packageName.length) {
+                            if (name[packageName.length] !== "/") {
+                                continue;
+                            }
+                        }
+                        else {
+                            return path;
+                        }
+                        name = name.substr(packageName.length);
                         if (path.endsWith("/")) {
                             path = path.substr(0, path.length - 1);
                         }

@@ -65,15 +65,23 @@ class AmdLoader {
     public resolveSource(name: string, defExt: string = ".js"): string {
         try {
             if (/^((\/)|((http|https)\:\/\/))/i.test(name)) {
+                // console.log(`ResolveSource fail: ${name}`);
                 return name;
             }
             let path: string = null;
             for (const key in this.pathMap) {
                 if (this.pathMap.hasOwnProperty(key)) {
-                    const packageName: string = key + "/";
+                    const packageName: string = key;
                     if (name.startsWith(packageName)) {
-                        name = name.substr(packageName.length);
                         path = this.pathMap[key].url;
+                        if (name.length !== packageName.length) {
+                            if (name[packageName.length] !== "/") {
+                                continue;
+                            }
+                        } else {
+                            return path;
+                        }
+                        name = name.substr(packageName.length);
                         if (path.endsWith("/")) {
                             path = path.substr(0, path.length-1);
                         }

@@ -78,10 +78,10 @@ class AmdLoader {
                             if (name[packageName.length] !== "/") {
                                 continue;
                             }
+                            name = name.substr(packageName.length + 1);
                         } else {
                             return path;
                         }
-                        name = name.substr(packageName.length);
                         if (path.endsWith("/")) {
                             path = path.substr(0, path.length-1);
                         }

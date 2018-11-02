@@ -249,7 +249,7 @@ AmdLoader.moduleLoader = (name, url, success, error) => {
                 success(() => {
 
                     const errorCheck: string = `
-} catch(e) { if(e.stack) { alert(e.message + '\r\n' + e.stack); } else { alert(e); } }`;
+} catch(e) { if(e.stack) { alert(e.message + '\\r\\n' + e.stack); } else { alert(e); } }`;
 
                     // tslint:disable-next-line:no-eval
                     eval(`"use strict"; try { ${xhr.responseText} ${errorCheck}

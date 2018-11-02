@@ -354,9 +354,9 @@ AmdLoader.moduleLoader = function (name, url, success, error) {
         if (xhr.readyState === XMLHttpRequest.DONE) {
             if (xhr.status === 200) {
                 success(function () {
-                    var errorCheck = "catch(e) { if(e.stack) { alert(e.message + '\r\n' + e.stack); } else { alert(e); } }";
+                    var errorCheck = "\ncatch(e) { if(e.stack) { alert(e.message + '\r\n' + e.stack); } else { alert(e); } }";
                     // tslint:disable-next-line:no-eval
-                    eval("\n                    \"use strict\"; try { " + xhr.responseText + " } " + errorCheck + "\n//# sourceURL=" + url);
+                    eval("\"use strict\"; try { " + xhr.responseText + " } " + errorCheck + "\n//# sourceURL=" + url);
                 });
             }
             else {

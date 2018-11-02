@@ -1,3 +1,8 @@
+// tslint:disable-next-line:typedef
+window.onerror = function(msg, url, line, col) {
+    alert(`${msg}\r\n${url}:${line}:${col}`);
+};
+
 if(!Array.prototype.find) {
     Array.prototype.find = function(predicate: (value: any, index: number, obj: any[]) => boolean, thisArg?: any): any | undefined {
         for (let i: number = 0; i<this.length; i++) {

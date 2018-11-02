@@ -33,6 +33,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+// tslint:disable-next-line:typedef
+window.onerror = function (msg, url, line, col) {
+    alert(msg + "\r\n" + url + ":" + line + ":" + col);
+};
 if (!Array.prototype.find) {
     Array.prototype.find = function (predicate, thisArg) {
         for (var i = 0; i < this.length; i++) {

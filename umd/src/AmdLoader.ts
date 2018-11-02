@@ -248,7 +248,7 @@ AmdLoader.moduleLoader = (name, url, success, error) => {
             if (xhr.status === 200) {
                 success(() => {
 
-                    const errorCheck: string = `catch(e) { if(e.stack) { alert(e.message + "\r\n" + e.stack); } else { alert(e); } }`;
+                    const errorCheck: string = `catch(e) { if(e.stack) { alert(e.message + '\r\n' + e.stack); } else { alert(e); } }`;
 
                     // tslint:disable-next-line:no-eval
                     eval(`

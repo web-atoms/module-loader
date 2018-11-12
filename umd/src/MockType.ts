@@ -11,7 +11,9 @@ class MockType {
         public readonly moduleName?: string,
         public readonly exportName?: string) {
 
-            this.name = name = name.replace("{lang}", UMD.lang);
+            this.name = name = name
+                .replace("{lang}", UMD.lang)
+                .replace("{platform}", UMD.viewPrefix);
 
             if(name.indexOf("$") !== -1) {
                 const tokens: string[] = name.split("$");

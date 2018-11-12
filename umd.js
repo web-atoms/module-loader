@@ -453,7 +453,9 @@ var MockType = /** @class */ (function () {
         this.moduleName = moduleName;
         this.exportName = exportName;
         this.loaded = false;
-        this.name = name = name.replace("{lang}", UMD.lang);
+        this.name = name = name
+            .replace("{lang}", UMD.lang)
+            .replace("{platform}", UMD.viewPrefix);
         if (name.indexOf("$") !== -1) {
             var tokens = name.split("$");
             this.moduleName = tokens[0];

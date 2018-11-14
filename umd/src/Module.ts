@@ -66,7 +66,15 @@ class Module {
         this.exports = {};
         if (this.factory) {
             AmdLoader.instance.currentStack.push(this);
-            this.factory(this.require, this.exports);
+            const result: any = this.factory(this.require, this.exports);
+            if (result) {
+                for (const key in result) {
+                    if (result.hasOwnProperty(key)) {
+                        const element: any = result[key];
+                        this.exports[key] = element;
+                    }
+                }
+            }
             AmdLoader.instance.currentStack.pop();
         }
         return this.exports;

@@ -136,7 +136,15 @@ var Module = /** @class */ (function () {
         this.exports = {};
         if (this.factory) {
             AmdLoader.instance.currentStack.push(this);
-            this.factory(this.require, this.exports);
+            var result = this.factory(this.require, this.exports);
+            if (result) {
+                for (var key in result) {
+                    if (result.hasOwnProperty(key)) {
+                        var element = result[key];
+                        this.exports[key] = element;
+                    }
+                }
+            }
             AmdLoader.instance.currentStack.pop();
         }
         return this.exports;

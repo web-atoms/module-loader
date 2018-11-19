@@ -73,6 +73,13 @@ declare class UMDClass {
     inject(type: any, name: string): void;
     resolveViewClassAsync(path: string): Promise<any>;
     load(path: string, designMode?: boolean): Promise<any>;
+    /**
+     * Host the view inside given element with given id
+     * @param id id of element to host view in
+     * @param path path of module
+     * @param designMode true/false (default false)
+     */
+    hostView(id: string, path: string, designMode?: boolean): Promise<any>;
     loadView(path: string, designMode?: boolean, appPath?: string): Promise<any>;
 }
 declare const UMD: UMDClass;

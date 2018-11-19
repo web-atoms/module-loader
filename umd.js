@@ -547,6 +547,56 @@ var UMDClass = /** @class */ (function () {
             });
         });
     };
+    /**
+     * Host the view inside given element with given id
+     * @param id id of element to host view in
+     * @param path path of module
+     * @param designMode true/false (default false)
+     */
+    UMDClass.prototype.hostView = function (id, path, designMode) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            var m, app_1, e_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        this.mock = designMode;
+                        return [4 /*yield*/, this.load(this.defaultApp, designMode)];
+                    case 1:
+                        m = _a.sent();
+                        app_1 = new (m.default)();
+                        app_1.onReady(function () { return __awaiter(_this, void 0, void 0, function () {
+                            var viewClass, view, element, e_2;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        _a.trys.push([0, 2, , 3]);
+                                        return [4 /*yield*/, AmdLoader.instance.import(path)];
+                                    case 1:
+                                        viewClass = _a.sent();
+                                        view = new (viewClass.default)(app_1);
+                                        element = document.getElementById(id);
+                                        element.appendChild(view.element);
+                                        return [3 /*break*/, 3];
+                                    case 2:
+                                        e_2 = _a.sent();
+                                        console.error(e_2);
+                                        return [3 /*break*/, 3];
+                                    case 3: return [2 /*return*/];
+                                }
+                            });
+                        }); });
+                        return [3 /*break*/, 3];
+                    case 2:
+                        e_1 = _a.sent();
+                        console.error(e_1);
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
     UMDClass.prototype.loadView = function (path, designMode, appPath) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
@@ -561,7 +611,7 @@ var UMDClass = /** @class */ (function () {
                         m = _a.sent();
                         app = new (m.default)();
                         app.onReady(function () { return __awaiter(_this, void 0, void 0, function () {
-                            var viewClass, view, e_1;
+                            var viewClass, view, e_3;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
@@ -573,8 +623,8 @@ var UMDClass = /** @class */ (function () {
                                         app.root = view;
                                         return [3 /*break*/, 3];
                                     case 2:
-                                        e_1 = _a.sent();
-                                        console.error(e_1);
+                                        e_3 = _a.sent();
+                                        console.error(e_3);
                                         return [3 /*break*/, 3];
                                     case 3: return [2 /*return*/];
                                 }

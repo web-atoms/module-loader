@@ -58,6 +58,33 @@ class UMDClass {
         return await AmdLoader.instance.import(path);
     }
 
+    /**
+     * Host the view inside given element with given id
+     * @param id id of element to host view in
+     * @param path path of module
+     * @param designMode true/false (default false)
+     */
+    public async hostView(id: string, path: string, designMode?: boolean): Promise<any> {
+        try {
+            this.mock = designMode;
+            const m: any = await this.load(this.defaultApp, designMode);
+            const app: any = new (m.default)();
+            app.onReady(async () => {
+                try {
+                    const viewClass: any = await AmdLoader.instance.import(path);
+                    const view: any = new (viewClass.default)(app);
+                    // app.root = view;
+                    const element: HTMLElement = document.getElementById(id);
+                    element.appendChild(view.element);
+                } catch (e) {
+                    console.error(e);
+                }
+            });
+            } catch (e) {
+            console.error(e);
+        }
+    }
+
     public async loadView(path: string, designMode?: boolean, appPath?: string): Promise<any> {
         this.mock = designMode;
         appPath = appPath || this.defaultApp;

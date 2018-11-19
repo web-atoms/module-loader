@@ -428,7 +428,10 @@ AmdLoader.moduleProgress = (function () {
 /// <reference path="./AmdLoader.ts"/>
 function define(requires, factory) {
     var current = AmdLoader.current;
-    if (current && current.factory) {
+    if (!current) {
+        return;
+    }
+    if (current.factory) {
         return;
     }
     // console.log(`Define for ${current.name}`);

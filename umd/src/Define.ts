@@ -4,7 +4,7 @@ function define(
     requires: string[],
     factory: (r: any, e: any) => void): void {
     const current: Module = AmdLoader.current;
-    if (current.factory) {
+    if (current && current.factory) {
         return;
     }
     // console.log(`Define for ${current.name}`);

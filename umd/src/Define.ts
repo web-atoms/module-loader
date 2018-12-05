@@ -1,7 +1,7 @@
 /// <reference path="./AmdLoader.ts"/>
 
 function define(
-    requires: string[],
+    requiresOrFactory: string[] | (() => void ),
     factory: (r: any, e: any) => void): void {
     const current: Module = AmdLoader.current;
     if (!current) {
@@ -13,6 +13,14 @@ function define(
     // console.log(`Define for ${current.name}`);
     current.dependencies = [];
     const loader: AmdLoader = AmdLoader.instance;
+
+    let requires: string[] = [];
+    if (typeof requiresOrFactory === "function") {
+        factory = requiresOrFactory;
+    } else {
+        requires = requiresOrFactory;
+    }
+
     for (const s of requires) {
         if(/^(require|exports)$/.test(s)) {
             continue;

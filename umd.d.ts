@@ -48,7 +48,7 @@ declare class AmdLoader {
     import(name: string): Promise<any>;
     load(module: Module): Promise<any>;
 }
-declare function define(requires: string[], factory: (r: any, e: any) => void): void;
+declare function define(requiresOrFactory: string[] | (() => void), factory: (r: any, e: any) => void): void;
 declare class MockType {
     readonly module: Module;
     type: any;

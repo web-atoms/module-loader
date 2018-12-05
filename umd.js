@@ -426,7 +426,7 @@ AmdLoader.moduleProgress = (function () {
     };
 })();
 /// <reference path="./AmdLoader.ts"/>
-function define(requires, factory) {
+function define(requiresOrFactory, factory) {
     var current = AmdLoader.current;
     if (!current) {
         return;
@@ -437,6 +437,13 @@ function define(requires, factory) {
     // console.log(`Define for ${current.name}`);
     current.dependencies = [];
     var loader = AmdLoader.instance;
+    var requires = [];
+    if (typeof requiresOrFactory === "function") {
+        factory = requiresOrFactory;
+    }
+    else {
+        requires = requiresOrFactory;
+    }
     for (var _i = 0, requires_1 = requires; _i < requires_1.length; _i++) {
         var s = requires_1[_i];
         if (/^(require|exports)$/.test(s)) {

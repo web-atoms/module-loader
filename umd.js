@@ -530,6 +530,9 @@ var UMDClass = /** @class */ (function () {
             });
         });
     };
+    UMDClass.prototype.import = function (path) {
+        return AmdLoader.instance.import(path);
+    };
     UMDClass.prototype.load = function (path, designMode) {
         return __awaiter(this, void 0, void 0, function () {
             var a, al;

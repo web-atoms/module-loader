@@ -50,6 +50,10 @@ class UMDClass {
         return e.default;
     }
 
+    public import(path: string): Promise<any> {
+        return AmdLoader.instance.import(path);
+    }
+
     public async load(path: string, designMode?: boolean): Promise<any> {
         this.mock = designMode;
         const a: any = await AmdLoader.instance.import("web-atoms-core/dist/Atom");

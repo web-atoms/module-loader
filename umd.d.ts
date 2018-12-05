@@ -72,6 +72,7 @@ declare class UMDClass {
     mockType(type: any, name: string): void;
     inject(type: any, name: string): void;
     resolveViewClassAsync(path: string): Promise<any>;
+    import(path: string): Promise<any>;
     load(path: string, designMode?: boolean): Promise<any>;
     /**
      * Host the view inside given element with given id

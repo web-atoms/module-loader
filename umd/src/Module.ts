@@ -2,6 +2,8 @@ class Module {
 
     private handlers: Array<() => void> = [];
 
+    public manifestLoaded: boolean;
+
     constructor(
         public readonly name: string,
         public readonly folder?: string

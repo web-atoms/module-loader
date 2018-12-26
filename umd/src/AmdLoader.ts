@@ -43,6 +43,8 @@ class AmdLoader {
         return t ? t.replaced : type;
     }
 
+    public packageResolver: (name: string, version: string) => string = (name, version) => `/node_modules/${name}`;
+
     public map(
         packageName: string,
         packageUrl: string,
@@ -50,7 +52,12 @@ class AmdLoader {
         exportVar?: string
     ): void {
 
-        if (/^(reflect\-metadata|systemjs)$/.test(packageName)) {
+        // ignore map if it exists already...
+        if (this.pathMap[packageName]) {
+            return;
+        }
+
+        if (packageName === "reflect-metadata") {
             type = "global";
         }
 
@@ -181,13 +188,21 @@ class AmdLoader {
         return exports;
     }
 
-    public load(module: Module): Promise<any> {
+    public async loadPackageManifest(module: Module): Promise<void> {
+        if (module.manifestLoaded) {
+            return;
+        }
+    }
+
+    public async load(module: Module): Promise<any> {
+
+        await this.loadPackageManifest(module);
 
         if (module.loader) {
-            return module.loader;
+            return await module.loader;
         }
 
-        return module.loader = new Promise((resolve, reject) => {
+        module.loader = new Promise((resolve, reject) => {
 
             AmdLoader.moduleLoader(module.name, module.url, (r) => {
 
@@ -234,6 +249,8 @@ class AmdLoader {
             });
 
         });
+
+        return await module.loader;
     }
 
 }

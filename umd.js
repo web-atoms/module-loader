@@ -741,7 +741,12 @@ AmdLoader.moduleLoader = function (name, url, success, error) {
     script.type = "text/javascript";
     script.src = url;
     AmdLoader.instance.usesEval = false;
-    script.onload = function (e) {
+    var s = script;
+    script.onload = s.onreadystatechange = function () {
+        if ((s.readyState && s.readyState !== "complete" && s.readyState !== "loaded")) {
+            return;
+        }
+        script.onload = s.onreadystatechange = null;
         AmdLoader.current = AmdLoader.instance.get(name);
         AmdLoader.instance.define();
     };

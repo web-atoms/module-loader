@@ -346,7 +346,12 @@ AmdLoader.moduleLoader = (name, url, success, error) => {
     script.type = "text/javascript";
     script.src = url;
     AmdLoader.instance.usesEval = false;
-    script.onload = (e) => {
+    const s: any = script as any;
+    script.onload = s.onreadystatechange = () => {
+        if ((s.readyState && s.readyState !== "complete" && s.readyState !== "loaded")) {
+            return;
+        }
+        script.onload = s.onreadystatechange = null;
         AmdLoader.current = AmdLoader.instance.get(name);
         AmdLoader.instance.define();
     };

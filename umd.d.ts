@@ -79,6 +79,7 @@ declare class UMDClass {
     defaultApp: string;
     lang: string;
     resolveDependencies: boolean;
+    packageResolver: ((p: IPackage) => IPackage);
     mock: boolean;
     resolvePath(n: string): string;
     resolveViewPath(path: string): string;

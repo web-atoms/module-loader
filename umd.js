@@ -890,6 +890,16 @@ var UMDClass = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(UMDClass.prototype, "packageResolver", {
+        get: function () {
+            return AmdLoader.instance.packageResolver;
+        },
+        set: function (v) {
+            AmdLoader.instance.packageResolver = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(UMDClass.prototype, "mock", {
         get: function () {
             return AmdLoader.instance.enableMock;

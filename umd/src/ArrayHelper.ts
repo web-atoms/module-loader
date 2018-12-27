@@ -40,3 +40,9 @@ if(!String.prototype.endsWith) {
         return l === searchString.length;
     };
 }
+
+if (!Number.parseInt) {
+    Number.parseInt = function(n: string): number {
+        return Math.floor(Number.parseFloat(n));
+    };
+}

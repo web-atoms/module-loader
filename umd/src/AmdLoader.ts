@@ -51,24 +51,28 @@ class AmdLoader {
         packageUrl: string,
         type: ("amd" | "global") = "amd",
         exportVar?: string
-    ): void {
+    ): IPackage {
 
         // ignore map if it exists already...
-        if (this.pathMap[packageName]) {
-            return;
+        let existing: IPackage = this.pathMap[packageName];
+        if (existing) {
+            return existing;
         }
 
         if (packageName === "reflect-metadata") {
             type = "global";
         }
 
-        this.pathMap[packageName] = {
+        existing = {
             name: packageName,
             url: packageUrl,
             type: type,
             exportVar,
+            manifestLoaded: true,
             version: ""
         };
+        this.pathMap[packageName] = existing;
+        return existing;
     }
 
     public resolveSource(name: string, defExt: string = ".js"): string {
@@ -163,7 +167,7 @@ class AmdLoader {
                     ... this.packageResolver(packageName, version),
                     name: packageName,
                     version,
-                    manifestLoaded: false
+                    manifestLoaded: version ? true : false
                 });
 
             module.url = this.resolveSource(name);

@@ -458,19 +458,23 @@ var AmdLoader = /** @class */ (function () {
     AmdLoader.prototype.map = function (packageName, packageUrl, type, exportVar) {
         if (type === void 0) { type = "amd"; }
         // ignore map if it exists already...
-        if (this.pathMap[packageName]) {
-            return;
+        var existing = this.pathMap[packageName];
+        if (existing) {
+            return existing;
         }
         if (packageName === "reflect-metadata") {
             type = "global";
         }
-        this.pathMap[packageName] = {
+        existing = {
             name: packageName,
             url: packageUrl,
             type: type,
             exportVar: exportVar,
+            manifestLoaded: true,
             version: ""
         };
+        this.pathMap[packageName] = existing;
+        return existing;
     };
     AmdLoader.prototype.resolveSource = function (name, defExt) {
         if (defExt === void 0) { defExt = ".js"; }
@@ -552,7 +556,7 @@ var AmdLoader = /** @class */ (function () {
             }
             module = new Module(name);
             module.package = this.pathMap[packageName] ||
-                (this.pathMap[packageName] = __assign({ type: "amd" }, this.packageResolver(packageName, version), { name: packageName, version: version, manifestLoaded: false }));
+                (this.pathMap[packageName] = __assign({ type: "amd" }, this.packageResolver(packageName, version), { name: packageName, version: version, manifestLoaded: version ? true : false }));
             module.url = this.resolveSource(name);
             if (!module.url) {
                 throw new Error("No url mapped for " + name);

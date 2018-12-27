@@ -19,6 +19,8 @@ class AmdLoader {
 
     public static moduleLoader: (packageName: string, url: string, success: (r: any) => void, failed: (error: any) => void) => void;
 
+    public static ajaxGet: (packageName: string, url: string, success: (r: string) => void, failed: (error: any) => void) => void;
+
     public static instance: AmdLoader = new AmdLoader();
 
     public static current: Module = null;
@@ -43,7 +45,11 @@ class AmdLoader {
         return t ? t.replaced : type;
     }
 
-    public packageResolver: (name: string, version: string) => string = (name, version) => `/node_modules/${name}`;
+    public packageResolver: (name: string, version: string) => IModuleConfig
+        = (name, version) => ({
+            name,
+            url: `/node_modules/${name}`,
+            type: "amd"})
 
     public map(
         packageName: string,
@@ -138,18 +144,48 @@ class AmdLoader {
     public get(name: string): Module {
         let module: Module = this.modules[name];
         if (!module) {
-            module = new Module(name);
-            // module.url = this.resolvePath(name, AmdLoader.current.url);
-            module.url = this.resolveSource(name);
-            if (!module.url) {
-                throw new Error(`No url mapped for ${name}`);
+
+            // strip '@' version info
+            let [scope, packageName, path] = name.split("/",3);
+            let version: string = "";
+            if (scope[0] !== "@") {
+                packageName = scope;
+                scope = "";
             }
-            const def: IModuleConfig = this.pathMap[name];
-            if (def) {
-                module.type = def.type || "amd";
-                module.exportVar = def.exportVar;
+
+            const versionTokens: string[] = packageName.split("@");
+            if (versionTokens.length>1) {
+                // remove version and map it..
+                version = versionTokens[1];
+                name = name.replace("@" + version, "");
+            }
+
+            module = new Module(name);
+            if (version)  {
+                const info: IModuleConfig = this.packageResolver(module.name, version);
+                module.url = info.url;
+                module.type = info.type || "amd";
+                module.exportVar = info.exportVar;
+                // this is not needed, but useful for logging
+                this.pathMap[name] = {
+                    url: module.url,
+                    type: module.type,
+                    name: module.name,
+                    exportVar: module.exportVar
+                };
             } else {
-                module.type = "amd";
+                // module.url = this.resolvePath(name, AmdLoader.current.url);
+                module.url = this.resolveSource(name);
+                if (!module.url) {
+                    throw new Error(`No url mapped for ${name}`);
+                }
+                const def: IModuleConfig = this.pathMap[name];
+                if (def) {
+                    module.type = def.type || "amd";
+                    module.exportVar = def.exportVar;
+                } else {
+                    module.type = "amd";
+                }
             }
             module.require = (n: string) => {
                 const an: string = this.resolveRelativePath(n, module.name);
@@ -171,12 +207,12 @@ class AmdLoader {
         const exports = module.getExports();
 
         // load requested dependencies for mock or abstract injects
-        const pendings: MockType[] = this.mockTypes.filter((t) => !t.loaded );
-        if (pendings.length) {
-            for (const iterator of pendings) {
+        const pendingList: MockType[] = this.mockTypes.filter((t) => !t.loaded );
+        if (pendingList.length) {
+            for (const iterator of pendingList) {
                 iterator.loaded = true;
             }
-            for (const iterator of pendings) {
+            for (const iterator of pendingList) {
                 const containerModule: Module = iterator.module;
                 const resolvedName: string = this.resolveRelativePath(iterator.moduleName, containerModule.name);
                 const ex: any = await this.import(resolvedName);
@@ -192,6 +228,35 @@ class AmdLoader {
         if (module.manifestLoaded) {
             return;
         }
+
+        return await new Promise((resolve, reject) => {
+            const url: string = this.resolveSource(module.name + "/package", ".json");
+
+            AmdLoader.ajaxGet(module.name, url, (r) => {
+                const json: any = JSON.parse(r);
+
+                const { dependencies } = json;
+                if (dependencies) {
+                    for (const key in dependencies) {
+                        if (dependencies.hasOwnProperty(key)) {
+                            const element: string = dependencies[key];
+                            const existing: any = this.pathMap[key];
+                            if (existing) {
+                                continue;
+                            }
+                            const info: IModuleConfig = this.packageResolver(key, element);
+                            this.map(key, info.url, info.type, info.exportVar);
+                        }
+                    }
+                }
+
+                module.manifestLoaded = true;
+
+                resolve();
+
+            }, reject);
+
+        });
     }
 
     public async load(module: Module): Promise<any> {
@@ -231,9 +296,9 @@ class AmdLoader {
 
                     for (const key in this.modules) {
                         if (this.modules.hasOwnProperty(key)) {
-                            const mitem: any = this.modules[key];
-                            if (mitem instanceof Module) {
-                                if (mitem.ready) {
+                            const mItem: any = this.modules[key];
+                            if (mItem instanceof Module) {
+                                if (mItem.ready) {
                                     done ++;
                                 }
                                 total ++;
@@ -255,7 +320,7 @@ class AmdLoader {
 
 }
 
-AmdLoader.moduleLoader = (name, url, success, error) => {
+AmdLoader.ajaxGet = (name, url, success, error) => {
 
     AmdLoader.globalVar = window;
 
@@ -263,15 +328,7 @@ AmdLoader.moduleLoader = (name, url, success, error) => {
     xhr.onreadystatechange = (e) => {
         if (xhr.readyState === XMLHttpRequest.DONE) {
             if (xhr.status === 200) {
-                success(() => {
-
-                    const errorCheck: string = `
-} catch(e) { if(e.stack) { alert(e.message + '\\r\\n' + e.stack); } else { alert(e); } }`;
-
-                    // tslint:disable-next-line:no-eval
-                    eval(`"use strict"; try { ${xhr.responseText} ${errorCheck}
-//# sourceURL=${url}`);
-                });
+                success(xhr.responseText);
             } else {
                 error(xhr.responseText);
             }
@@ -281,6 +338,21 @@ AmdLoader.moduleLoader = (name, url, success, error) => {
     xhr.open("GET", url);
     xhr.send();
 
+};
+
+AmdLoader.moduleLoader = (name, url, success, error) => {
+
+    AmdLoader.ajaxGet(name, url, (r) => {
+                success(() => {
+
+                    const errorCheck: string = `
+} catch(e) { if(e.stack) { alert(e.message + '\\r\\n' + e.stack); } else { alert(e); } }`;
+
+                    // tslint:disable-next-line:no-eval
+                    eval(`"use strict"; try { ${r} ${errorCheck}
+//# sourceURL=${url}`);
+                });
+            }, error);
 };
 
 AmdLoader.moduleProgress = (() => {

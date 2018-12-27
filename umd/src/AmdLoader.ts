@@ -9,6 +9,8 @@ class AmdLoader {
 
     public usesEval: boolean = true;
 
+    public resolveDependencies: boolean = true;
+
     public static globalVar: any = {};
 
     public static moduleProgress: (name: string, progress: number) => void;
@@ -169,7 +171,7 @@ class AmdLoader {
                     ... this.packageResolver(packageName, version),
                     name: packageName,
                     version,
-                    manifestLoaded: version ? true : false
+                    manifestLoaded: !this.resolveDependencies
                 });
 
             module.url = this.resolveSource(name);

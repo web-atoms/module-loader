@@ -441,6 +441,7 @@ var AmdLoader = /** @class */ (function () {
     function AmdLoader() {
         this.mockTypes = [];
         this.usesEval = true;
+        this.resolveDependencies = true;
         this.currentStack = [];
         this.modules = {};
         this.pathMap = {};
@@ -563,7 +564,7 @@ var AmdLoader = /** @class */ (function () {
             }
             module = new Module(name);
             module.package = this.pathMap[packageName] ||
-                (this.pathMap[packageName] = __assign({ type: "amd" }, this.packageResolver(packageName, version), { name: packageName, version: version, manifestLoaded: version ? true : false }));
+                (this.pathMap[packageName] = __assign({ type: "amd" }, this.packageResolver(packageName, version), { name: packageName, version: version, manifestLoaded: !this.resolveDependencies }));
             module.url = this.resolveSource(name);
             if (!module.url) {
                 throw new Error("No url mapped for " + name);
@@ -872,6 +873,16 @@ var UMDClass = /** @class */ (function () {
         this.defaultApp = "web-atoms-core/dist/web/WebApp";
         this.lang = "en-US";
     }
+    Object.defineProperty(UMDClass.prototype, "resolveDependencies", {
+        get: function () {
+            return AmdLoader.instance.resolveDependencies;
+        },
+        set: function (v) {
+            AmdLoader.instance.resolveDependencies = v;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(UMDClass.prototype, "mock", {
         get: function () {
             return AmdLoader.instance.enableMock;

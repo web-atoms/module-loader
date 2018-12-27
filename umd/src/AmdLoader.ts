@@ -2,13 +2,6 @@
 /// <reference path="./ArrayHelper.ts"/>
 /// <reference path="./Module.ts"/>
 
-interface IModuleConfig {
-    name: string;
-    url: string;
-    type: "amd" | "global";
-    exportVar?: string;
-}
-
 class AmdLoader {
 
 
@@ -30,7 +23,7 @@ class AmdLoader {
 
     public modules: { [key: string]: Module } = {};
 
-    public pathMap: { [key: string]: IModuleConfig } = {};
+    public pathMap: { [key: string]: IPackage } = {};
     enableMock: boolean;
 
     public replace(type: any, name: string, mock: boolean): void {
@@ -46,11 +39,12 @@ class AmdLoader {
         return t ? t.replaced : type;
     }
 
-    public packageResolver: (name: string, version: string) => IModuleConfig
+    public packageResolver: (name: string, version: string) => IPackage
         = (name, version) => ({
             name,
             url: `/node_modules/${name}`,
-            type: "amd"})
+            type: "amd",
+            version})
 
     public map(
         packageName: string,
@@ -72,7 +66,8 @@ class AmdLoader {
             name: packageName,
             url: packageUrl,
             type: type,
-            exportVar
+            exportVar,
+            version: ""
         };
     }
 
@@ -160,33 +155,20 @@ class AmdLoader {
                 version = versionTokens[1];
                 name = name.replace("@" + version, "");
             }
-
             module = new Module(name);
-            if (version)  {
-                const info: IModuleConfig = this.packageResolver(module.name, version);
-                module.url = info.url;
-                module.type = info.type || "amd";
-                module.exportVar = info.exportVar;
-                // this is not needed, but useful for logging
-                this.pathMap[name] = {
-                    url: module.url,
-                    type: module.type,
-                    name: module.name,
-                    exportVar: module.exportVar
-                };
-            } else {
-                // module.url = this.resolvePath(name, AmdLoader.current.url);
-                module.url = this.resolveSource(name);
-                if (!module.url) {
-                    throw new Error(`No url mapped for ${name}`);
-                }
-                const def: IModuleConfig = this.pathMap[name];
-                if (def) {
-                    module.type = def.type || "amd";
-                    module.exportVar = def.exportVar;
-                } else {
-                    module.type = "amd";
-                }
+
+            module.package = this.pathMap[packageName] ||
+                (this.pathMap[packageName] = {
+                    ... { type: "amd" },
+                    ... this.packageResolver(packageName, version),
+                    name: packageName,
+                    version,
+                    manifestLoaded: false
+                });
+
+            module.url = this.resolveSource(name);
+            if (!module.url) {
+                throw new Error(`No url mapped for ${name}`);
             }
             module.require = (n: string) => {
                 const an: string = this.resolveRelativePath(n, module.name);
@@ -226,14 +208,14 @@ class AmdLoader {
     }
 
     public async loadPackageManifest(module: Module): Promise<void> {
-        if (module.manifestLoaded) {
+        if (module.package.manifestLoaded) {
             return;
         }
 
         return await new Promise<void>((resolve, reject) => {
-            const url: string = this.resolveSource(module.name + "/package", ".json");
+            const url: string = this.resolveSource(module.package.name + "/package", ".json");
 
-            AmdLoader.ajaxGet(module.name, url, (r) => {
+            AmdLoader.ajaxGet(module.package.name, url, (r) => {
                 const json: any = JSON.parse(r);
 
                 const { dependencies } = json;
@@ -241,17 +223,17 @@ class AmdLoader {
                     for (const key in dependencies) {
                         if (dependencies.hasOwnProperty(key)) {
                             const element: string = dependencies[key];
-                            const existing: any = this.pathMap[key];
+                            const existing: IPackage = this.pathMap[key];
                             if (existing) {
                                 continue;
                             }
-                            const info: IModuleConfig = this.packageResolver(key, element);
+                            const info: IPackage = this.packageResolver(key, element);
                             this.map(key, info.url, info.type, info.exportVar);
                         }
                     }
                 }
 
-                module.manifestLoaded = true;
+                module.package.manifestLoaded = true;
 
                 resolve();
 

@@ -1,3 +1,11 @@
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -432,7 +440,8 @@ var AmdLoader = /** @class */ (function () {
         this.packageResolver = function (name, version) { return ({
             name: name,
             url: "/node_modules/" + name,
-            type: "amd"
+            type: "amd",
+            version: version
         }); };
     }
     AmdLoader.prototype.replace = function (type, name, mock) {
@@ -459,7 +468,8 @@ var AmdLoader = /** @class */ (function () {
             name: packageName,
             url: packageUrl,
             type: type,
-            exportVar: exportVar
+            exportVar: exportVar,
+            version: ""
         };
     };
     AmdLoader.prototype.resolveSource = function (name, defExt) {
@@ -541,33 +551,11 @@ var AmdLoader = /** @class */ (function () {
                 name = name.replace("@" + version, "");
             }
             module = new Module(name);
-            if (version) {
-                var info = this.packageResolver(module.name, version);
-                module.url = info.url;
-                module.type = info.type || "amd";
-                module.exportVar = info.exportVar;
-                // this is not needed, but useful for logging
-                this.pathMap[name] = {
-                    url: module.url,
-                    type: module.type,
-                    name: module.name,
-                    exportVar: module.exportVar
-                };
-            }
-            else {
-                // module.url = this.resolvePath(name, AmdLoader.current.url);
-                module.url = this.resolveSource(name);
-                if (!module.url) {
-                    throw new Error("No url mapped for " + name);
-                }
-                var def = this.pathMap[name];
-                if (def) {
-                    module.type = def.type || "amd";
-                    module.exportVar = def.exportVar;
-                }
-                else {
-                    module.type = "amd";
-                }
+            module.package = this.pathMap[packageName] ||
+                (this.pathMap[packageName] = __assign({ type: "amd" }, this.packageResolver(packageName, version), { name: packageName, version: version, manifestLoaded: false }));
+            module.url = this.resolveSource(name);
+            if (!module.url) {
+                throw new Error("No url mapped for " + name);
             }
             module.require = function (n) {
                 var an = _this.resolveRelativePath(n, module.name);
@@ -622,12 +610,12 @@ var AmdLoader = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (module.manifestLoaded) {
+                        if (module.package.manifestLoaded) {
                             return [2 /*return*/];
                         }
                         return [4 /*yield*/, new Promise(function (resolve, reject) {
-                                var url = _this.resolveSource(module.name + "/package", ".json");
-                                AmdLoader.ajaxGet(module.name, url, function (r) {
+                                var url = _this.resolveSource(module.package.name + "/package", ".json");
+                                AmdLoader.ajaxGet(module.package.name, url, function (r) {
                                     var json = JSON.parse(r);
                                     var dependencies = json.dependencies;
                                     if (dependencies) {
@@ -643,7 +631,7 @@ var AmdLoader = /** @class */ (function () {
                                             }
                                         }
                                     }
-                                    module.manifestLoaded = true;
+                                    module.package.manifestLoaded = true;
                                     resolve();
                                 }, reject);
                             })];

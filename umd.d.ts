@@ -1,9 +1,17 @@
 declare var module: any, exports: any, amd: any, global: any;
+interface IPackage {
+    name: string;
+    version: string;
+    url: string;
+    type: "amd" | "global";
+    exportVar?: string;
+    manifestLoaded?: boolean;
+}
 declare class Module {
     readonly name: string;
     readonly folder: string;
     private handlers;
-    manifestLoaded: boolean;
+    package: IPackage;
     constructor(name: string, folder?: string);
     onReady(h: () => void): void;
     isReady(visited?: Module[]): boolean;
@@ -20,12 +28,6 @@ declare class Module {
     loader: Promise<any>;
     ready: boolean;
 }
-interface IModuleConfig {
-    name: string;
-    url: string;
-    type: "amd" | "global";
-    exportVar?: string;
-}
 declare class AmdLoader {
     private mockTypes;
     static globalVar: any;
@@ -39,12 +41,12 @@ declare class AmdLoader {
         [key: string]: Module;
     };
     pathMap: {
-        [key: string]: IModuleConfig;
+        [key: string]: IPackage;
     };
     enableMock: boolean;
     replace(type: any, name: string, mock: boolean): void;
     resolveType(type: any): any;
-    packageResolver: (name: string, version: string) => IModuleConfig;
+    packageResolver: (name: string, version: string) => IPackage;
     map(packageName: string, packageUrl: string, type?: ("amd" | "global"), exportVar?: string): void;
     resolveSource(name: string, defExt?: string): string;
     resolveRelativePath(name: string, currentPackage: string): string;

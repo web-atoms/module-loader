@@ -1,8 +1,17 @@
+interface IPackage {
+    name: string;
+    version: string;
+    url: string;
+    type: "amd" | "global";
+    exportVar?: string;
+    manifestLoaded?: boolean;
+}
+
 class Module {
 
     private handlers: Array<() => void> = [];
 
-    public manifestLoaded: boolean;
+    public package: IPackage;
 
     constructor(
         public readonly name: string,

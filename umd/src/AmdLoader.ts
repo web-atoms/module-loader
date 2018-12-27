@@ -65,6 +65,7 @@ class AmdLoader {
 
         if (packageName === "reflect-metadata") {
             type = "global";
+            packageUrl = packageUrl + "/Reflect.js";
         }
 
         existing = {
@@ -84,9 +85,6 @@ class AmdLoader {
             if (/^((\/)|((http|https)\:\/\/))/i.test(name)) {
                 // console.log(`ResolveSource fail: ${name}`);
                 return name;
-            }
-            if (name === "reflect-metadata") {
-                name = "reflect-metadata/Reflect";
             }
             let path: string = null;
             for (const key in this.pathMap) {

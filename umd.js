@@ -472,6 +472,7 @@ var AmdLoader = /** @class */ (function () {
         }
         if (packageName === "reflect-metadata") {
             type = "global";
+            packageUrl = packageUrl + "/Reflect.js";
         }
         existing = {
             name: packageName,
@@ -490,9 +491,6 @@ var AmdLoader = /** @class */ (function () {
             if (/^((\/)|((http|https)\:\/\/))/i.test(name)) {
                 // console.log(`ResolveSource fail: ${name}`);
                 return name;
-            }
-            if (name === "reflect-metadata") {
-                name = "reflect-metadata/Reflect";
             }
             var path = null;
             for (var key in this.pathMap) {

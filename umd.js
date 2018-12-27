@@ -491,6 +491,9 @@ var AmdLoader = /** @class */ (function () {
                 // console.log(`ResolveSource fail: ${name}`);
                 return name;
             }
+            if (name === "reflect-metadata") {
+                name = "reflect-metadata/Reflect";
+            }
             var path = null;
             for (var key in this.pathMap) {
                 if (this.pathMap.hasOwnProperty(key)) {

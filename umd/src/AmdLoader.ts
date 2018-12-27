@@ -237,7 +237,7 @@ class AmdLoader {
                                 continue;
                             }
                             const info: IPackage = this.packageResolver({
-                                name,
+                                name: key,
                                 version: element,
                                 url: undefined,
                                 type: "amd"

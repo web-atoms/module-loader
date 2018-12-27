@@ -641,7 +641,7 @@ var AmdLoader = /** @class */ (function () {
                                                     continue;
                                                 }
                                                 var info = _this.packageResolver({
-                                                    name: name,
+                                                    name: key,
                                                     version: element,
                                                     url: undefined,
                                                     type: "amd"

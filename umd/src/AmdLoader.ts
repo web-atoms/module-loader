@@ -100,8 +100,8 @@ class AmdLoader {
                             path = path.substr(0, path.length-1);
                         }
                         path = path + "/" + name;
-                        if (defExt && !path.endsWith(".js")) {
-                            path = path + ".js";
+                        if (defExt && !path.endsWith(defExt)) {
+                            path = path + defExt;
                         }
                         return path;
                     }

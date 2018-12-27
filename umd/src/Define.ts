@@ -47,3 +47,11 @@ var define:IDefine = (
 };
 
 define.amd = true;
+
+const _______define: Function = define;
+
+define = function(... args: any[]):any {
+    AmdLoader.instance.define = () => {
+        _______define.call(this, args);
+    };
+};

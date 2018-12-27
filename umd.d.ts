@@ -57,12 +57,12 @@ declare class AmdLoader {
     load(module: Module): Promise<any>;
     define: any;
 }
-declare const _______define: Function;
 interface IDefine {
     (requiresOrFactory: string[] | (() => void), factory?: (r: any, e: any) => void): void;
     amd?: boolean;
 }
 declare var define: IDefine;
+declare const _______define: Function;
 declare class MockType {
     readonly module: Module;
     type: any;

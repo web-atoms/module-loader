@@ -709,17 +709,6 @@ var AmdLoader = /** @class */ (function () {
     AmdLoader.current = null;
     return AmdLoader;
 }());
-var _______define = define;
-define = function () {
-    var _this = this;
-    var args = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        args[_i] = arguments[_i];
-    }
-    AmdLoader.instance.define = function () {
-        _______define.call(_this, args);
-    };
-};
 AmdLoader.ajaxGet = function (name, url, success, error) {
     AmdLoader.globalVar = window;
     var xhr = new XMLHttpRequest();
@@ -851,6 +840,17 @@ var define = function (requiresOrFactory, factory) {
     current.factory = factory;
 };
 define.amd = true;
+var _______define = define;
+define = function () {
+    var _this = this;
+    var args = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+    }
+    AmdLoader.instance.define = function () {
+        _______define.call(_this, args);
+    };
+};
 var MockType = /** @class */ (function () {
     function MockType(module, type, name, mock, moduleName, exportName) {
         this.module = module;

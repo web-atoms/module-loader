@@ -311,15 +311,6 @@ class AmdLoader {
 
 }
 
-const _______define: Function = define;
-
-define = function(... args: any[]):any {
-    AmdLoader.instance.define = () => {
-        _______define.call(this, args);
-    };
-};
-
-
 AmdLoader.ajaxGet = (name, url, success, error) => {
 
     AmdLoader.globalVar = window;

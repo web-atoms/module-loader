@@ -43,6 +43,12 @@ if(!String.prototype.endsWith) {
 
 if (!Number.parseInt) {
     Number.parseInt = function(n: string): number {
-        return Math.floor(Number.parseFloat(n));
+        return Math.floor(parseFloat(n));
+    };
+}
+
+if (!Number.parseFloat) {
+    Number.parseFloat = function(n: string): number {
+        return parseFloat(n);
     };
 }

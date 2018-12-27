@@ -22,14 +22,10 @@ if(!Array.prototype.map) {
     };
 }
 
-if(!String.prototype.endsWith) {
-    String.prototype.endsWith = function(searchString: string, endPosition?: number): boolean {
-        const index: number = (this as string).lastIndexOf(searchString, endPosition);
-        if (index === -1) {
-            return false;
-        }
-        const l: number = (this as string).length - index;
-        return l === searchString.length;
+if(!String.prototype.startsWith) {
+    String.prototype.startsWith = function(searchString: string, endPosition?: number): boolean {
+        const index: number = (this as string).indexOf(searchString, endPosition);
+        return index !== -1;
     };
 }
 

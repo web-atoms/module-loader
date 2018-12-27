@@ -332,14 +332,10 @@ if (!Array.prototype.map) {
         return a;
     };
 }
-if (!String.prototype.endsWith) {
-    String.prototype.endsWith = function (searchString, endPosition) {
-        var index = this.lastIndexOf(searchString, endPosition);
-        if (index === -1) {
-            return false;
-        }
-        var l = this.length - index;
-        return l === searchString.length;
+if (!String.prototype.startsWith) {
+    String.prototype.startsWith = function (searchString, endPosition) {
+        var index = this.indexOf(searchString, endPosition);
+        return index !== -1;
     };
 }
 if (!String.prototype.endsWith) {

@@ -46,8 +46,7 @@ class AmdLoader {
     public packageResolver: (p1: IPackage) => IPackage
         = (p) => ({
             ... p,
-            name,
-            url: `/node_modules/${name}`,
+            url: `/node_modules/${p.name}`,
             type: "amd"})
 
     public map(

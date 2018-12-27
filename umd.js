@@ -445,7 +445,7 @@ var AmdLoader = /** @class */ (function () {
         this.currentStack = [];
         this.modules = {};
         this.pathMap = {};
-        this.packageResolver = function (p) { return (__assign({}, p, { name: name, url: "/node_modules/" + name, type: "amd" })); };
+        this.packageResolver = function (p) { return (__assign({}, p, { url: "/node_modules/" + p.name, type: "amd" })); };
     }
     AmdLoader.prototype.replace = function (type, name, mock) {
         if (mock && !this.enableMock) {

@@ -7,6 +7,8 @@ class AmdLoader {
 
     private mockTypes: MockType[] = [];
 
+    public usesEval: boolean = true;
+
     public static globalVar: any = {};
 
     public static moduleProgress: (name: string, progress: number) => void;
@@ -305,7 +307,18 @@ class AmdLoader {
         return await module.loader;
     }
 
+    define: any;
+
 }
+
+const _______define: Function = define;
+
+define = function(... args: any[]):any {
+    AmdLoader.instance.define = () => {
+        _______define.call(this, args);
+    };
+};
+
 
 AmdLoader.ajaxGet = (name, url, success, error) => {
 
@@ -329,17 +342,28 @@ AmdLoader.ajaxGet = (name, url, success, error) => {
 
 AmdLoader.moduleLoader = (name, url, success, error) => {
 
-    AmdLoader.ajaxGet(name, url, (r) => {
-                success(() => {
+    const script: HTMLScriptElement = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = url;
+    AmdLoader.instance.usesEval = false;
+    script.onload = (e) => {
+        AmdLoader.current = AmdLoader.instance.get(name);
+        AmdLoader.instance.define();
+    };
+    document.body.appendChild(script);
 
-                    const errorCheck: string = `
-} catch(e) { if(e.stack) { alert(e.message + '\\r\\n' + e.stack); } else { alert(e); } }`;
+// tslint:disable-next-line:comment-format
+//     AmdLoader.ajaxGet(name, url, (r) => {
+//                 success(() => {
 
-                    // tslint:disable-next-line:no-eval
-                    eval(`"use strict"; try { ${r} ${errorCheck}
-//# sourceURL=${url}`);
-                });
-            }, error);
+//                     const errorCheck: string = `
+// } catch(e) { if(e.stack) { alert(e.message + '\\r\\n' + e.stack); } else { alert(e); } }`;
+
+//                     // tslint:disable-next-line:no-eval
+//                     eval(`"use strict"; try { ${r} ${errorCheck}
+// //# sourceURL=${url}`);
+//                 });
+//             }, error);
 };
 
 AmdLoader.moduleProgress = (() => {

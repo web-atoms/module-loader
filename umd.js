@@ -440,6 +440,7 @@ var Module = /** @class */ (function () {
 var AmdLoader = /** @class */ (function () {
     function AmdLoader() {
         this.mockTypes = [];
+        this.usesEval = true;
         this.currentStack = [];
         this.modules = {};
         this.pathMap = {};
@@ -708,6 +709,17 @@ var AmdLoader = /** @class */ (function () {
     AmdLoader.current = null;
     return AmdLoader;
 }());
+var _______define = define;
+define = function () {
+    var _this = this;
+    var args = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+    }
+    AmdLoader.instance.define = function () {
+        _______define.call(_this, args);
+    };
+};
 AmdLoader.ajaxGet = function (name, url, success, error) {
     AmdLoader.globalVar = window;
     var xhr = new XMLHttpRequest();
@@ -725,13 +737,25 @@ AmdLoader.ajaxGet = function (name, url, success, error) {
     xhr.send();
 };
 AmdLoader.moduleLoader = function (name, url, success, error) {
-    AmdLoader.ajaxGet(name, url, function (r) {
-        success(function () {
-            var errorCheck = "\n} catch(e) { if(e.stack) { alert(e.message + '\\r\\n' + e.stack); } else { alert(e); } }";
-            // tslint:disable-next-line:no-eval
-            eval("\"use strict\"; try { " + r + " " + errorCheck + "\n//# sourceURL=" + url);
-        });
-    }, error);
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = url;
+    AmdLoader.instance.usesEval = false;
+    script.onload = function (e) {
+        AmdLoader.current = AmdLoader.instance.get(name);
+        AmdLoader.instance.define();
+    };
+    document.body.appendChild(script);
+    // tslint:disable-next-line:comment-format
+    //     AmdLoader.ajaxGet(name, url, (r) => {
+    //                 success(() => {
+    //                     const errorCheck: string = `
+    // } catch(e) { if(e.stack) { alert(e.message + '\\r\\n' + e.stack); } else { alert(e); } }`;
+    //                     // tslint:disable-next-line:no-eval
+    //                     eval(`"use strict"; try { ${r} ${errorCheck}
+    // //# sourceURL=${url}`);
+    //                 });
+    //             }, error);
 };
 AmdLoader.moduleProgress = (function () {
     if (!document) {

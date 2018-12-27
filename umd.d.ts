@@ -30,6 +30,7 @@ declare class Module {
 }
 declare class AmdLoader {
     private mockTypes;
+    usesEval: boolean;
     static globalVar: any;
     static moduleProgress: (name: string, progress: number) => void;
     static moduleLoader: (packageName: string, url: string, success: (r: any) => void, failed: (error: any) => void) => void;
@@ -54,7 +55,9 @@ declare class AmdLoader {
     import(name: string): Promise<any>;
     loadPackageManifest(module: Module): Promise<void>;
     load(module: Module): Promise<any>;
+    define: any;
 }
+declare const _______define: Function;
 interface IDefine {
     (requiresOrFactory: string[] | (() => void), factory?: (r: any, e: any) => void): void;
     amd?: boolean;

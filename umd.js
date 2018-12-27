@@ -737,9 +737,7 @@ AmdLoader.moduleLoader = function (name, url, success, error) {
         }
         script.onload = s.onreadystatechange = null;
         AmdLoader.current = AmdLoader.instance.get(name);
-        setTimeout(function () {
-            AmdLoader.instance.define();
-        }, 1);
+        AmdLoader.instance.define();
     };
     document.body.appendChild(script);
     // tslint:disable-next-line:comment-format
@@ -805,52 +803,43 @@ AmdLoader.moduleProgress = (function () {
 })();
 /// <reference path="./AmdLoader.ts"/>
 var define = function (requiresOrFactory, factory) {
-    var current = AmdLoader.current;
-    if (!current) {
-        return;
-    }
-    if (current.factory) {
-        return;
-    }
-    // console.log(`Define for ${current.name}`);
-    current.dependencies = [];
-    var loader = AmdLoader.instance;
-    var requires = [];
-    if (typeof requiresOrFactory === "function") {
-        factory = requiresOrFactory;
-    }
-    else {
-        requires = requiresOrFactory;
-    }
-    for (var _i = 0, requires_1 = requires; _i < requires_1.length; _i++) {
-        var s = requires_1[_i];
-        if (/^(require|exports)$/.test(s)) {
-            continue;
-        }
-        // resolve full name...
-        var name_1 = loader.resolveRelativePath(s, current.name);
-        // console.log(`dep: ${name} for ${s} in ${current.name}`);
-        var child = loader.get(name_1);
-        current.dependencies.push(child);
-        child.onReady(function () {
-            current.finish();
-        });
-        loader.load(child);
-    }
-    current.factory = factory;
-};
-define.amd = true;
-var _______define = define;
-define = function () {
-    var _this = this;
-    var args = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        args[_i] = arguments[_i];
-    }
     AmdLoader.instance.define = function () {
-        _______define.call(_this, args);
+        var current = AmdLoader.current;
+        if (!current) {
+            return;
+        }
+        if (current.factory) {
+            return;
+        }
+        // console.log(`Define for ${current.name}`);
+        current.dependencies = [];
+        var loader = AmdLoader.instance;
+        var requires = [];
+        if (typeof requiresOrFactory === "function") {
+            factory = requiresOrFactory;
+        }
+        else {
+            requires = requiresOrFactory;
+        }
+        for (var _i = 0, requires_1 = requires; _i < requires_1.length; _i++) {
+            var s = requires_1[_i];
+            if (/^(require|exports)$/.test(s)) {
+                continue;
+            }
+            // resolve full name...
+            var name_1 = loader.resolveRelativePath(s, current.name);
+            // console.log(`dep: ${name} for ${s} in ${current.name}`);
+            var child = loader.get(name_1);
+            current.dependencies.push(child);
+            child.onReady(function () {
+                current.finish();
+            });
+            loader.load(child);
+        }
+        current.factory = factory;
     };
 };
+define.amd = true;
 var MockType = /** @class */ (function () {
     function MockType(module, type, name, mock, moduleName, exportName) {
         this.module = module;

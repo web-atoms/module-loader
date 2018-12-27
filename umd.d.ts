@@ -62,7 +62,6 @@ interface IDefine {
     amd?: boolean;
 }
 declare var define: IDefine;
-declare const _______define: Function;
 declare class MockType {
     readonly module: Module;
     type: any;

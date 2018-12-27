@@ -748,7 +748,9 @@ AmdLoader.moduleLoader = function (name, url, success, error) {
         }
         script.onload = s.onreadystatechange = null;
         AmdLoader.current = AmdLoader.instance.get(name);
-        AmdLoader.instance.define();
+        setTimeout(function () {
+            AmdLoader.instance.define();
+        }, 1);
     };
     document.body.appendChild(script);
     // tslint:disable-next-line:comment-format

@@ -353,7 +353,9 @@ AmdLoader.moduleLoader = (name, url, success, error) => {
         }
         script.onload = s.onreadystatechange = null;
         AmdLoader.current = AmdLoader.instance.get(name);
-        AmdLoader.instance.define();
+        setTimeout(() => {
+            AmdLoader.instance.define();
+        },1);
     };
     document.body.appendChild(script);
 

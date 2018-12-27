@@ -1,8 +1,15 @@
 /// <reference path="./AmdLoader.ts"/>
 
-function define(
+// tslint:disable-next-line
+interface IDefine {
+    (requiresOrFactory: string[] | (() => void ),
+    factory?: (r: any, e: any) => void): void;
+    amd?: boolean;
+}
+
+var define:IDefine = (
     requiresOrFactory: string[] | (() => void ),
-    factory: (r: any, e: any) => void): void {
+    factory: (r: any, e: any) => void): void => {
     const current: Module = AmdLoader.current;
     if (!current) {
         return;
@@ -37,6 +44,6 @@ function define(
         loader.load(child);
     }
     current.factory = factory;
-}
+};
 
-(define as any).amd = true;
+define.amd = true;

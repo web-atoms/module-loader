@@ -33,6 +33,275 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+// @ts-ignore
+(function (global, factory) {
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory() :
+        typeof define === 'function' && define.amd ? define(factory) :
+            (factory());
+}(this, (function () {
+    'use strict';
+    /**
+     * @this {Promise}
+     */
+    function finallyConstructor(callback) {
+        var constructor = this.constructor;
+        return this.then(function (value) {
+            return constructor.resolve(callback()).then(function () {
+                return value;
+            });
+        }, function (reason) {
+            return constructor.resolve(callback()).then(function () {
+                return constructor.reject(reason);
+            });
+        });
+    }
+    // Store setTimeout reference so promise-polyfill will be unaffected by
+    // other code modifying setTimeout (like sinon.useFakeTimers())
+    var setTimeoutFunc = setTimeout;
+    function noop() { }
+    // Polyfill for Function.prototype.bind
+    function bind(fn, thisArg) {
+        return function () {
+            fn.apply(thisArg, arguments);
+        };
+    }
+    /**
+     * @constructor
+     * @param {Function} fn
+     */
+    function Promise(fn) {
+        if (!(this instanceof Promise))
+            throw new TypeError('Promises must be constructed via new');
+        if (typeof fn !== 'function')
+            throw new TypeError('not a function');
+        /** @type {!number} */
+        this._state = 0;
+        /** @type {!boolean} */
+        this._handled = false;
+        /** @type {Promise|undefined} */
+        this._value = undefined;
+        /** @type {!Array<!Function>} */
+        this._deferreds = [];
+        doResolve(fn, this);
+    }
+    function handle(self, deferred) {
+        while (self._state === 3) {
+            self = self._value;
+        }
+        if (self._state === 0) {
+            self._deferreds.push(deferred);
+            return;
+        }
+        self._handled = true;
+        // @ts-ignore
+        Promise._immediateFn(function () {
+            var cb = self._state === 1 ? deferred.onFulfilled : deferred.onRejected;
+            if (cb === null) {
+                (self._state === 1 ? resolve : reject)(deferred.promise, self._value);
+                return;
+            }
+            var ret;
+            try {
+                ret = cb(self._value);
+            }
+            catch (e) {
+                reject(deferred.promise, e);
+                return;
+            }
+            resolve(deferred.promise, ret);
+        });
+    }
+    function resolve(self, newValue) {
+        try {
+            // Promise Resolution Procedure: https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
+            if (newValue === self)
+                throw new TypeError('A promise cannot be resolved with itself.');
+            if (newValue &&
+                (typeof newValue === 'object' || typeof newValue === 'function')) {
+                var then = newValue.then;
+                if (newValue instanceof Promise) {
+                    self._state = 3;
+                    self._value = newValue;
+                    finale(self);
+                    return;
+                }
+                else if (typeof then === 'function') {
+                    doResolve(bind(then, newValue), self);
+                    return;
+                }
+            }
+            self._state = 1;
+            self._value = newValue;
+            finale(self);
+        }
+        catch (e) {
+            reject(self, e);
+        }
+    }
+    function reject(self, newValue) {
+        self._state = 2;
+        self._value = newValue;
+        finale(self);
+    }
+    function finale(self) {
+        if (self._state === 2 && self._deferreds.length === 0) {
+            // @ts-ignore
+            Promise._immediateFn(function () {
+                if (!self._handled) {
+                    // @ts-ignore
+                    Promise._unhandledRejectionFn(self._value);
+                }
+            });
+        }
+        for (var i = 0, len = self._deferreds.length; i < len; i++) {
+            handle(self, self._deferreds[i]);
+        }
+        self._deferreds = null;
+    }
+    /**
+     * @constructor
+     */
+    function Handler(onFulfilled, onRejected, promise) {
+        this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null;
+        this.onRejected = typeof onRejected === 'function' ? onRejected : null;
+        this.promise = promise;
+    }
+    /**
+     * Take a potentially misbehaving resolver function and make sure
+     * onFulfilled and onRejected are only called once.
+     *
+     * Makes no guarantees about asynchrony.
+     */
+    function doResolve(fn, self) {
+        var done = false;
+        try {
+            fn(function (value) {
+                if (done)
+                    return;
+                done = true;
+                resolve(self, value);
+            }, function (reason) {
+                if (done)
+                    return;
+                done = true;
+                reject(self, reason);
+            });
+        }
+        catch (ex) {
+            if (done)
+                return;
+            done = true;
+            reject(self, ex);
+        }
+    }
+    Promise.prototype['catch'] = function (onRejected) {
+        return this.then(null, onRejected);
+    };
+    Promise.prototype.then = function (onFulfilled, onRejected) {
+        // @ts-ignore
+        var prom = new this.constructor(noop);
+        handle(this, new Handler(onFulfilled, onRejected, prom));
+        return prom;
+    };
+    Promise.prototype['finally'] = finallyConstructor;
+    // @ts-ignore
+    Promise.all = function (arr) {
+        return new Promise(function (resolve, reject) {
+            if (!arr || typeof arr.length === 'undefined')
+                throw new TypeError('Promise.all accepts an array');
+            var args = Array.prototype.slice.call(arr);
+            if (args.length === 0)
+                return resolve([]);
+            var remaining = args.length;
+            function res(i, val) {
+                try {
+                    if (val && (typeof val === 'object' || typeof val === 'function')) {
+                        var then = val.then;
+                        if (typeof then === 'function') {
+                            then.call(val, function (val) {
+                                res(i, val);
+                            }, reject);
+                            return;
+                        }
+                    }
+                    args[i] = val;
+                    if (--remaining === 0) {
+                        resolve(args);
+                    }
+                }
+                catch (ex) {
+                    reject(ex);
+                }
+            }
+            for (var i = 0; i < args.length; i++) {
+                res(i, args[i]);
+            }
+        });
+    };
+    // @ts-ignore
+    Promise.resolve = function (value) {
+        if (value && typeof value === 'object' && value.constructor === Promise) {
+            return value;
+        }
+        return new Promise(function (resolve) {
+            resolve(value);
+        });
+    };
+    // @ts-ignore
+    Promise.reject = function (value) {
+        return new Promise(function (resolve, reject) {
+            reject(value);
+        });
+    };
+    // @ts-ignore
+    Promise.race = function (values) {
+        return new Promise(function (resolve, reject) {
+            for (var i = 0, len = values.length; i < len; i++) {
+                values[i].then(resolve, reject);
+            }
+        });
+    };
+    // Use polyfill for setImmediate for performance gains
+    // @ts-ignore
+    Promise._immediateFn =
+        // @ts-ignore
+        (typeof setImmediate === 'function' &&
+            function (fn) {
+                // @ts-ignore
+                setImmediate(fn);
+            }) ||
+            function (fn) {
+                setTimeoutFunc(fn, 0);
+            };
+    // @ts-ignore
+    Promise._unhandledRejectionFn = function _unhandledRejectionFn(err) {
+        if (typeof console !== 'undefined' && console) {
+            console.warn('Possible Unhandled Promise Rejection:', err); // eslint-disable-line no-console
+        }
+    };
+    /** @suppress {undefinedVars} */
+    var globalNS = (function () {
+        // the only reliable means to get the global object is
+        // `Function('return this')()`
+        // However, this causes CSP violations in Chrome apps.
+        if (typeof self !== 'undefined') {
+            return self;
+        }
+        if (typeof window !== 'undefined') {
+            return window;
+        }
+        if (typeof global !== 'undefined') {
+            return global;
+        }
+        throw new Error('unable to locate global object');
+    })();
+    if (!('Promise' in globalNS)) {
+        globalNS['Promise'] = Promise;
+    }
+    else if (!globalNS.Promise.prototype['finally']) {
+        globalNS.Promise.prototype['finally'] = finallyConstructor;
+    }
+})));
 if (!Array.prototype.find) {
     Array.prototype.find = function (predicate, thisArg) {
         for (var i = 0; i < this.length; i++) {
@@ -151,6 +420,7 @@ var Module = /** @class */ (function () {
     };
     return Module;
 }());
+/// <reference path="./Promise.ts"/>
 /// <reference path="./ArrayHelper.ts"/>
 /// <reference path="./Module.ts"/>
 var AmdLoader = /** @class */ (function () {
@@ -159,6 +429,11 @@ var AmdLoader = /** @class */ (function () {
         this.currentStack = [];
         this.modules = {};
         this.pathMap = {};
+        this.packageResolver = function (name, version) { return ({
+            name: name,
+            url: "/node_modules/" + name,
+            type: "amd"
+        }); };
     }
     AmdLoader.prototype.replace = function (type, name, mock) {
         if (mock && !this.enableMock) {
@@ -173,7 +448,11 @@ var AmdLoader = /** @class */ (function () {
     };
     AmdLoader.prototype.map = function (packageName, packageUrl, type, exportVar) {
         if (type === void 0) { type = "amd"; }
-        if (/^(reflect\-metadata|systemjs)$/.test(packageName)) {
+        // ignore map if it exists already...
+        if (this.pathMap[packageName]) {
+            return;
+        }
+        if (packageName === "reflect-metadata") {
             type = "global";
         }
         this.pathMap[packageName] = {
@@ -248,19 +527,47 @@ var AmdLoader = /** @class */ (function () {
         var _this = this;
         var module = this.modules[name];
         if (!module) {
-            module = new Module(name);
-            // module.url = this.resolvePath(name, AmdLoader.current.url);
-            module.url = this.resolveSource(name);
-            if (!module.url) {
-                throw new Error("No url mapped for " + name);
+            // strip '@' version info
+            var _a = name.split("/", 3), scope = _a[0], packageName = _a[1], path = _a[2];
+            var version = "";
+            if (scope[0] !== "@") {
+                packageName = scope;
+                scope = "";
             }
-            var def = this.pathMap[name];
-            if (def) {
-                module.type = def.type || "amd";
-                module.exportVar = def.exportVar;
+            var versionTokens = packageName.split("@");
+            if (versionTokens.length > 1) {
+                // remove version and map it..
+                version = versionTokens[1];
+                name = name.replace("@" + version, "");
+            }
+            module = new Module(name);
+            if (version) {
+                var info = this.packageResolver(module.name, version);
+                module.url = info.url;
+                module.type = info.type || "amd";
+                module.exportVar = info.exportVar;
+                // this is not needed, but useful for logging
+                this.pathMap[name] = {
+                    url: module.url,
+                    type: module.type,
+                    name: module.name,
+                    exportVar: module.exportVar
+                };
             }
             else {
-                module.type = "amd";
+                // module.url = this.resolvePath(name, AmdLoader.current.url);
+                module.url = this.resolveSource(name);
+                if (!module.url) {
+                    throw new Error("No url mapped for " + name);
+                }
+                var def = this.pathMap[name];
+                if (def) {
+                    module.type = def.type || "amd";
+                    module.exportVar = def.exportVar;
+                }
+                else {
+                    module.type = "amd";
+                }
             }
             module.require = function (n) {
                 var an = _this.resolveRelativePath(n, module.name);
@@ -273,7 +580,7 @@ var AmdLoader = /** @class */ (function () {
     };
     AmdLoader.prototype.import = function (name) {
         return __awaiter(this, void 0, void 0, function () {
-            var module, exports, pendings, _i, pendings_1, iterator, _a, pendings_2, iterator, containerModule, resolvedName, ex, type;
+            var module, exports, pendingList, _i, pendingList_1, iterator, _a, pendingList_2, iterator, containerModule, resolvedName, ex, type;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -282,17 +589,17 @@ var AmdLoader = /** @class */ (function () {
                     case 1:
                         _b.sent();
                         exports = module.getExports();
-                        pendings = this.mockTypes.filter(function (t) { return !t.loaded; });
-                        if (!pendings.length) return [3 /*break*/, 5];
-                        for (_i = 0, pendings_1 = pendings; _i < pendings_1.length; _i++) {
-                            iterator = pendings_1[_i];
+                        pendingList = this.mockTypes.filter(function (t) { return !t.loaded; });
+                        if (!pendingList.length) return [3 /*break*/, 5];
+                        for (_i = 0, pendingList_1 = pendingList; _i < pendingList_1.length; _i++) {
+                            iterator = pendingList_1[_i];
                             iterator.loaded = true;
                         }
-                        _a = 0, pendings_2 = pendings;
+                        _a = 0, pendingList_2 = pendingList;
                         _b.label = 2;
                     case 2:
-                        if (!(_a < pendings_2.length)) return [3 /*break*/, 5];
-                        iterator = pendings_2[_a];
+                        if (!(_a < pendingList_2.length)) return [3 /*break*/, 5];
+                        iterator = pendingList_2[_a];
                         containerModule = iterator.module;
                         resolvedName = this.resolveRelativePath(iterator.moduleName, containerModule.name);
                         return [4 /*yield*/, this.import(resolvedName)];
@@ -309,44 +616,92 @@ var AmdLoader = /** @class */ (function () {
             });
         });
     };
-    AmdLoader.prototype.load = function (module) {
-        var _this = this;
-        if (module.loader) {
-            return module.loader;
-        }
-        return module.loader = new Promise(function (resolve, reject) {
-            AmdLoader.moduleLoader(module.name, module.url, function (r) {
-                AmdLoader.current = module;
-                r();
-                module.ready = true;
-                if (module.exportVar) {
-                    module.exports = AmdLoader.globalVar[module.exportVar];
-                }
-                module.onReady(function () {
-                    resolve(module.getExports());
-                });
-                module.finish();
-                if (AmdLoader.moduleProgress) {
-                    // lets calculate how much...
-                    // const total: number = this.modules.length;
-                    // const done: number = this.modules.filter( (m) => m.ready ).length;
-                    var total = 0;
-                    var done = 0;
-                    for (var key in _this.modules) {
-                        if (_this.modules.hasOwnProperty(key)) {
-                            var mitem = _this.modules[key];
-                            if (mitem instanceof Module) {
-                                if (mitem.ready) {
-                                    done++;
-                                }
-                                total++;
-                            }
+    AmdLoader.prototype.loadPackageManifest = function (module) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (module.manifestLoaded) {
+                            return [2 /*return*/];
                         }
-                    }
-                    AmdLoader.moduleProgress(module.name, Math.round((done * 100) / total));
+                        return [4 /*yield*/, new Promise(function (resolve, reject) {
+                                var url = _this.resolveSource(module.name + "/package", ".json");
+                                AmdLoader.ajaxGet(module.name, url, function (r) {
+                                    var json = JSON.parse(r);
+                                    var dependencies = json.dependencies;
+                                    if (dependencies) {
+                                        for (var key in dependencies) {
+                                            if (dependencies.hasOwnProperty(key)) {
+                                                var element = dependencies[key];
+                                                var existing = _this.pathMap[key];
+                                                if (existing) {
+                                                    continue;
+                                                }
+                                                var info = _this.packageResolver(key, element);
+                                                _this.map(key, info.url, info.type, info.exportVar);
+                                            }
+                                        }
+                                    }
+                                    module.manifestLoaded = true;
+                                    resolve();
+                                }, reject);
+                            })];
+                    case 1: return [2 /*return*/, _a.sent()];
                 }
-            }, function (error) {
-                reject(error);
+            });
+        });
+    };
+    AmdLoader.prototype.load = function (module) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.loadPackageManifest(module)];
+                    case 1:
+                        _a.sent();
+                        if (!module.loader) return [3 /*break*/, 3];
+                        return [4 /*yield*/, module.loader];
+                    case 2: return [2 /*return*/, _a.sent()];
+                    case 3:
+                        module.loader = new Promise(function (resolve, reject) {
+                            AmdLoader.moduleLoader(module.name, module.url, function (r) {
+                                AmdLoader.current = module;
+                                r();
+                                module.ready = true;
+                                if (module.exportVar) {
+                                    module.exports = AmdLoader.globalVar[module.exportVar];
+                                }
+                                module.onReady(function () {
+                                    resolve(module.getExports());
+                                });
+                                module.finish();
+                                if (AmdLoader.moduleProgress) {
+                                    // lets calculate how much...
+                                    // const total: number = this.modules.length;
+                                    // const done: number = this.modules.filter( (m) => m.ready ).length;
+                                    var total = 0;
+                                    var done = 0;
+                                    for (var key in _this.modules) {
+                                        if (_this.modules.hasOwnProperty(key)) {
+                                            var mItem = _this.modules[key];
+                                            if (mItem instanceof Module) {
+                                                if (mItem.ready) {
+                                                    done++;
+                                                }
+                                                total++;
+                                            }
+                                        }
+                                    }
+                                    AmdLoader.moduleProgress(module.name, Math.round((done * 100) / total));
+                                }
+                            }, function (error) {
+                                reject(error);
+                            });
+                        });
+                        return [4 /*yield*/, module.loader];
+                    case 4: return [2 /*return*/, _a.sent()];
+                }
             });
         });
     };
@@ -355,17 +710,13 @@ var AmdLoader = /** @class */ (function () {
     AmdLoader.current = null;
     return AmdLoader;
 }());
-AmdLoader.moduleLoader = function (name, url, success, error) {
+AmdLoader.ajaxGet = function (name, url, success, error) {
     AmdLoader.globalVar = window;
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function (e) {
         if (xhr.readyState === XMLHttpRequest.DONE) {
             if (xhr.status === 200) {
-                success(function () {
-                    var errorCheck = "\n} catch(e) { if(e.stack) { alert(e.message + '\\r\\n' + e.stack); } else { alert(e); } }";
-                    // tslint:disable-next-line:no-eval
-                    eval("\"use strict\"; try { " + xhr.responseText + " " + errorCheck + "\n//# sourceURL=" + url);
-                });
+                success(xhr.responseText);
             }
             else {
                 error(xhr.responseText);
@@ -374,6 +725,15 @@ AmdLoader.moduleLoader = function (name, url, success, error) {
     };
     xhr.open("GET", url);
     xhr.send();
+};
+AmdLoader.moduleLoader = function (name, url, success, error) {
+    AmdLoader.ajaxGet(name, url, function (r) {
+        success(function () {
+            var errorCheck = "\n} catch(e) { if(e.stack) { alert(e.message + '\\r\\n' + e.stack); } else { alert(e); } }";
+            // tslint:disable-next-line:no-eval
+            eval("\"use strict\"; try { " + r + " " + errorCheck + "\n//# sourceURL=" + url);
+        });
+    }, error);
 };
 AmdLoader.moduleProgress = (function () {
     if (!document) {
@@ -426,7 +786,7 @@ AmdLoader.moduleProgress = (function () {
     };
 })();
 /// <reference path="./AmdLoader.ts"/>
-function define(requiresOrFactory, factory) {
+var define = function (requiresOrFactory, factory) {
     var current = AmdLoader.current;
     if (!current) {
         return;
@@ -460,7 +820,7 @@ function define(requiresOrFactory, factory) {
         loader.load(child);
     }
     current.factory = factory;
-}
+};
 define.amd = true;
 var MockType = /** @class */ (function () {
     function MockType(module, type, name, mock, moduleName, exportName) {

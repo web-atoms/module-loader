@@ -1,7 +1,9 @@
+declare var module: any, exports: any, amd: any, global: any;
 declare class Module {
     readonly name: string;
     readonly folder: string;
     private handlers;
+    manifestLoaded: boolean;
     constructor(name: string, folder?: string);
     onReady(h: () => void): void;
     isReady(visited?: Module[]): boolean;
@@ -29,6 +31,7 @@ declare class AmdLoader {
     static globalVar: any;
     static moduleProgress: (name: string, progress: number) => void;
     static moduleLoader: (packageName: string, url: string, success: (r: any) => void, failed: (error: any) => void) => void;
+    static ajaxGet: (packageName: string, url: string, success: (r: string) => void, failed: (error: any) => void) => void;
     static instance: AmdLoader;
     static current: Module;
     currentStack: Module[];
@@ -41,14 +44,20 @@ declare class AmdLoader {
     enableMock: boolean;
     replace(type: any, name: string, mock: boolean): void;
     resolveType(type: any): any;
+    packageResolver: (name: string, version: string) => IModuleConfig;
     map(packageName: string, packageUrl: string, type?: ("amd" | "global"), exportVar?: string): void;
     resolveSource(name: string, defExt?: string): string;
     resolveRelativePath(name: string, currentPackage: string): string;
     get(name: string): Module;
     import(name: string): Promise<any>;
+    loadPackageManifest(module: Module): Promise<void>;
     load(module: Module): Promise<any>;
 }
-declare function define(requiresOrFactory: string[] | (() => void), factory: (r: any, e: any) => void): void;
+interface IDefine {
+    (requiresOrFactory: string[] | (() => void), factory?: (r: any, e: any) => void): void;
+    amd?: boolean;
+}
+declare var define: IDefine;
 declare class MockType {
     readonly module: Module;
     type: any;

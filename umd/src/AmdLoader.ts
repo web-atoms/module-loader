@@ -1,3 +1,4 @@
+/// <reference path="./Promise.ts"/>
 /// <reference path="./ArrayHelper.ts"/>
 /// <reference path="./Module.ts"/>
 
@@ -229,7 +230,7 @@ class AmdLoader {
             return;
         }
 
-        return await new Promise((resolve, reject) => {
+        return await new Promise<void>((resolve, reject) => {
             const url: string = this.resolveSource(module.name + "/package", ".json");
 
             AmdLoader.ajaxGet(module.name, url, (r) => {

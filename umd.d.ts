@@ -48,7 +48,7 @@ declare class AmdLoader {
     enableMock: boolean;
     replace(type: any, name: string, mock: boolean): void;
     resolveType(type: any): any;
-    packageResolver: (name: string, version: string) => IPackage;
+    packageResolver: (p1: IPackage) => IPackage;
     map(packageName: string, packageUrl: string, type?: ("amd" | "global"), exportVar?: string): IPackage;
     resolveSource(name: string, defExt?: string): string;
     resolveRelativePath(name: string, currentPackage: string): string;

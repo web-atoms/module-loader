@@ -43,12 +43,12 @@ class AmdLoader {
         return t ? t.replaced : type;
     }
 
-    public packageResolver: (name: string, version: string) => IPackage
-        = (name, version) => ({
+    public packageResolver: (p1: IPackage) => IPackage
+        = (p) => ({
+            ... p,
             name,
             url: `/node_modules/${name}`,
-            type: "amd",
-            version})
+            type: "amd"})
 
     public map(
         packageName: string,
@@ -167,13 +167,14 @@ class AmdLoader {
             module = new Module(name);
 
             module.package = this.pathMap[packageName] ||
-                (this.pathMap[packageName] = {
-                    ... { type: "amd" },
-                    ... this.packageResolver(packageName, version),
-                    name: packageName,
-                    version,
-                    manifestLoaded: !this.resolveDependencies
-                });
+                (this.pathMap[packageName] = this.packageResolver(
+                    {
+                        type: "amd",
+                        name: packageName,
+                        version,
+                        manifestLoaded: !this.resolveDependencies,
+                        url: undefined
+                    }));
 
             module.url = this.resolveSource(name);
             if (!module.url) {
@@ -236,7 +237,12 @@ class AmdLoader {
                             if (existing) {
                                 continue;
                             }
-                            const info: IPackage = this.packageResolver(key, element);
+                            const info: IPackage = this.packageResolver({
+                                name,
+                                version: element,
+                                url: undefined,
+                                type: "amd"
+                            });
                             this.map(key, info.url, info.type, info.exportVar);
                         }
                     }

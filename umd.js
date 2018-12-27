@@ -445,12 +445,7 @@ var AmdLoader = /** @class */ (function () {
         this.currentStack = [];
         this.modules = {};
         this.pathMap = {};
-        this.packageResolver = function (name, version) { return ({
-            name: name,
-            url: "/node_modules/" + name,
-            type: "amd",
-            version: version
-        }); };
+        this.packageResolver = function (p) { return (__assign({}, p, { name: name, url: "/node_modules/" + name, type: "amd" })); };
     }
     AmdLoader.prototype.replace = function (type, name, mock) {
         if (mock && !this.enableMock) {
@@ -565,7 +560,13 @@ var AmdLoader = /** @class */ (function () {
             }
             module = new Module(name);
             module.package = this.pathMap[packageName] ||
-                (this.pathMap[packageName] = __assign({ type: "amd" }, this.packageResolver(packageName, version), { name: packageName, version: version, manifestLoaded: !this.resolveDependencies }));
+                (this.pathMap[packageName] = this.packageResolver({
+                    type: "amd",
+                    name: packageName,
+                    version: version,
+                    manifestLoaded: !this.resolveDependencies,
+                    url: undefined
+                }));
             module.url = this.resolveSource(name);
             if (!module.url) {
                 throw new Error("No url mapped for " + name);
@@ -639,7 +640,12 @@ var AmdLoader = /** @class */ (function () {
                                                 if (existing) {
                                                     continue;
                                                 }
-                                                var info = _this.packageResolver(key, element);
+                                                var info = _this.packageResolver({
+                                                    name: name,
+                                                    version: element,
+                                                    url: undefined,
+                                                    type: "amd"
+                                                });
                                                 _this.map(key, info.url, info.type, info.exportVar);
                                             }
                                         }

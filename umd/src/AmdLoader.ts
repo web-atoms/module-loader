@@ -143,7 +143,11 @@ class AmdLoader {
         return `${currentTokens.join("/")}/${tokens.join("/")}`;
     }
 
-    public getPackageVersion(name: string): ({ packageName: string, version: string }) {
+    public getPackageVersion(name: string): ({
+        packageName: string,
+        version: string,
+        name: string
+    }) {
         let [scope, packageName, path] = name.split("/",3);
         let version: string = "";
         if (scope[0] !== "@") {
@@ -160,18 +164,19 @@ class AmdLoader {
             name = name.replace("@" + version, "");
         }
         packageName = scope + packageName;
-        return { packageName, version };
+        return { packageName, version, name };
     }
 
-    public get(name: string): Module {
-        let module: Module = this.modules[name];
+    public get(name1: string): Module {
+
+        let module: Module = this.modules[name1];
         if (!module) {
 
             // strip '@' version info
-
-            const { packageName, version } = this.getPackageVersion(name);
-
+            const { packageName, version, name } = this.getPackageVersion(name1);
             module = new Module(name);
+
+            this.modules[name1] = module;
 
             module.package = this.pathMap[packageName] ||
                 (this.pathMap[packageName] = this.packageResolver(

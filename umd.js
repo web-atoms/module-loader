@@ -573,15 +573,16 @@ var AmdLoader = /** @class */ (function () {
             name = name.replace("@" + version, "");
         }
         packageName = scope + packageName;
-        return { packageName: packageName, version: version };
+        return { packageName: packageName, version: version, name: name };
     };
-    AmdLoader.prototype.get = function (name) {
+    AmdLoader.prototype.get = function (name1) {
         var _this = this;
-        var module = this.modules[name];
+        var module = this.modules[name1];
         if (!module) {
             // strip '@' version info
-            var _a = this.getPackageVersion(name), packageName = _a.packageName, version = _a.version;
-            module = new Module(name);
+            var _a = this.getPackageVersion(name1), packageName = _a.packageName, version = _a.version, name_1 = _a.name;
+            module = new Module(name_1);
+            this.modules[name1] = module;
             module.package = this.pathMap[packageName] ||
                 (this.pathMap[packageName] = this.packageResolver({
                     type: "amd",
@@ -590,16 +591,16 @@ var AmdLoader = /** @class */ (function () {
                     manifestLoaded: this.packageResolver ? false : true,
                     url: undefined
                 }));
-            module.url = this.resolveSource(name);
+            module.url = this.resolveSource(name_1);
             if (!module.url) {
-                throw new Error("No url mapped for " + name);
+                throw new Error("No url mapped for " + name_1);
             }
             module.require = function (n) {
                 var an = _this.resolveRelativePath(n, module.name);
                 var resolvedModule = _this.get(an);
                 return resolvedModule.getExports();
             };
-            this.modules[name] = module;
+            this.modules[name_1] = module;
         }
         return module;
     };
@@ -862,9 +863,9 @@ var define = function (requiresOrFactory, factory) {
                 continue;
             }
             // resolve full name...
-            var name_1 = loader.resolveRelativePath(s, current.name);
+            var name_2 = loader.resolveRelativePath(s, current.name);
             // console.log(`dep: ${name} for ${s} in ${current.name}`);
-            var child = loader.get(name_1);
+            var child = loader.get(name_2);
             current.dependencies.push(child);
             child.onReady(function () {
                 current.finish();

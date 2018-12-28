@@ -54,8 +54,9 @@ declare class AmdLoader {
     getPackageVersion(name: string): ({
         packageName: string;
         version: string;
+        name: string;
     });
-    get(name: string): Module;
+    get(name1: string): Module;
     import(name: string): Promise<any>;
     loadPackageManifest(module: Module): Promise<void>;
     load(module: Module): Promise<any>;

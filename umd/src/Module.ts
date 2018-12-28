@@ -35,7 +35,11 @@ class Module {
         //     // this.handlers.splice(index, 1);
         //     h();
         // };
-        this.handlers.push(h);
+        if (this.handlers) {
+            this.handlers.push(h);
+        } else {
+            h();
+        }
     }
 
     public isReady(visited?: Module[]): boolean {

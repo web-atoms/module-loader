@@ -383,7 +383,12 @@ var Module = /** @class */ (function () {
         //     // this.handlers.splice(index, 1);
         //     h();
         // };
-        this.handlers.push(h);
+        if (this.handlers) {
+            this.handlers.push(h);
+        }
+        else {
+            h();
+        }
     };
     Module.prototype.isReady = function (visited) {
         if (!this.ready) {

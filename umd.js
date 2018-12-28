@@ -441,7 +441,6 @@ var AmdLoader = /** @class */ (function () {
     function AmdLoader() {
         this.mockTypes = [];
         this.usesEval = true;
-        this.resolveDependencies = true;
         this.currentStack = [];
         this.modules = {};
         this.pathMap = {};
@@ -477,7 +476,7 @@ var AmdLoader = /** @class */ (function () {
             url: packageUrl,
             type: type,
             exportVar: exportVar,
-            manifestLoaded: this.packageResolver ? true : false,
+            manifestLoaded: this.packageResolver ? false : true,
             version: ""
         };
         this.pathMap[packageName] = existing;
@@ -567,7 +566,7 @@ var AmdLoader = /** @class */ (function () {
                     type: "amd",
                     name: packageName,
                     version: version,
-                    manifestLoaded: !this.resolveDependencies,
+                    manifestLoaded: this.packageResolver ? false : true,
                     url: undefined
                 }));
             module.url = this.resolveSource(name);
@@ -886,16 +885,6 @@ var UMDClass = /** @class */ (function () {
         this.defaultApp = "web-atoms-core/dist/web/WebApp";
         this.lang = "en-US";
     }
-    Object.defineProperty(UMDClass.prototype, "resolveDependencies", {
-        get: function () {
-            return AmdLoader.instance.resolveDependencies;
-        },
-        set: function (v) {
-            AmdLoader.instance.resolveDependencies = v;
-        },
-        enumerable: true,
-        configurable: true
-    });
     Object.defineProperty(UMDClass.prototype, "packageResolver", {
         get: function () {
             return AmdLoader.instance.packageResolver;

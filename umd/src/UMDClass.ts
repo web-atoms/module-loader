@@ -8,14 +8,6 @@ class UMDClass {
 
     public lang = "en-US";
 
-    public get resolveDependencies(): boolean {
-        return AmdLoader.instance.resolveDependencies;
-    }
-
-    public set resolveDependencies(v: boolean) {
-        AmdLoader.instance.resolveDependencies = v;
-    }
-
     public get packageResolver(): ((p: IPackage) => IPackage)  {
         return AmdLoader.instance.packageResolver;
     }

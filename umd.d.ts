@@ -31,7 +31,6 @@ declare class Module {
 declare class AmdLoader {
     private mockTypes;
     usesEval: boolean;
-    resolveDependencies: boolean;
     static globalVar: any;
     static moduleProgress: (name: string, progress: number) => void;
     static moduleLoader: (packageName: string, url: string, success: (r: any) => void, failed: (error: any) => void) => void;
@@ -78,7 +77,6 @@ declare class UMDClass {
     viewPrefix: string;
     defaultApp: string;
     lang: string;
-    resolveDependencies: boolean;
     packageResolver: ((p: IPackage) => IPackage);
     mock: boolean;
     resolvePath(n: string): string;

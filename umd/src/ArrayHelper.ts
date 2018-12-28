@@ -52,3 +52,12 @@ if (!Number.parseFloat) {
         return parseFloat(n);
     };
 }
+
+if (!("remove" in Element.prototype)) {
+    // tslint:disable-next-line
+    (Element as any).prototype["remove"] = function () {
+      if (this.parentNode) {
+        this.parentNode.removeChild(this);
+      }
+    };
+  }

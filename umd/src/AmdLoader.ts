@@ -143,27 +143,34 @@ class AmdLoader {
         return `${currentTokens.join("/")}/${tokens.join("/")}`;
     }
 
+    public getPackageVersion(name: string): ({ packageName: string, version: string }) {
+        let [scope, packageName, path] = name.split("/",3);
+        let version: string = "";
+        if (scope[0] !== "@") {
+            packageName = scope;
+            scope = "";
+        } else {
+            scope += "/";
+        }
+
+        const versionTokens: string[] = packageName.split("@");
+        if (versionTokens.length>1) {
+            // remove version and map it..
+            version = versionTokens[1];
+            name = name.replace("@" + version, "");
+        }
+        packageName = scope + packageName;
+        return { packageName, version };
+    }
+
     public get(name: string): Module {
         let module: Module = this.modules[name];
         if (!module) {
 
             // strip '@' version info
-            let [scope, packageName, path] = name.split("/",3);
-            let version: string = "";
-            if (scope[0] !== "@") {
-                packageName = scope;
-                scope = "";
-            } else {
-                scope += "/";
-            }
 
-            const versionTokens: string[] = packageName.split("@");
-            if (versionTokens.length>1) {
-                // remove version and map it..
-                version = versionTokens[1];
-                name = name.replace("@" + version, "");
-            }
-            packageName = scope + packageName;
+            const { packageName, version } = this.getPackageVersion(name);
+
             module = new Module(name);
 
             module.package = this.pathMap[packageName] ||

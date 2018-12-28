@@ -51,6 +51,10 @@ declare class AmdLoader {
     map(packageName: string, packageUrl: string, type?: ("amd" | "global"), exportVar?: string): IPackage;
     resolveSource(name: string, defExt?: string): string;
     resolveRelativePath(name: string, currentPackage: string): string;
+    getPackageVersion(name: string): ({
+        packageName: string;
+        version: string;
+    });
     get(name: string): Module;
     import(name: string): Promise<any>;
     loadPackageManifest(module: Module): Promise<void>;

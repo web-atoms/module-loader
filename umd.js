@@ -556,27 +556,31 @@ var AmdLoader = /** @class */ (function () {
         }
         return currentTokens.join("/") + "/" + tokens.join("/");
     };
+    AmdLoader.prototype.getPackageVersion = function (name) {
+        var _a = name.split("/", 3), scope = _a[0], packageName = _a[1], path = _a[2];
+        var version = "";
+        if (scope[0] !== "@") {
+            packageName = scope;
+            scope = "";
+        }
+        else {
+            scope += "/";
+        }
+        var versionTokens = packageName.split("@");
+        if (versionTokens.length > 1) {
+            // remove version and map it..
+            version = versionTokens[1];
+            name = name.replace("@" + version, "");
+        }
+        packageName = scope + packageName;
+        return { packageName: packageName, version: version };
+    };
     AmdLoader.prototype.get = function (name) {
         var _this = this;
         var module = this.modules[name];
         if (!module) {
             // strip '@' version info
-            var _a = name.split("/", 3), scope = _a[0], packageName = _a[1], path = _a[2];
-            var version = "";
-            if (scope[0] !== "@") {
-                packageName = scope;
-                scope = "";
-            }
-            else {
-                scope += "/";
-            }
-            var versionTokens = packageName.split("@");
-            if (versionTokens.length > 1) {
-                // remove version and map it..
-                version = versionTokens[1];
-                name = name.replace("@" + version, "");
-            }
-            packageName = scope + packageName;
+            var _a = this.getPackageVersion(name), packageName = _a.packageName, version = _a.version;
             module = new Module(name);
             module.package = this.pathMap[packageName] ||
                 (this.pathMap[packageName] = this.packageResolver({
@@ -965,6 +969,7 @@ var UMDClass = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        AmdLoader.instance.get(path);
                         this.mock = designMode;
                         return [4 /*yield*/, AmdLoader.instance.import("web-atoms-core/dist/Atom")];
                     case 1:

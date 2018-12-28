@@ -413,9 +413,11 @@ var Module = /** @class */ (function () {
         if (!this.isReady()) {
             return;
         }
-        for (var _i = 0, _a = this.handlers.map(function (a) { return a; }); _i < _a.length; _i++) {
-            var iterator = _a[_i];
-            iterator();
+        if (this.handlers) {
+            for (var _i = 0, _a = this.handlers.map(function (a) { return a; }); _i < _a.length; _i++) {
+                var iterator = _a[_i];
+                iterator();
+            }
         }
     };
     Module.prototype.getExports = function () {

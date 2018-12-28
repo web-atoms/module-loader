@@ -67,8 +67,10 @@ class Module {
             return;
         }
 
-        for (const iterator of this.handlers.map((a) => a)) {
-            iterator();
+        if (this.handlers) {
+            for (const iterator of this.handlers.map((a) => a)) {
+                iterator();
+            }
         }
     }
 

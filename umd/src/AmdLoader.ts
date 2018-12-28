@@ -60,10 +60,6 @@ class AmdLoader {
             return existing;
         }
 
-        if (packageName === "reflect-metadata") {
-            type = "global";
-        }
-
         existing = {
             name: packageName,
             url: packageUrl,
@@ -72,6 +68,11 @@ class AmdLoader {
             manifestLoaded: this.packageResolver ? false : true,
             version: ""
         };
+        if (packageName === "reflect-metadata") {
+            type = "global";
+            existing.manifestLoaded = true;
+        }
+
         this.pathMap[packageName] = existing;
         return existing;
     }

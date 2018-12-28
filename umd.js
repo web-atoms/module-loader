@@ -468,9 +468,6 @@ var AmdLoader = /** @class */ (function () {
         if (existing) {
             return existing;
         }
-        if (packageName === "reflect-metadata") {
-            type = "global";
-        }
         existing = {
             name: packageName,
             url: packageUrl,
@@ -479,6 +476,10 @@ var AmdLoader = /** @class */ (function () {
             manifestLoaded: this.packageResolver ? false : true,
             version: ""
         };
+        if (packageName === "reflect-metadata") {
+            type = "global";
+            existing.manifestLoaded = true;
+        }
         this.pathMap[packageName] = existing;
         return existing;
     };

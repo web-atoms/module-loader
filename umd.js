@@ -413,6 +413,7 @@ var Module = /** @class */ (function () {
             var iterator = _a[_i];
             iterator();
         }
+        this.handlers.length = 0;
     };
     Module.prototype.getExports = function () {
         if (this.exports) {
@@ -433,7 +434,6 @@ var Module = /** @class */ (function () {
             AmdLoader.instance.currentStack.pop();
             // we no longer need all these ...
             delete this.factory;
-            delete this.handlers;
             delete this.dependencies;
         }
         return this.exports;

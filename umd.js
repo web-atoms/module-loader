@@ -374,17 +374,16 @@ var Module = /** @class */ (function () {
         }
     }
     Module.prototype.onReady = function (h) {
-        var _this = this;
         // remove self after execution...
-        var a = {
-            handler: h
-        };
-        a.handler = function () {
-            var index = _this.handlers.indexOf(a.handler);
-            _this.handlers.splice(index, 1);
-            h();
-        };
-        this.handlers.push(a.handler);
+        // const a: any = {
+        //     handler: h
+        // };
+        // a.handler = () => {
+        //     // const index: number = this.handlers.indexOf(a.handler);
+        //     // this.handlers.splice(index, 1);
+        //     h();
+        // };
+        this.handlers.push(h);
     };
     Module.prototype.isReady = function (visited) {
         if (!this.ready) {
@@ -413,7 +412,6 @@ var Module = /** @class */ (function () {
             var iterator = _a[_i];
             iterator();
         }
-        this.handlers.length = 0;
     };
     Module.prototype.getExports = function () {
         if (this.exports) {
@@ -434,6 +432,7 @@ var Module = /** @class */ (function () {
             AmdLoader.instance.currentStack.pop();
             // we no longer need all these ...
             delete this.factory;
+            delete this.handlers;
             delete this.dependencies;
         }
         return this.exports;

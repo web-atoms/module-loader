@@ -27,15 +27,15 @@ class Module {
 
     public onReady(h: () => void): void {
         // remove self after execution...
-        const a: any = {
-            handler: h
-        };
-        a.handler = () => {
-            const index: number = this.handlers.indexOf(a.handler);
-            this.handlers.splice(index, 1);
-            h();
-        };
-        this.handlers.push(a.handler);
+        // const a: any = {
+        //     handler: h
+        // };
+        // a.handler = () => {
+        //     // const index: number = this.handlers.indexOf(a.handler);
+        //     // this.handlers.splice(index, 1);
+        //     h();
+        // };
+        this.handlers.push(h);
     }
 
     public isReady(visited?: Module[]): boolean {
@@ -66,7 +66,6 @@ class Module {
         for (const iterator of this.handlers.map((a) => a)) {
             iterator();
         }
-        this.handlers.length = 0;
     }
 
     public url: string;
@@ -92,6 +91,7 @@ class Module {
             AmdLoader.instance.currentStack.pop();
             // we no longer need all these ...
             delete this.factory;
+            delete this.handlers;
             delete this.dependencies;
         }
         return this.exports;

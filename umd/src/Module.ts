@@ -87,6 +87,8 @@ class Module {
                 }
             }
             AmdLoader.instance.currentStack.pop();
+            // we no longer need factory
+            delete this.factory;
         }
         return this.exports;
     }

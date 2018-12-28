@@ -153,6 +153,8 @@ class AmdLoader {
             if (scope[0] !== "@") {
                 packageName = scope;
                 scope = "";
+            } else {
+                scope += "/";
             }
 
             const versionTokens: string[] = packageName.split("@");
@@ -161,6 +163,7 @@ class AmdLoader {
                 version = versionTokens[1];
                 name = name.replace("@" + version, "");
             }
+            packageName = scope + packageName;
             module = new Module(name);
 
             module.package = this.pathMap[packageName] ||

@@ -567,12 +567,16 @@ var AmdLoader = /** @class */ (function () {
                 packageName = scope;
                 scope = "";
             }
+            else {
+                scope += "/";
+            }
             var versionTokens = packageName.split("@");
             if (versionTokens.length > 1) {
                 // remove version and map it..
                 version = versionTokens[1];
                 name = name.replace("@" + version, "");
             }
+            packageName = scope + packageName;
             module = new Module(name);
             module.package = this.pathMap[packageName] ||
                 (this.pathMap[packageName] = this.packageResolver({

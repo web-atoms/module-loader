@@ -43,11 +43,11 @@ class AmdLoader {
         return t ? t.replaced : type;
     }
 
-    public packageResolver: (p1: IPackage) => IPackage
-        = (p) => ({
-            ... p,
-            url: `/node_modules/${p.name}`,
-            type: "amd"})
+    public packageResolver: (p1: IPackage) => IPackage = undefined;
+        // = (p) => ({
+        //     ... p,
+        //     url: `/node_modules/${p.name}`,
+        //     type: "amd"})
 
     public map(
         packageName: string,
@@ -64,7 +64,6 @@ class AmdLoader {
 
         if (packageName === "reflect-metadata") {
             type = "global";
-            packageUrl = packageUrl + "/Reflect.js";
         }
 
         existing = {
@@ -72,7 +71,7 @@ class AmdLoader {
             url: packageUrl,
             type: type,
             exportVar,
-            manifestLoaded: true,
+            manifestLoaded: this.packageResolver ? true : false,
             version: ""
         };
         this.pathMap[packageName] = existing;
@@ -242,6 +241,9 @@ class AmdLoader {
                                 url: undefined,
                                 type: "amd"
                             });
+                            if (key === "reflect-metadata") {
+                                info.url = info.url + "/Reflect.js";
+                            }
                             this.map(key, info.url, info.type, info.exportVar);
                         }
                     }

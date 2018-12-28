@@ -392,13 +392,15 @@ var Module = /** @class */ (function () {
         }
         visited = visited || [];
         visited.push(this);
-        for (var _i = 0, _a = this.dependencies; _i < _a.length; _i++) {
-            var iterator = _a[_i];
-            if (visited.indexOf(iterator) !== -1) {
-                continue;
-            }
-            if (!iterator.isReady(visited)) {
-                return false;
+        if (this.dependencies) {
+            for (var _i = 0, _a = this.dependencies; _i < _a.length; _i++) {
+                var iterator = _a[_i];
+                if (visited.indexOf(iterator) !== -1) {
+                    continue;
+                }
+                if (!iterator.isReady(visited)) {
+                    return false;
+                }
             }
         }
         return true;
@@ -429,8 +431,10 @@ var Module = /** @class */ (function () {
                 }
             }
             AmdLoader.instance.currentStack.pop();
-            // we no longer need factory
+            // we no longer need all these ...
             delete this.factory;
+            delete this.handlers;
+            delete this.dependencies;
         }
         return this.exports;
     };

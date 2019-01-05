@@ -429,11 +429,16 @@ var Module = /** @class */ (function () {
             AmdLoader.instance.currentStack.push(this);
             var result = this.factory(this.require, this.exports);
             if (result) {
-                for (var key in result) {
-                    if (result.hasOwnProperty(key)) {
-                        var element = result[key];
-                        this.exports[key] = element;
+                if (typeof result === "object") {
+                    for (var key in result) {
+                        if (result.hasOwnProperty(key)) {
+                            var element = result[key];
+                            this.exports[key] = element;
+                        }
                     }
+                }
+                else if (!this.exports.default) {
+                    this.exports.default = result;
                 }
             }
             AmdLoader.instance.currentStack.pop();

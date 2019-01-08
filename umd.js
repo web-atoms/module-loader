@@ -350,13 +350,15 @@ if (!Number.parseFloat) {
         return parseFloat(n);
     };
 }
-if (!("remove" in Element.prototype)) {
-    // tslint:disable-next-line
-    Element.prototype["remove"] = function () {
-        if (this.parentNode) {
-            this.parentNode.removeChild(this);
-        }
-    };
+if (typeof Element !== "undefined") {
+    if (!("remove" in Element.prototype)) {
+        // tslint:disable-next-line
+        Element.prototype["remove"] = function () {
+            if (this.parentNode) {
+                this.parentNode.removeChild(this);
+            }
+        };
+    }
 }
 var Module = /** @class */ (function () {
     function Module(name, folder) {

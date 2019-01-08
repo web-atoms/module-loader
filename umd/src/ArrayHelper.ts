@@ -53,11 +53,13 @@ if (!Number.parseFloat) {
     };
 }
 
-if (!("remove" in Element.prototype)) {
-    // tslint:disable-next-line
-    (Element as any).prototype["remove"] = function () {
-      if (this.parentNode) {
-        this.parentNode.removeChild(this);
-      }
-    };
-  }
+if (typeof Element !== "undefined") {
+    if (!("remove" in Element.prototype)) {
+        // tslint:disable-next-line
+        (Element as any).prototype["remove"] = function () {
+        if (this.parentNode) {
+            this.parentNode.removeChild(this);
+        }
+        };
+    }
+}

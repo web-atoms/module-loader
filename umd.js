@@ -811,8 +811,8 @@ AmdLoader.moduleProgress = (function () {
     var style = progressDiv.style;
     style.position = "absolute";
     // style.margin = "auto";
-    // style.width = "200px";
-    // style.height = "100px";
+    style.width = "200px";
+    style.height = "30px";
     // style.top = style.right =
     style.left =
         style.bottom = "5px";
@@ -843,11 +843,9 @@ AmdLoader.moduleProgress = (function () {
         document.addEventListener("DOMContentLoaded", completed);
         window.addEventListener("load", completed);
     }
-    var lines = [];
     return function (name, n, status) {
         if (status === "done") {
             progressDiv.style.display = "none";
-            lines.length = 0;
             return;
         }
         else {

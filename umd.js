@@ -810,22 +810,24 @@ AmdLoader.moduleProgress = (function () {
     var progressDiv = document.createElement("div");
     var style = progressDiv.style;
     style.position = "absolute";
-    // style.margin = "auto";
+    style.margin = "auto";
     style.width = "200px";
-    style.height = "30px";
-    // style.top = style.right =
-    style.left =
-        style.bottom = "5px";
+    style.height = "100px";
+    style.top = style.right = style.left = style.bottom = "5px";
     style.borderStyle = "solid";
     style.borderWidth = "1px";
     style.borderColor = "#A0A0A0";
     style.borderRadius = "5px";
     style.padding = "5px";
-    style.textAlign = "center";
-    style.verticalAlign = "middle";
+    style.textAlign = "left";
+    style.verticalAlign = "bottom";
     var progressLabel = document.createElement("pre");
     progressDiv.appendChild(progressLabel);
     progressLabel.style.color = "#A0A0A0";
+    var ps = progressLabel.style;
+    ps.position = "absolute";
+    ps.left = "10px";
+    ps.bottom = "10px";
     function ready() {
         document.body.appendChild(progressDiv);
     }

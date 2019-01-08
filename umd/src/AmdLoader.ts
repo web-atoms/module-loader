@@ -11,7 +11,7 @@ class AmdLoader {
 
     public static globalVar: any = {};
 
-    public static moduleProgress: (name: string, progress: number) => void;
+    public static moduleProgress: (name: string, modules: {[key: string]: Module}, status: "done" | "loading") => void;
 
     public static moduleLoader: (packageName: string, url: string, success: (r: any) => void, failed: (error: any) => void) => void;
 
@@ -20,6 +20,8 @@ class AmdLoader {
     public static instance: AmdLoader = new AmdLoader();
 
     public static current: Module = null;
+
+    public root: Module = null;
 
     public currentStack: Module[] = [];
 
@@ -206,6 +208,10 @@ class AmdLoader {
 
         let module: Module = this.get(name);
 
+        if (!this.root) {
+            this.root = module;
+        }
+
         await this.load(module);
 
         // tslint:disable-next-line:typedef
@@ -224,6 +230,11 @@ class AmdLoader {
                 const type: any = ex[iterator.exportName];
                 iterator.replaced = type;
             }
+        }
+
+        if (this.root === module) {
+            this.root = null;
+            AmdLoader.moduleProgress(null, this.modules, "done");
         }
 
         return exports;
@@ -304,22 +315,22 @@ class AmdLoader {
                     // const total: number = this.modules.length;
                     // const done: number = this.modules.filter( (m) => m.ready ).length;
 
-                    let total: number = 0;
-                    let done: number = 0;
+                    // let total: number = 0;
+                    // let done: number = 0;
 
-                    for (const key in this.modules) {
-                        if (this.modules.hasOwnProperty(key)) {
-                            const mItem: any = this.modules[key];
-                            if (mItem instanceof Module) {
-                                if (mItem.ready) {
-                                    done ++;
-                                }
-                                total ++;
-                            }
-                        }
-                    }
+                    // for (const key in this.modules) {
+                    //     if (this.modules.hasOwnProperty(key)) {
+                    //         const mItem: any = this.modules[key];
+                    //         if (mItem instanceof Module) {
+                    //             if (mItem.ready) {
+                    //                 done ++;
+                    //             }
+                    //             total ++;
+                    //         }
+                    //     }
+                    // }
 
-                    AmdLoader.moduleProgress(module.name, Math.round( (done * 100)/total ));
+                    AmdLoader.moduleProgress(module.name, this.modules , "loading");
                 }
 
             }, (error) => {
@@ -412,7 +423,7 @@ AmdLoader.moduleProgress = (() => {
     style.textAlign = "center";
     style.verticalAlign = "middle";
 
-    const progressLabel: HTMLDivElement = document.createElement("div");
+    const progressLabel: HTMLPreElement = document.createElement("pre");
     progressDiv.appendChild(progressLabel);
     progressLabel.style.color = "#A0A0A0";
 
@@ -435,12 +446,23 @@ AmdLoader.moduleProgress = (() => {
         document.addEventListener( "DOMContentLoaded", completed );
         window.addEventListener( "load", completed );
     }
-    return (name, n) => {
-        if (n >= 99) {
+
+    const lines: string[] = [];
+
+    return (name, n, status) => {
+        if (status === "done") {
             progressDiv.style.display = "none";
+            lines.length = 0;
+            return;
         } else {
             progressDiv.style.display = "block";
         }
-        progressLabel.textContent = `Loading ... (${n}%)`;
+        if (name) {
+            lines.push(name);
+            if (lines.length>5) {
+                lines.splice(0, 1);
+            }
+        }
+        progressLabel.textContent = lines.join("\n");
     };
 })();

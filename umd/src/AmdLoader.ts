@@ -410,10 +410,12 @@ AmdLoader.moduleProgress = (() => {
     const style: CSSStyleDeclaration = progressDiv.style;
 
     style.position = "absolute";
-    style.margin = "auto";
-    style.width = "200px";
-    style.height = "100px";
-    style.top = style.left = style.right = style.bottom = "0";
+    // style.margin = "auto";
+    // style.width = "200px";
+    // style.height = "100px";
+    // style.top = style.right =
+    style.left =
+    style.bottom = "5px";
 
     style.borderStyle = "solid";
     style.borderWidth = "1px";
@@ -457,12 +459,7 @@ AmdLoader.moduleProgress = (() => {
         } else {
             progressDiv.style.display = "block";
         }
-        if (name) {
-            lines.push(name);
-            if (lines.length>5) {
-                lines.splice(0, 1);
-            }
-        }
-        progressLabel.textContent = lines.join("\n");
+        name = name.split("/").pop();
+        progressLabel.textContent = name;
     };
 })();

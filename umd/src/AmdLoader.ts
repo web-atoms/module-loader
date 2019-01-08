@@ -13,7 +13,7 @@ class AmdLoader {
 
     public static moduleProgress: (name: string, modules: {[key: string]: Module}, status: "done" | "loading") => void;
 
-    public static moduleLoader: (packageName: string, url: string, success: (r: any) => void, failed: (error: any) => void) => void;
+    public static moduleLoader: (packageName: string, url: string, success: () => void, failed: (error: any) => void) => void;
 
     public static ajaxGet: (packageName: string, url: string, success: (r: string) => void, failed: (error: any) => void) => void;
 
@@ -293,10 +293,10 @@ class AmdLoader {
 
         module.loader = new Promise((resolve, reject) => {
 
-            AmdLoader.moduleLoader(module.name, module.url, (r) => {
+            AmdLoader.moduleLoader(module.name, module.url, () => {
 
                 AmdLoader.current = module;
-                r();
+                AmdLoader.instance.define();
 
                 module.ready = true;
 
@@ -380,9 +380,7 @@ AmdLoader.moduleLoader = (name, url, success, error) => {
             return;
         }
         script.onload = s.onreadystatechange = null;
-        success(() => {
-            AmdLoader.instance.define();
-        });
+        success();
     };
     document.body.appendChild(script);
 

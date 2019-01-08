@@ -715,9 +715,9 @@ var AmdLoader = /** @class */ (function () {
                     case 2: return [2 /*return*/, _a.sent()];
                     case 3:
                         module.loader = new Promise(function (resolve, reject) {
-                            AmdLoader.moduleLoader(module.name, module.url, function (r) {
+                            AmdLoader.moduleLoader(module.name, module.url, function () {
                                 AmdLoader.current = module;
-                                r();
+                                AmdLoader.instance.define();
                                 module.ready = true;
                                 if (module.exportVar) {
                                     module.exports = AmdLoader.globalVar[module.exportVar];
@@ -789,9 +789,7 @@ AmdLoader.moduleLoader = function (name, url, success, error) {
             return;
         }
         script.onload = s.onreadystatechange = null;
-        success(function () {
-            AmdLoader.instance.define();
-        });
+        success();
     };
     document.body.appendChild(script);
     // tslint:disable-next-line:comment-format

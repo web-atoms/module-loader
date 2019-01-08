@@ -35,7 +35,7 @@ declare class AmdLoader {
     static moduleProgress: (name: string, modules: {
         [key: string]: Module;
     }, status: "done" | "loading") => void;
-    static moduleLoader: (packageName: string, url: string, success: (r: any) => void, failed: (error: any) => void) => void;
+    static moduleLoader: (packageName: string, url: string, success: () => void, failed: (error: any) => void) => void;
     static ajaxGet: (packageName: string, url: string, success: (r: string) => void, failed: (error: any) => void) => void;
     static instance: AmdLoader;
     static current: Module;

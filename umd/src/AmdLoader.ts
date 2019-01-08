@@ -348,7 +348,9 @@ class AmdLoader {
 
 AmdLoader.ajaxGet = (name, url, success, error) => {
 
-    AmdLoader.globalVar = window;
+    if (typeof window !== "undefined") {
+        AmdLoader.globalVar = window;
+    }
 
     const xhr: XMLHttpRequest = new XMLHttpRequest();
     xhr.onreadystatechange = (e) => {

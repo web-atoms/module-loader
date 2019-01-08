@@ -759,7 +759,9 @@ var AmdLoader = /** @class */ (function () {
     return AmdLoader;
 }());
 AmdLoader.ajaxGet = function (name, url, success, error) {
-    AmdLoader.globalVar = window;
+    if (typeof window !== "undefined") {
+        AmdLoader.globalVar = window;
+    }
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function (e) {
         if (xhr.readyState === XMLHttpRequest.DONE) {

@@ -32,11 +32,14 @@ declare class AmdLoader {
     private mockTypes;
     usesEval: boolean;
     static globalVar: any;
-    static moduleProgress: (name: string, progress: number) => void;
+    static moduleProgress: (name: string, modules: {
+        [key: string]: Module;
+    }, status: "done" | "loading") => void;
     static moduleLoader: (packageName: string, url: string, success: (r: any) => void, failed: (error: any) => void) => void;
     static ajaxGet: (packageName: string, url: string, success: (r: string) => void, failed: (error: any) => void) => void;
     static instance: AmdLoader;
     static current: Module;
+    root: Module;
     currentStack: Module[];
     modules: {
         [key: string]: Module;

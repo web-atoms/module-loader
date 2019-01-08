@@ -458,6 +458,7 @@ var AmdLoader = /** @class */ (function () {
     function AmdLoader() {
         this.mockTypes = [];
         this.usesEval = true;
+        this.root = null;
         this.currentStack = [];
         this.modules = {};
         this.pathMap = {};
@@ -616,6 +617,9 @@ var AmdLoader = /** @class */ (function () {
                 switch (_b.label) {
                     case 0:
                         module = this.get(name);
+                        if (!this.root) {
+                            this.root = module;
+                        }
                         return [4 /*yield*/, this.load(module)];
                     case 1:
                         _b.sent();
@@ -642,7 +646,12 @@ var AmdLoader = /** @class */ (function () {
                     case 4:
                         _a++;
                         return [3 /*break*/, 2];
-                    case 5: return [2 /*return*/, exports];
+                    case 5:
+                        if (this.root === module) {
+                            this.root = null;
+                            AmdLoader.moduleProgress(null, this.modules, "done");
+                        }
+                        return [2 /*return*/, exports];
                 }
             });
         });
@@ -719,20 +728,20 @@ var AmdLoader = /** @class */ (function () {
                                     // lets calculate how much...
                                     // const total: number = this.modules.length;
                                     // const done: number = this.modules.filter( (m) => m.ready ).length;
-                                    var total = 0;
-                                    var done = 0;
-                                    for (var key in _this.modules) {
-                                        if (_this.modules.hasOwnProperty(key)) {
-                                            var mItem = _this.modules[key];
-                                            if (mItem instanceof Module) {
-                                                if (mItem.ready) {
-                                                    done++;
-                                                }
-                                                total++;
-                                            }
-                                        }
-                                    }
-                                    AmdLoader.moduleProgress(module.name, Math.round((done * 100) / total));
+                                    // let total: number = 0;
+                                    // let done: number = 0;
+                                    // for (const key in this.modules) {
+                                    //     if (this.modules.hasOwnProperty(key)) {
+                                    //         const mItem: any = this.modules[key];
+                                    //         if (mItem instanceof Module) {
+                                    //             if (mItem.ready) {
+                                    //                 done ++;
+                                    //             }
+                                    //             total ++;
+                                    //         }
+                                    //     }
+                                    // }
+                                    AmdLoader.moduleProgress(module.name, _this.modules, "loading");
                                 }
                             }, function (error) {
                                 reject(error);
@@ -812,7 +821,7 @@ AmdLoader.moduleProgress = (function () {
     style.padding = "5px";
     style.textAlign = "center";
     style.verticalAlign = "middle";
-    var progressLabel = document.createElement("div");
+    var progressLabel = document.createElement("pre");
     progressDiv.appendChild(progressLabel);
     progressLabel.style.color = "#A0A0A0";
     function ready() {
@@ -832,14 +841,23 @@ AmdLoader.moduleProgress = (function () {
         document.addEventListener("DOMContentLoaded", completed);
         window.addEventListener("load", completed);
     }
-    return function (name, n) {
-        if (n >= 99) {
+    var lines = [];
+    return function (name, n, status) {
+        if (status === "done") {
             progressDiv.style.display = "none";
+            lines.length = 0;
+            return;
         }
         else {
             progressDiv.style.display = "block";
         }
-        progressLabel.textContent = "Loading ... (" + n + "%)";
+        if (name) {
+            lines.push(name);
+            if (lines.length > 5) {
+                lines.splice(0, 1);
+            }
+        }
+        progressLabel.textContent = lines.join("\n");
     };
 })();
 /// <reference path="./AmdLoader.ts"/>

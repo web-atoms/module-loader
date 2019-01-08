@@ -429,8 +429,8 @@ AmdLoader.moduleProgress = (() => {
 
     const ps: CSSStyleDeclaration = progressLabel.style;
     ps.position = "absolute";
-    ps.left = "10px";
-    ps.bottom = "10px";
+    ps.left = "5px";
+    ps.bottom = "0";
 
     function ready(): void {
         document.body.appendChild(progressDiv);

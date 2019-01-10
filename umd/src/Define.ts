@@ -4,7 +4,7 @@
 interface IDefine {
     (requiresOrFactory: string[] | (() => void ),
     factory?: (r: any, e: any) => void): void;
-    amd?: boolean;
+    amd?: object;
 }
 
 var define:IDefine = (
@@ -49,4 +49,4 @@ var define:IDefine = (
     };
 };
 
-define.amd = true;
+define.amd = {};

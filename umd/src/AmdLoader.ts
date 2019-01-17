@@ -311,25 +311,6 @@ class AmdLoader {
                 module.finish();
 
                 if (AmdLoader.moduleProgress) {
-                    // lets calculate how much...
-                    // const total: number = this.modules.length;
-                    // const done: number = this.modules.filter( (m) => m.ready ).length;
-
-                    // let total: number = 0;
-                    // let done: number = 0;
-
-                    // for (const key in this.modules) {
-                    //     if (this.modules.hasOwnProperty(key)) {
-                    //         const mItem: any = this.modules[key];
-                    //         if (mItem instanceof Module) {
-                    //             if (mItem.ready) {
-                    //                 done ++;
-                    //             }
-                    //             total ++;
-                    //         }
-                    //     }
-                    // }
-
                     AmdLoader.moduleProgress(module.name, this.modules , "loading");
                 }
 

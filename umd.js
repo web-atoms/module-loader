@@ -489,6 +489,7 @@ var AmdLoader = /** @class */ (function () {
             existing.url = packageUrl;
             existing.exportVar = exportVar;
             existing.type = type;
+            existing.manifestLoaded = true;
             return existing;
         }
         existing = {
@@ -661,62 +662,16 @@ var AmdLoader = /** @class */ (function () {
             });
         });
     };
-    AmdLoader.prototype.loadPackageManifest = function (module) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (module.package.manifestLoaded) {
-                            return [2 /*return*/];
-                        }
-                        return [4 /*yield*/, new Promise(function (resolve, reject) {
-                                var url = _this.resolveSource(module.package.name + "/package", ".json");
-                                AmdLoader.ajaxGet(module.package.name, url, function (r) {
-                                    var json = JSON.parse(r);
-                                    var dependencies = json.dependencies;
-                                    if (dependencies) {
-                                        for (var key in dependencies) {
-                                            if (dependencies.hasOwnProperty(key)) {
-                                                var element = dependencies[key];
-                                                var existing = _this.pathMap[key];
-                                                if (existing) {
-                                                    continue;
-                                                }
-                                                var info = _this.packageResolver({
-                                                    name: key,
-                                                    version: element,
-                                                    url: undefined,
-                                                    type: "amd"
-                                                });
-                                                if (key === "reflect-metadata") {
-                                                    info.url = info.url + "/Reflect.js";
-                                                }
-                                                _this.map(key, info.url, info.type, info.exportVar);
-                                            }
-                                        }
-                                    }
-                                    module.package.manifestLoaded = true;
-                                    resolve();
-                                }, reject);
-                            })];
-                    case 1: return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    };
     AmdLoader.prototype.load = function (module) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.loadPackageManifest(module)];
-                    case 1:
-                        _a.sent();
-                        if (!module.loader) return [3 /*break*/, 3];
+                    case 0:
+                        if (!module.loader) return [3 /*break*/, 2];
                         return [4 /*yield*/, module.loader];
-                    case 2: return [2 /*return*/, _a.sent()];
-                    case 3:
+                    case 1: return [2 /*return*/, _a.sent()];
+                    case 2:
                         module.loader = new Promise(function (resolve, reject) {
                             AmdLoader.moduleLoader(module.name, module.url, function () {
                                 AmdLoader.current = module;
@@ -737,7 +692,7 @@ var AmdLoader = /** @class */ (function () {
                             });
                         });
                         return [4 /*yield*/, module.loader];
-                    case 4: return [2 /*return*/, _a.sent()];
+                    case 3: return [2 /*return*/, _a.sent()];
                 }
             });
         });

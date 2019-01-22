@@ -61,7 +61,6 @@ declare class AmdLoader {
     });
     get(name1: string): Module;
     import(name: string): Promise<any>;
-    loadPackageManifest(module: Module): Promise<void>;
     load(module: Module): Promise<any>;
     define: any;
 }

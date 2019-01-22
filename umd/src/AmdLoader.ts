@@ -62,6 +62,7 @@ class AmdLoader {
             existing.url = packageUrl;
             existing.exportVar = exportVar;
             existing.type = type;
+            existing.manifestLoaded = true;
             return existing;
         }
 
@@ -243,52 +244,7 @@ class AmdLoader {
         return exports;
     }
 
-    public async loadPackageManifest(module: Module): Promise<void> {
-        if (module.package.manifestLoaded) {
-            return;
-        }
-
-        return await new Promise<void>((resolve, reject) => {
-            const url: string = this.resolveSource(module.package.name + "/package", ".json");
-
-            AmdLoader.ajaxGet(module.package.name, url, (r) => {
-                const json: any = JSON.parse(r);
-
-                const { dependencies } = json;
-                if (dependencies) {
-                    for (const key in dependencies) {
-                        if (dependencies.hasOwnProperty(key)) {
-                            const element: string = dependencies[key];
-                            const existing: IPackage = this.pathMap[key];
-                            if (existing) {
-                                continue;
-                            }
-                            const info: IPackage = this.packageResolver({
-                                name: key,
-                                version: element,
-                                url: undefined,
-                                type: "amd"
-                            });
-                            if (key === "reflect-metadata") {
-                                info.url = info.url + "/Reflect.js";
-                            }
-                            this.map(key, info.url, info.type, info.exportVar);
-                        }
-                    }
-                }
-
-                module.package.manifestLoaded = true;
-
-                resolve();
-
-            }, reject);
-
-        });
-    }
-
     public async load(module: Module): Promise<any> {
-
-        await this.loadPackageManifest(module);
 
         if (module.loader) {
             return await module.loader;

@@ -59,6 +59,9 @@ class AmdLoader {
         // ignore map if it exists already...
         let existing: IPackage = this.pathMap[packageName];
         if (existing) {
+            existing.url = packageUrl;
+            existing.exportVar = exportVar;
+            existing.type = type;
             return existing;
         }
 

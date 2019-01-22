@@ -486,6 +486,9 @@ var AmdLoader = /** @class */ (function () {
         // ignore map if it exists already...
         var existing = this.pathMap[packageName];
         if (existing) {
+            existing.url = packageUrl;
+            existing.exportVar = exportVar;
+            existing.type = type;
             return existing;
         }
         existing = {
@@ -727,22 +730,6 @@ var AmdLoader = /** @class */ (function () {
                                 });
                                 module.finish();
                                 if (AmdLoader.moduleProgress) {
-                                    // lets calculate how much...
-                                    // const total: number = this.modules.length;
-                                    // const done: number = this.modules.filter( (m) => m.ready ).length;
-                                    // let total: number = 0;
-                                    // let done: number = 0;
-                                    // for (const key in this.modules) {
-                                    //     if (this.modules.hasOwnProperty(key)) {
-                                    //         const mItem: any = this.modules[key];
-                                    //         if (mItem instanceof Module) {
-                                    //             if (mItem.ready) {
-                                    //                 done ++;
-                                    //             }
-                                    //             total ++;
-                                    //         }
-                                    //     }
-                                    // }
                                     AmdLoader.moduleProgress(module.name, _this.modules, "loading");
                                 }
                             }, function (error) {
@@ -897,7 +884,7 @@ var define = function (requiresOrFactory, factory) {
         current.factory = factory;
     };
 };
-define.amd = true;
+define.amd = {};
 var MockType = /** @class */ (function () {
     function MockType(module, type, name, mock, moduleName, exportName) {
         this.module = module;

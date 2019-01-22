@@ -67,7 +67,7 @@ declare class AmdLoader {
 }
 interface IDefine {
     (requiresOrFactory: string[] | (() => void), factory?: (r: any, e: any) => void): void;
-    amd?: boolean;
+    amd?: object;
 }
 declare var define: IDefine;
 declare class MockType {

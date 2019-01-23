@@ -7,8 +7,6 @@ class AmdLoader {
 
     private mockTypes: MockType[] = [];
 
-    public usesEval: boolean = true;
-
     public static globalVar: any = {};
 
     public static moduleProgress: (name: string, modules: {[key: string]: Module}, status: "done" | "loading") => void;
@@ -313,7 +311,6 @@ AmdLoader.moduleLoader = (name, url, success, error) => {
     const script: HTMLScriptElement = document.createElement("script");
     script.type = "text/javascript";
     script.src = url;
-    AmdLoader.instance.usesEval = false;
     const s: any = script as any;
     script.onload = s.onreadystatechange = () => {
         if ((s.readyState && s.readyState !== "complete" && s.readyState !== "loaded")) {

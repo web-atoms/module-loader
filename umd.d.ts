@@ -30,7 +30,6 @@ declare class Module {
 }
 declare class AmdLoader {
     private mockTypes;
-    usesEval: boolean;
     static globalVar: any;
     static moduleProgress: (name: string, modules: {
         [key: string]: Module;

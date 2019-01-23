@@ -459,7 +459,6 @@ var Module = /** @class */ (function () {
 var AmdLoader = /** @class */ (function () {
     function AmdLoader() {
         this.mockTypes = [];
-        this.usesEval = true;
         this.root = null;
         this.currentStack = [];
         this.modules = {};
@@ -729,7 +728,6 @@ AmdLoader.moduleLoader = function (name, url, success, error) {
     var script = document.createElement("script");
     script.type = "text/javascript";
     script.src = url;
-    AmdLoader.instance.usesEval = false;
     var s = script;
     script.onload = s.onreadystatechange = function () {
         if ((s.readyState && s.readyState !== "complete" && s.readyState !== "loaded")) {

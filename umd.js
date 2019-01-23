@@ -472,12 +472,12 @@ var AmdLoader = /** @class */ (function () {
         }
         for (var _a = 0, names_1 = names; _a < names_1.length; _a++) {
             var iterator = names_1[_a];
-            this.get(iterator, false);
+            this.get(iterator);
         }
     };
     AmdLoader.prototype.setup = function (name) {
         var _this = this;
-        var jsModule = this.get(name, false);
+        var jsModule = this.get(name);
         jsModule.loader = new Promise(function (resolve, reject) {
             AmdLoader.current = jsModule;
             var define = _this.define;
@@ -612,9 +612,8 @@ var AmdLoader = /** @class */ (function () {
         packageName = scope + packageName;
         return { packageName: packageName, version: version, name: name };
     };
-    AmdLoader.prototype.get = function (name1, resolveUrl) {
+    AmdLoader.prototype.get = function (name1) {
         var _this = this;
-        if (resolveUrl === void 0) { resolveUrl = true; }
         var module = this.modules[name1];
         if (!module) {
             // strip '@' version info
@@ -626,7 +625,7 @@ var AmdLoader = /** @class */ (function () {
                     type: "amd",
                     name: packageName,
                     version: version,
-                    url: resolveUrl ? undefined : "/"
+                    url: undefined
                 });
             module.url = this.resolveSource(name_1);
             if (!module.url) {

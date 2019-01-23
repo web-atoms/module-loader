@@ -59,7 +59,7 @@ declare class AmdLoader {
         version: string;
         name: string;
     });
-    get(name1: string, resolveUrl?: boolean): Module;
+    get(name1: string): Module;
     import(name: string): Promise<any>;
     load(module: Module): Promise<any>;
     define: any;

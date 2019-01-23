@@ -30,11 +30,11 @@ class AmdLoader {
 
     public register( ... names: string[]): void {
         for (const iterator of names) {
-            this.get(iterator, false);
+            this.get(iterator);
         }
     }
     public setup(name: string): void {
-        const jsModule: Module = this.get(name, false);
+        const jsModule: Module = this.get(name);
         jsModule.loader = new Promise((resolve, reject) => {
             AmdLoader.current = jsModule;
             const define: Function = this.define;
@@ -192,7 +192,7 @@ class AmdLoader {
         return { packageName, version, name };
     }
 
-    public get(name1: string, resolveUrl: boolean = true): Module {
+    public get(name1: string): Module {
 
         let module: Module = this.modules[name1];
         if (!module) {
@@ -208,7 +208,7 @@ class AmdLoader {
                         type: "amd",
                         name: packageName,
                         version,
-                        url: resolveUrl ? undefined : "/"
+                        url: undefined
                     });
 
             module.url = this.resolveSource(name);

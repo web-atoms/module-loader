@@ -621,7 +621,7 @@ var AmdLoader = /** @class */ (function () {
                     name: packageName,
                     version: version,
                     manifestLoaded: this.packageResolver ? false : true,
-                    url: undefined
+                    url: "/"
                 });
             if (resolveUrl) {
                 module.url = this.resolveSource(name_1);

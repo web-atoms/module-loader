@@ -208,7 +208,7 @@ class AmdLoader {
                         name: packageName,
                         version,
                         manifestLoaded: this.packageResolver ? false : true,
-                        url: undefined
+                        url: "/"
                     });
 
             if (resolveUrl) {

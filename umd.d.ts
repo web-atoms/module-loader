@@ -48,6 +48,7 @@ declare class AmdLoader {
         [key: string]: IPackage;
     };
     enableMock: boolean;
+    register(name: string): void;
     replace(type: any, name: string, mock: boolean): void;
     resolveType(type: any): any;
     packageResolver: (p1: IPackage) => IPackage;
@@ -59,7 +60,7 @@ declare class AmdLoader {
         version: string;
         name: string;
     });
-    get(name1: string): Module;
+    get(name1: string, resolveUrl?: boolean): Module;
     import(name: string): Promise<any>;
     load(module: Module): Promise<any>;
     define: any;

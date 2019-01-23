@@ -30,6 +30,26 @@ class AmdLoader {
     public pathMap: { [key: string]: IPackage } = {};
     enableMock: boolean;
 
+    public register(name: string): void {
+        const module: Module = this.get(name, false);
+        module.package.manifestLoaded = true;
+        module.loader = new Promise((resolve, reject) => {
+            AmdLoader.current = module;
+            const define: Function = this.define;
+            if (define) {
+                define();
+            }
+            module.ready = true;
+            if (module.exportVar) {
+                module.exports = AmdLoader.globalVar[module.exportVar];
+            }
+            module.onReady(() => {
+                resolve(module.getExports());
+            });
+            module.finish();
+        });
+    }
+
     public replace(type: any, name: string, mock: boolean): void {
         if (mock && !this.enableMock) {
             return;
@@ -173,7 +193,7 @@ class AmdLoader {
         return { packageName, version, name };
     }
 
-    public get(name1: string): Module {
+    public get(name1: string, resolveUrl: boolean = true): Module {
 
         let module: Module = this.modules[name1];
         if (!module) {
@@ -194,9 +214,11 @@ class AmdLoader {
                         url: undefined
                     }));
 
-            module.url = this.resolveSource(name);
-            if (!module.url) {
-                throw new Error(`No url mapped for ${name}`);
+            if (resolveUrl) {
+                module.url = this.resolveSource(name);
+                if (!module.url) {
+                    throw new Error(`No url mapped for ${name}`);
+                }
             }
             module.require = (n: string) => {
                 const an: string = this.resolveRelativePath(n, module.name);
@@ -286,28 +308,6 @@ class AmdLoader {
 
 }
 
-AmdLoader.ajaxGet = (name, url, success, error) => {
-
-    if (typeof window !== "undefined") {
-        AmdLoader.globalVar = window;
-    }
-
-    const xhr: XMLHttpRequest = new XMLHttpRequest();
-    xhr.onreadystatechange = (e) => {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-            if (xhr.status === 200) {
-                success(xhr.responseText);
-            } else {
-                error(xhr.responseText);
-            }
-        }
-    };
-
-    xhr.open("GET", url);
-    xhr.send();
-
-};
-
 AmdLoader.moduleLoader = (name, url, success, error) => {
 
     const script: HTMLScriptElement = document.createElement("script");
@@ -323,19 +323,6 @@ AmdLoader.moduleLoader = (name, url, success, error) => {
         success();
     };
     document.body.appendChild(script);
-
-// tslint:disable-next-line:comment-format
-//     AmdLoader.ajaxGet(name, url, (r) => {
-//                 success(() => {
-
-//                     const errorCheck: string = `
-// } catch(e) { if(e.stack) { alert(e.message + '\\r\\n' + e.stack); } else { alert(e); } }`;
-
-//                     // tslint:disable-next-line:no-eval
-//                     eval(`"use strict"; try { ${r} ${errorCheck}
-// //# sourceURL=${url}`);
-//                 });
-//             }, error);
 };
 
 AmdLoader.moduleProgress = (() => {

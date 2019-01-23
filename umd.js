@@ -466,6 +466,26 @@ var AmdLoader = /** @class */ (function () {
         this.pathMap = {};
         this.packageResolver = undefined;
     }
+    AmdLoader.prototype.register = function (name) {
+        var _this = this;
+        var module = this.get(name, false);
+        module.package.manifestLoaded = true;
+        module.loader = new Promise(function (resolve, reject) {
+            AmdLoader.current = module;
+            var define = _this.define;
+            if (define) {
+                define();
+            }
+            module.ready = true;
+            if (module.exportVar) {
+                module.exports = AmdLoader.globalVar[module.exportVar];
+            }
+            module.onReady(function () {
+                resolve(module.getExports());
+            });
+            module.finish();
+        });
+    };
     AmdLoader.prototype.replace = function (type, name, mock) {
         if (mock && !this.enableMock) {
             return;
@@ -587,8 +607,9 @@ var AmdLoader = /** @class */ (function () {
         packageName = scope + packageName;
         return { packageName: packageName, version: version, name: name };
     };
-    AmdLoader.prototype.get = function (name1) {
+    AmdLoader.prototype.get = function (name1, resolveUrl) {
         var _this = this;
+        if (resolveUrl === void 0) { resolveUrl = true; }
         var module = this.modules[name1];
         if (!module) {
             // strip '@' version info
@@ -603,9 +624,11 @@ var AmdLoader = /** @class */ (function () {
                     manifestLoaded: this.packageResolver ? false : true,
                     url: undefined
                 }));
-            module.url = this.resolveSource(name_1);
-            if (!module.url) {
-                throw new Error("No url mapped for " + name_1);
+            if (resolveUrl) {
+                module.url = this.resolveSource(name_1);
+                if (!module.url) {
+                    throw new Error("No url mapped for " + name_1);
+                }
             }
             module.require = function (n) {
                 var an = _this.resolveRelativePath(n, module.name);
@@ -702,24 +725,6 @@ var AmdLoader = /** @class */ (function () {
     AmdLoader.current = null;
     return AmdLoader;
 }());
-AmdLoader.ajaxGet = function (name, url, success, error) {
-    if (typeof window !== "undefined") {
-        AmdLoader.globalVar = window;
-    }
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function (e) {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-            if (xhr.status === 200) {
-                success(xhr.responseText);
-            }
-            else {
-                error(xhr.responseText);
-            }
-        }
-    };
-    xhr.open("GET", url);
-    xhr.send();
-};
 AmdLoader.moduleLoader = function (name, url, success, error) {
     var script = document.createElement("script");
     script.type = "text/javascript";
@@ -734,16 +739,6 @@ AmdLoader.moduleLoader = function (name, url, success, error) {
         success();
     };
     document.body.appendChild(script);
-    // tslint:disable-next-line:comment-format
-    //     AmdLoader.ajaxGet(name, url, (r) => {
-    //                 success(() => {
-    //                     const errorCheck: string = `
-    // } catch(e) { if(e.stack) { alert(e.message + '\\r\\n' + e.stack); } else { alert(e); } }`;
-    //                     // tslint:disable-next-line:no-eval
-    //                     eval(`"use strict"; try { ${r} ${errorCheck}
-    // //# sourceURL=${url}`);
-    //                 });
-    //             }, error);
 };
 AmdLoader.moduleProgress = (function () {
     if (!document) {

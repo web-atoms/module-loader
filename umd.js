@@ -465,17 +465,15 @@ var AmdLoader = /** @class */ (function () {
         this.pathMap = {};
         this.packageResolver = undefined;
     }
-    AmdLoader.prototype.register = function () {
-        var names = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            names[_i] = arguments[_i];
-        }
-        for (var _a = 0, names_1 = names; _a < names_1.length; _a++) {
-            var iterator = names_1[_a];
-            var packageName = this.getPackageVersion(iterator).packageName;
-            if (!this.pathMap[packageName]) {
-                this.map(packageName, "/");
+    AmdLoader.prototype.register = function (packages, modules) {
+        for (var _i = 0, packages_1 = packages; _i < packages_1.length; _i++) {
+            var iterator = packages_1[_i];
+            if (!this.pathMap[iterator]) {
+                this.map(iterator, "/");
             }
+        }
+        for (var _a = 0, modules_1 = modules; _a < modules_1.length; _a++) {
+            var iterator = modules_1[_a];
             this.get(iterator);
         }
     };

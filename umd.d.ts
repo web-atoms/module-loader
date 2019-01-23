@@ -46,7 +46,7 @@ declare class AmdLoader {
         [key: string]: IPackage;
     };
     enableMock: boolean;
-    register(...names: string[]): void;
+    register(packages: string[], modules: string[]): void;
     setup(name: string): void;
     replace(type: any, name: string, mock: boolean): void;
     resolveType(type: any): any;

@@ -28,12 +28,15 @@ class AmdLoader {
     public pathMap: { [key: string]: IPackage } = {};
     enableMock: boolean;
 
-    public register( ... names: string[]): void {
-        for (const iterator of names) {
-            const { packageName } = this.getPackageVersion(iterator);
-            if (!this.pathMap[packageName]) {
-                this.map(packageName, "/");
+    public register(
+        packages: string[],
+        modules: string[]): void {
+        for (const iterator of packages) {
+            if (!this.pathMap[iterator]) {
+                this.map(iterator, "/");
             }
+        }
+        for (const iterator of modules) {
             this.get(iterator);
         }
     }

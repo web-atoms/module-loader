@@ -28,7 +28,12 @@ class AmdLoader {
     public pathMap: { [key: string]: IPackage } = {};
     enableMock: boolean;
 
-    public register(name: string): void {
+    public register( ... names: string[]): void {
+        for (const iterator of names) {
+            this.get(iterator, false);
+        }
+    }
+    public setup(name: string): void {
         const module: Module = this.get(name, false);
         module.loader = new Promise((resolve, reject) => {
             AmdLoader.current = module;

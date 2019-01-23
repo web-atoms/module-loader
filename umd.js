@@ -465,7 +465,17 @@ var AmdLoader = /** @class */ (function () {
         this.pathMap = {};
         this.packageResolver = undefined;
     }
-    AmdLoader.prototype.register = function (name) {
+    AmdLoader.prototype.register = function () {
+        var names = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            names[_i] = arguments[_i];
+        }
+        for (var _a = 0, names_1 = names; _a < names_1.length; _a++) {
+            var iterator = names_1[_a];
+            this.get(iterator, false);
+        }
+    };
+    AmdLoader.prototype.setup = function (name) {
         var _this = this;
         var module = this.get(name, false);
         module.loader = new Promise(function (resolve, reject) {

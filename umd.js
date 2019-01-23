@@ -480,21 +480,19 @@ var AmdLoader = /** @class */ (function () {
         var _this = this;
         var jsModule = this.get(name);
         jsModule.loader = new Promise(function (resolve, reject) {
-            setTimeout(function () {
-                AmdLoader.current = jsModule;
-                var define = _this.define;
-                if (define) {
-                    define();
-                }
-                jsModule.ready = true;
-                if (jsModule.exportVar) {
-                    jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
-                }
-                jsModule.onReady(function () {
-                    resolve(jsModule.getExports());
-                });
-                jsModule.finish();
-            }, 1);
+            AmdLoader.current = jsModule;
+            var define = _this.define;
+            if (define) {
+                define();
+            }
+            jsModule.ready = true;
+            if (jsModule.exportVar) {
+                jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
+            }
+            jsModule.onReady(function () {
+                resolve(jsModule.getExports());
+            });
+            jsModule.finish();
         });
     };
     AmdLoader.prototype.replace = function (type, name, mock) {

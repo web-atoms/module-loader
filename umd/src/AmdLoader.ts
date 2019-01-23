@@ -41,21 +41,19 @@ class AmdLoader {
     public setup(name: string): void {
         const jsModule: Module = this.get(name);
         jsModule.loader = new Promise((resolve, reject) => {
-            setTimeout(() => {
-                AmdLoader.current = jsModule;
-                const define: Function = this.define;
-                if (define) {
-                    define();
-                }
-                jsModule.ready = true;
-                if (jsModule.exportVar) {
-                    jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
-                }
-                jsModule.onReady(() => {
-                    resolve(jsModule.getExports());
-                });
-                jsModule.finish();
-            },1);
+            AmdLoader.current = jsModule;
+            const define: Function = this.define;
+            if (define) {
+                define();
+            }
+            jsModule.ready = true;
+            if (jsModule.exportVar) {
+                jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
+            }
+            jsModule.onReady(() => {
+                resolve(jsModule.getExports());
+            });
+            jsModule.finish();
         });
     }
 

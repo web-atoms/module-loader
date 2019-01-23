@@ -473,7 +473,9 @@ var AmdLoader = /** @class */ (function () {
         for (var _a = 0, names_1 = names; _a < names_1.length; _a++) {
             var iterator = names_1[_a];
             var packageName = this.getPackageVersion(iterator).packageName;
-            this.map(packageName, "/");
+            if (!this.pathMap[packageName]) {
+                this.map(packageName, "/");
+            }
             this.get(iterator);
         }
     };

@@ -31,7 +31,9 @@ class AmdLoader {
     public register( ... names: string[]): void {
         for (const iterator of names) {
             const { packageName } = this.getPackageVersion(iterator);
-            this.map(packageName, "/");
+            if (!this.pathMap[packageName]) {
+                this.map(packageName, "/");
+            }
             this.get(iterator);
         }
     }

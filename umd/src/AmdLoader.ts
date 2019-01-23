@@ -40,9 +40,9 @@ class AmdLoader {
     }
     public setup(name: string): void {
         const jsModule: Module = this.get(name);
+        const define: Function = this.define;
         jsModule.loader = new Promise((resolve, reject) => {
             AmdLoader.current = jsModule;
-            const define: Function = this.define;
             if (define) {
                 define();
             }

@@ -477,11 +477,10 @@ var AmdLoader = /** @class */ (function () {
         }
     };
     AmdLoader.prototype.setup = function (name) {
-        var _this = this;
         var jsModule = this.get(name);
+        var define = this.define;
         jsModule.loader = new Promise(function (resolve, reject) {
             AmdLoader.current = jsModule;
-            var define = _this.define;
             if (define) {
                 define();
             }

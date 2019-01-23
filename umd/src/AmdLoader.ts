@@ -30,7 +30,6 @@ class AmdLoader {
 
     public register(name: string): void {
         const module: Module = this.get(name, false);
-        module.package.manifestLoaded = true;
         module.loader = new Promise((resolve, reject) => {
             AmdLoader.current = module;
             const define: Function = this.define;
@@ -80,7 +79,6 @@ class AmdLoader {
             existing.url = packageUrl;
             existing.exportVar = exportVar;
             existing.type = type;
-            existing.manifestLoaded = true;
             return existing;
         }
 
@@ -89,12 +87,10 @@ class AmdLoader {
             url: packageUrl,
             type: type,
             exportVar,
-            manifestLoaded: this.packageResolver ? false : true,
             version: ""
         };
         if (packageName === "reflect-metadata") {
             type = "global";
-            existing.manifestLoaded = true;
         }
 
         this.pathMap[packageName] = existing;
@@ -207,7 +203,6 @@ class AmdLoader {
                         type: "amd",
                         name: packageName,
                         version,
-                        manifestLoaded: this.packageResolver ? false : true,
                         url: resolveUrl ? undefined : "/"
                     });
 

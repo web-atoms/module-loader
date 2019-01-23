@@ -468,7 +468,6 @@ var AmdLoader = /** @class */ (function () {
     AmdLoader.prototype.register = function (name) {
         var _this = this;
         var module = this.get(name, false);
-        module.package.manifestLoaded = true;
         module.loader = new Promise(function (resolve, reject) {
             AmdLoader.current = module;
             var define = _this.define;
@@ -508,7 +507,6 @@ var AmdLoader = /** @class */ (function () {
             existing.url = packageUrl;
             existing.exportVar = exportVar;
             existing.type = type;
-            existing.manifestLoaded = true;
             return existing;
         }
         existing = {
@@ -516,12 +514,10 @@ var AmdLoader = /** @class */ (function () {
             url: packageUrl,
             type: type,
             exportVar: exportVar,
-            manifestLoaded: this.packageResolver ? false : true,
             version: ""
         };
         if (packageName === "reflect-metadata") {
             type = "global";
-            existing.manifestLoaded = true;
         }
         this.pathMap[packageName] = existing;
         return existing;
@@ -620,7 +616,6 @@ var AmdLoader = /** @class */ (function () {
                     type: "amd",
                     name: packageName,
                     version: version,
-                    manifestLoaded: this.packageResolver ? false : true,
                     url: resolveUrl ? undefined : "/"
                 });
             module.url = this.resolveSource(name_1);

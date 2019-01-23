@@ -4,7 +4,6 @@ interface IPackage {
     url: string;
     type: "amd" | "global";
     exportVar?: string;
-    manifestLoaded?: boolean;
 }
 
 class Module {

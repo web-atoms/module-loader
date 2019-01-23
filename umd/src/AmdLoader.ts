@@ -203,14 +203,13 @@ class AmdLoader {
             this.modules[name1] = module;
 
             module.package = this.pathMap[packageName] ||
-                (this.pathMap[packageName] = this.packageResolver(
-                    {
+                (this.pathMap[packageName] = {
                         type: "amd",
                         name: packageName,
                         version,
                         manifestLoaded: this.packageResolver ? false : true,
                         url: undefined
-                    }));
+                    });
 
             if (resolveUrl) {
                 module.url = this.resolveSource(name);

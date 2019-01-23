@@ -621,16 +621,11 @@ var AmdLoader = /** @class */ (function () {
                     name: packageName,
                     version: version,
                     manifestLoaded: this.packageResolver ? false : true,
-                    url: "/"
+                    url: resolveUrl ? undefined : "/"
                 });
-            if (resolveUrl) {
-                module.url = this.resolveSource(name_1);
-                if (!module.url) {
-                    throw new Error("No url mapped for " + name_1);
-                }
-            }
-            else {
-                module.url = "/";
+            module.url = this.resolveSource(name_1);
+            if (!module.url) {
+                throw new Error("No url mapped for " + name_1);
             }
             module.require = function (n) {
                 var an = _this.resolveRelativePath(n, module.name);

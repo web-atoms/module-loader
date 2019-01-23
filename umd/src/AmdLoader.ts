@@ -208,16 +208,12 @@ class AmdLoader {
                         name: packageName,
                         version,
                         manifestLoaded: this.packageResolver ? false : true,
-                        url: "/"
+                        url: resolveUrl ? undefined : "/"
                     });
 
-            if (resolveUrl) {
-                module.url = this.resolveSource(name);
-                if (!module.url) {
-                    throw new Error(`No url mapped for ${name}`);
-                }
-            } else {
-                module.url = "/";
+            module.url = this.resolveSource(name);
+            if (!module.url) {
+                throw new Error(`No url mapped for ${name}`);
             }
             module.require = (n: string) => {
                 const an: string = this.resolveRelativePath(n, module.name);

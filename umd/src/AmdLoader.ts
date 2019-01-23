@@ -34,21 +34,21 @@ class AmdLoader {
         }
     }
     public setup(name: string): void {
-        const module: Module = this.get(name, false);
-        module.loader = new Promise((resolve, reject) => {
-            AmdLoader.current = module;
+        const jsModule: Module = this.get(name, false);
+        jsModule.loader = new Promise((resolve, reject) => {
+            AmdLoader.current = jsModule;
             const define: Function = this.define;
             if (define) {
                 define();
             }
-            module.ready = true;
-            if (module.exportVar) {
-                module.exports = AmdLoader.globalVar[module.exportVar];
+            jsModule.ready = true;
+            if (jsModule.exportVar) {
+                jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
             }
-            module.onReady(() => {
-                resolve(module.getExports());
+            jsModule.onReady(() => {
+                resolve(jsModule.getExports());
             });
-            module.finish();
+            jsModule.finish();
         });
     }
 

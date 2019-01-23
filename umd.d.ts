@@ -34,7 +34,6 @@ declare class AmdLoader {
         [key: string]: Module;
     }, status: "done" | "loading") => void;
     static moduleLoader: (packageName: string, url: string, success: () => void, failed: (error: any) => void) => void;
-    static ajaxGet: (packageName: string, url: string, success: (r: string) => void, failed: (error: any) => void) => void;
     static instance: AmdLoader;
     static current: Module;
     root: Module;
@@ -50,7 +49,6 @@ declare class AmdLoader {
     setup(name: string): void;
     replace(type: any, name: string, mock: boolean): void;
     resolveType(type: any): any;
-    packageResolver: (p1: IPackage) => IPackage;
     map(packageName: string, packageUrl: string, type?: ("amd" | "global"), exportVar?: string): IPackage;
     resolveSource(name: string, defExt?: string): string;
     resolveRelativePath(name: string, currentPackage: string): string;
@@ -84,7 +82,6 @@ declare class UMDClass {
     viewPrefix: string;
     defaultApp: string;
     lang: string;
-    packageResolver: ((p: IPackage) => IPackage);
     mock: boolean;
     resolvePath(n: string): string;
     resolveViewPath(path: string): string;

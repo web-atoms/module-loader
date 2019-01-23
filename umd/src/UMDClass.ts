@@ -8,14 +8,6 @@ class UMDClass {
 
     public lang = "en-US";
 
-    public get packageResolver(): ((p: IPackage) => IPackage)  {
-        return AmdLoader.instance.packageResolver;
-    }
-
-    public set packageResolver(v: ((p: IPackage) => IPackage)) {
-        AmdLoader.instance.packageResolver = v;
-    }
-
     public get mock(): boolean {
         return AmdLoader.instance.enableMock;
     }

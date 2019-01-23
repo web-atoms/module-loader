@@ -463,7 +463,6 @@ var AmdLoader = /** @class */ (function () {
         this.currentStack = [];
         this.modules = {};
         this.pathMap = {};
-        this.packageResolver = undefined;
     }
     AmdLoader.prototype.register = function (packages, modules) {
         for (var _i = 0, packages_1 = packages; _i < packages_1.length; _i++) {
@@ -481,19 +480,21 @@ var AmdLoader = /** @class */ (function () {
         var _this = this;
         var jsModule = this.get(name);
         jsModule.loader = new Promise(function (resolve, reject) {
-            AmdLoader.current = jsModule;
-            var define = _this.define;
-            if (define) {
-                define();
-            }
-            jsModule.ready = true;
-            if (jsModule.exportVar) {
-                jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
-            }
-            jsModule.onReady(function () {
-                resolve(jsModule.getExports());
-            });
-            jsModule.finish();
+            setTimeout(function () {
+                AmdLoader.current = jsModule;
+                var define = _this.define;
+                if (define) {
+                    define();
+                }
+                jsModule.ready = true;
+                if (jsModule.exportVar) {
+                    jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
+                }
+                jsModule.onReady(function () {
+                    resolve(jsModule.getExports());
+                });
+                jsModule.finish();
+            }, 1);
         });
     };
     AmdLoader.prototype.replace = function (type, name, mock) {
@@ -507,10 +508,6 @@ var AmdLoader = /** @class */ (function () {
         var t = this.mockTypes.find(function (t) { return t.type === type; });
         return t ? t.replaced : type;
     };
-    // = (p) => ({
-    //     ... p,
-    //     url: `/node_modules/${p.name}`,
-    //     type: "amd"})
     AmdLoader.prototype.map = function (packageName, packageUrl, type, exportVar) {
         if (type === void 0) { type = "amd"; }
         // ignore map if it exists already...
@@ -823,9 +820,7 @@ var define = function (requiresOrFactory, factory) {
             if (/^(require|exports)$/.test(s)) {
                 continue;
             }
-            // resolve full name...
             var name_2 = loader.resolveRelativePath(s, current.name);
-            // console.log(`dep: ${name} for ${s} in ${current.name}`);
             var child = loader.get(name_2);
             current.dependencies.push(child);
             child.onReady(function () {
@@ -868,16 +863,6 @@ var UMDClass = /** @class */ (function () {
         this.defaultApp = "web-atoms-core/dist/web/WebApp";
         this.lang = "en-US";
     }
-    Object.defineProperty(UMDClass.prototype, "packageResolver", {
-        get: function () {
-            return AmdLoader.instance.packageResolver;
-        },
-        set: function (v) {
-            AmdLoader.instance.packageResolver = v;
-        },
-        enumerable: true,
-        configurable: true
-    });
     Object.defineProperty(UMDClass.prototype, "mock", {
         get: function () {
             return AmdLoader.instance.enableMock;

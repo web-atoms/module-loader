@@ -13,8 +13,6 @@ class AmdLoader {
 
     public static moduleLoader: (packageName: string, url: string, success: () => void, failed: (error: any) => void) => void;
 
-    public static ajaxGet: (packageName: string, url: string, success: (r: string) => void, failed: (error: any) => void) => void;
-
     public static instance: AmdLoader = new AmdLoader();
 
     public static current: Module = null;
@@ -43,19 +41,21 @@ class AmdLoader {
     public setup(name: string): void {
         const jsModule: Module = this.get(name);
         jsModule.loader = new Promise((resolve, reject) => {
-            AmdLoader.current = jsModule;
-            const define: Function = this.define;
-            if (define) {
-                define();
-            }
-            jsModule.ready = true;
-            if (jsModule.exportVar) {
-                jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
-            }
-            jsModule.onReady(() => {
-                resolve(jsModule.getExports());
-            });
-            jsModule.finish();
+            setTimeout(() => {
+                AmdLoader.current = jsModule;
+                const define: Function = this.define;
+                if (define) {
+                    define();
+                }
+                jsModule.ready = true;
+                if (jsModule.exportVar) {
+                    jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
+                }
+                jsModule.onReady(() => {
+                    resolve(jsModule.getExports());
+                });
+                jsModule.finish();
+            },1);
         });
     }
 
@@ -71,12 +71,6 @@ class AmdLoader {
         const t: MockType = this.mockTypes.find((t) => t.type === type);
         return t ? t.replaced : type;
     }
-
-    public packageResolver: (p1: IPackage) => IPackage = undefined;
-        // = (p) => ({
-        //     ... p,
-        //     url: `/node_modules/${p.name}`,
-        //     type: "amd"})
 
     public map(
         packageName: string,

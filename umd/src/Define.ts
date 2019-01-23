@@ -34,10 +34,7 @@ var define:IDefine = (
             if(/^(require|exports)$/.test(s)) {
                 continue;
             }
-
-            // resolve full name...
             const name: string = loader.resolveRelativePath(s, current.name);
-            // console.log(`dep: ${name} for ${s} in ${current.name}`);
             const child: Module = loader.get(name);
             current.dependencies.push(child);
             child.onReady(() => {

@@ -216,6 +216,8 @@ class AmdLoader {
                 if (!module.url) {
                     throw new Error(`No url mapped for ${name}`);
                 }
+            } else {
+                module.url = "/";
             }
             module.require = (n: string) => {
                 const an: string = this.resolveRelativePath(n, module.name);

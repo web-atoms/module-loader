@@ -629,6 +629,9 @@ var AmdLoader = /** @class */ (function () {
                     throw new Error("No url mapped for " + name_1);
                 }
             }
+            else {
+                module.url = "/";
+            }
             module.require = function (n) {
                 var an = _this.resolveRelativePath(n, module.name);
                 var resolvedModule = _this.get(an);

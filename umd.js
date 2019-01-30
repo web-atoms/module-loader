@@ -627,7 +627,9 @@ var AmdLoader = /** @class */ (function () {
                 });
             module.url = this.resolveSource(name_1);
             if (!module.url) {
-                throw new Error("No url mapped for " + name_1);
+                if (typeof require === "undefined") {
+                    throw new Error("No url mapped for " + name_1);
+                }
             }
             module.require = function (n) {
                 var an = _this.resolveRelativePath(n, module.name);

@@ -684,6 +684,23 @@ var AmdLoader = /** @class */ (function () {
             });
         });
     };
+    AmdLoader.prototype.nodeLoader = function (module) {
+        return __awaiter(this, void 0, void 0, function () {
+            var result, finalCode;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, fetch(module.url)];
+                    case 1: return [4 /*yield*/, (_a.sent())
+                            .text()];
+                    case 2:
+                        result = _a.sent();
+                        AmdLoader.current = module;
+                        finalCode = "function (require, module){ " + result + " }";
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
     AmdLoader.prototype.load = function (module) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
@@ -694,6 +711,9 @@ var AmdLoader = /** @class */ (function () {
                         return [4 /*yield*/, module.loader];
                     case 1: return [2 /*return*/, _a.sent()];
                     case 2:
+                        if (typeof require !== "undefined") {
+                            module.loader = this.nodeLoader(module);
+                        }
                         module.loader = new Promise(function (resolve, reject) {
                             AmdLoader.moduleLoader(module.name, module.url, function () {
                                 AmdLoader.current = module;

@@ -262,10 +262,21 @@ class AmdLoader {
         return exports;
     }
 
+    public async nodeLoader(module: Module): Promise<any> {
+        const result: string = await (await fetch(module.url))
+                .text();
+        AmdLoader.current = module;
+        const finalCode: string = `function (require, module){ ${result} }`;
+    }
+
     public async load(module: Module): Promise<any> {
 
         if (module.loader) {
             return await module.loader;
+        }
+
+        if (typeof require !== "undefined") {
+            module.loader = this.nodeLoader(module);
         }
 
         module.loader = new Promise((resolve, reject) => {

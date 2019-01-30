@@ -640,10 +640,10 @@ var AmdLoader = /** @class */ (function () {
         }
         return module;
     };
-    AmdLoader.prototype.syncImport = function (module, require) {
+    AmdLoader.prototype.syncImport = function (module, req) {
         module.ready = true;
         this.currentStack.push(module);
-        module.exports = require(module.name);
+        module.exports = req(module.name);
         this.currentStack.pop();
         var pendingList = this.mockTypes.filter(function (t) { return !t.loaded; });
         if (pendingList.length) {
@@ -656,7 +656,7 @@ var AmdLoader = /** @class */ (function () {
                 var containerModule = iterator.module;
                 var resolvedName = this.resolveRelativePath(iterator.moduleName, containerModule.name);
                 var m = this.get(resolvedName);
-                var ex = this.syncImport(m, require);
+                var ex = this.syncImport(m, req);
                 var type = ex[iterator.exportName];
                 iterator.replaced = type;
             }

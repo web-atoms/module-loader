@@ -229,10 +229,10 @@ class AmdLoader {
         return module;
     }
 
-    public syncImport(module: Module, require: any): any {
+    public syncImport(module: Module, req: any): any {
         module.ready = true;
         this.currentStack.push(module);
-        module.exports = require(module.name);
+        module.exports = req(module.name);
         this.currentStack.pop();
 
         const pendingList: MockType[] = this.mockTypes.filter((t) => !t.loaded );
@@ -244,7 +244,7 @@ class AmdLoader {
                 const containerModule: Module = iterator.module;
                 const resolvedName: string = this.resolveRelativePath(iterator.moduleName, containerModule.name);
                 const m: Module = this.get(resolvedName);
-                const ex: any = this.syncImport(m, require);
+                const ex: any = this.syncImport(m, req);
                 const type: any = ex[iterator.exportName];
                 iterator.replaced = type;
             }

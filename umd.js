@@ -655,7 +655,8 @@ var AmdLoader = /** @class */ (function () {
                 var iterator = pendingList_2[_a];
                 var containerModule = iterator.module;
                 var resolvedName = this.resolveRelativePath(iterator.moduleName, containerModule.name);
-                var ex = require(resolvedName);
+                var m = this.get(resolvedName);
+                var ex = this.syncImport(m);
                 var type = ex[iterator.exportName];
                 iterator.replaced = type;
             }

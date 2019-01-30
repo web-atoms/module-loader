@@ -243,7 +243,8 @@ class AmdLoader {
             for (const iterator of pendingList) {
                 const containerModule: Module = iterator.module;
                 const resolvedName: string = this.resolveRelativePath(iterator.moduleName, containerModule.name);
-                const ex: any = require(resolvedName);
+                const m: Module = this.get(resolvedName);
+                const ex: any = this.syncImport(m);
                 const type: any = ex[iterator.exportName];
                 iterator.replaced = type;
             }

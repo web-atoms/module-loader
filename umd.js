@@ -684,31 +684,21 @@ var AmdLoader = /** @class */ (function () {
             });
         });
     };
-    AmdLoader.prototype.nodeLoader = function (module) {
-        // const result: string = await (await fetch(module.url))
-        //         .text();
-        // tslint:disable-next-line:comment-format
-        // AmdLoader.current = module;
-        // const finalCode: string = `function (require, module){ ${result} }`;
-        // // tslint:disable-next-line:no-eval
-        // const fun: Function = eval(finalCode);
-        return Promise.resolve(require(module.name, module.url));
-    };
     AmdLoader.prototype.load = function (module) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        if (typeof require !== "undefined") {
+                            module.ready = true;
+                            module.exports = require(module.name);
+                            return [2 /*return*/];
+                        }
                         if (!module.loader) return [3 /*break*/, 2];
                         return [4 /*yield*/, module.loader];
                     case 1: return [2 /*return*/, _a.sent()];
                     case 2:
-                        if (!(typeof require !== "undefined")) return [3 /*break*/, 4];
-                        module.loader = this.nodeLoader(module);
-                        return [4 /*yield*/, module.loader];
-                    case 3: return [2 /*return*/, _a.sent()];
-                    case 4:
                         module.loader = new Promise(function (resolve, reject) {
                             AmdLoader.moduleLoader(module.name, module.url, function () {
                                 AmdLoader.current = module;
@@ -729,7 +719,7 @@ var AmdLoader = /** @class */ (function () {
                             });
                         });
                         return [4 /*yield*/, module.loader];
-                    case 5: return [2 /*return*/, _a.sent()];
+                    case 3: return [2 /*return*/, _a.sent()];
                 }
             });
         });

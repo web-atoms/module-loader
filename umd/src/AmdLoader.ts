@@ -263,25 +263,15 @@ class AmdLoader {
         return exports;
     }
 
-    public nodeLoader(module: Module): Promise<any> {
-        // const result: string = await (await fetch(module.url))
-        //         .text();
-        // tslint:disable-next-line:comment-format
-        // AmdLoader.current = module;
-        // const finalCode: string = `function (require, module){ ${result} }`;
-        // // tslint:disable-next-line:no-eval
-        // const fun: Function = eval(finalCode);
-        return Promise.resolve(require(module.name, module.url));
-    }
-
     public async load(module: Module): Promise<any> {
 
-        if (module.loader) {
-            return await module.loader;
+        if (typeof require !== "undefined") {
+            module.ready = true;
+            module.exports = require(module.name);
+            return;
         }
 
-        if (typeof require !== "undefined") {
-            module.loader = this.nodeLoader(module);
+        if (module.loader) {
             return await module.loader;
         }
 

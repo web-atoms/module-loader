@@ -694,7 +694,9 @@ var AmdLoader = /** @class */ (function () {
                     case 0:
                         if (typeof require !== "undefined") {
                             module.ready = true;
+                            this.currentStack.push(module);
                             module.exports = require(module.name);
+                            this.currentStack.pop();
                             return [2 /*return*/];
                         }
                         if (!module.loader) return [3 /*break*/, 2];

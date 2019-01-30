@@ -269,7 +269,9 @@ class AmdLoader {
 
         if (typeof require !== "undefined") {
             module.ready = true;
+            this.currentStack.push(module);
             module.exports = require(module.name);
+            this.currentStack.pop();
             return;
         }
 

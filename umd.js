@@ -694,9 +694,6 @@ var AmdLoader = /** @class */ (function () {
                         return [4 /*yield*/, module.loader];
                     case 1: return [2 /*return*/, _a.sent()];
                     case 2:
-                        // if (typeof require !== "undefined") {
-                        //     module.loader = Promise.resolve(require(module.name));
-                        // }
                         module.loader = new Promise(function (resolve, reject) {
                             AmdLoader.moduleLoader(module.name, module.url, function () {
                                 AmdLoader.current = module;

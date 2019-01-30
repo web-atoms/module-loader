@@ -640,13 +640,38 @@ var AmdLoader = /** @class */ (function () {
         }
         return module;
     };
+    AmdLoader.prototype.syncImport = function (module) {
+        module.ready = true;
+        this.currentStack.push(module);
+        module.exports = require(module.name);
+        this.currentStack.pop();
+        var pendingList = this.mockTypes.filter(function (t) { return !t.loaded; });
+        if (pendingList.length) {
+            for (var _i = 0, pendingList_1 = pendingList; _i < pendingList_1.length; _i++) {
+                var iterator = pendingList_1[_i];
+                iterator.loaded = true;
+            }
+            for (var _a = 0, pendingList_2 = pendingList; _a < pendingList_2.length; _a++) {
+                var iterator = pendingList_2[_a];
+                var containerModule = iterator.module;
+                var resolvedName = this.resolveRelativePath(iterator.moduleName, containerModule.name);
+                var ex = require(resolvedName);
+                var type = ex[iterator.exportName];
+                iterator.replaced = type;
+            }
+        }
+        return module.exports;
+    };
     AmdLoader.prototype.import = function (name) {
         return __awaiter(this, void 0, void 0, function () {
-            var module, exports, pendingList, _i, pendingList_1, iterator, _a, pendingList_2, iterator, containerModule, resolvedName, ex, type;
+            var module, exports, pendingList, _i, pendingList_3, iterator, _a, pendingList_4, iterator, containerModule, resolvedName, ex, type;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         module = this.get(name);
+                        if (typeof require !== "undefined") {
+                            return [2 /*return*/, this.syncImport(module)];
+                        }
                         if (!this.root) {
                             this.root = module;
                         }
@@ -656,15 +681,15 @@ var AmdLoader = /** @class */ (function () {
                         exports = module.getExports();
                         pendingList = this.mockTypes.filter(function (t) { return !t.loaded; });
                         if (!pendingList.length) return [3 /*break*/, 5];
-                        for (_i = 0, pendingList_1 = pendingList; _i < pendingList_1.length; _i++) {
-                            iterator = pendingList_1[_i];
+                        for (_i = 0, pendingList_3 = pendingList; _i < pendingList_3.length; _i++) {
+                            iterator = pendingList_3[_i];
                             iterator.loaded = true;
                         }
-                        _a = 0, pendingList_2 = pendingList;
+                        _a = 0, pendingList_4 = pendingList;
                         _b.label = 2;
                     case 2:
-                        if (!(_a < pendingList_2.length)) return [3 /*break*/, 5];
-                        iterator = pendingList_2[_a];
+                        if (!(_a < pendingList_4.length)) return [3 /*break*/, 5];
+                        iterator = pendingList_4[_a];
                         containerModule = iterator.module;
                         resolvedName = this.resolveRelativePath(iterator.moduleName, containerModule.name);
                         return [4 /*yield*/, this.import(resolvedName)];
@@ -692,13 +717,6 @@ var AmdLoader = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (typeof require !== "undefined") {
-                            module.ready = true;
-                            this.currentStack.push(module);
-                            module.exports = require(module.name);
-                            this.currentStack.pop();
-                            return [2 /*return*/];
-                        }
                         if (!module.loader) return [3 /*break*/, 2];
                         return [4 /*yield*/, module.loader];
                     case 1: return [2 /*return*/, _a.sent()];

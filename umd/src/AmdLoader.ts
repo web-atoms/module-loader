@@ -229,9 +229,36 @@ class AmdLoader {
         return module;
     }
 
+    public syncImport(module: Module): any {
+        module.ready = true;
+        this.currentStack.push(module);
+        module.exports = require(module.name);
+        this.currentStack.pop();
+
+        const pendingList: MockType[] = this.mockTypes.filter((t) => !t.loaded );
+        if (pendingList.length) {
+            for (const iterator of pendingList) {
+                iterator.loaded = true;
+            }
+            for (const iterator of pendingList) {
+                const containerModule: Module = iterator.module;
+                const resolvedName: string = this.resolveRelativePath(iterator.moduleName, containerModule.name);
+                const ex: any = require(resolvedName);
+                const type: any = ex[iterator.exportName];
+                iterator.replaced = type;
+            }
+        }
+        return module.exports;
+    }
+
     public async import(name: string): Promise<any> {
 
         let module: Module = this.get(name);
+
+        if (typeof require !== "undefined") {
+            return this.syncImport(module);
+        }
+
 
         if (!this.root) {
             this.root = module;
@@ -266,14 +293,6 @@ class AmdLoader {
     }
 
     public async load(module: Module): Promise<any> {
-
-        if (typeof require !== "undefined") {
-            module.ready = true;
-            this.currentStack.push(module);
-            module.exports = require(module.name);
-            this.currentStack.pop();
-            return;
-        }
 
         if (module.loader) {
             return await module.loader;

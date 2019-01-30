@@ -1,6 +1,7 @@
 /// <reference path="./Promise.ts"/>
 /// <reference path="./ArrayHelper.ts"/>
 /// <reference path="./Module.ts"/>
+declare var require: any;
 
 class AmdLoader {
 
@@ -262,11 +263,15 @@ class AmdLoader {
         return exports;
     }
 
-    public async nodeLoader(module: Module): Promise<any> {
-        const result: string = await (await fetch(module.url))
-                .text();
-        AmdLoader.current = module;
-        const finalCode: string = `function (require, module){ ${result} }`;
+    public nodeLoader(module: Module): Promise<any> {
+        // const result: string = await (await fetch(module.url))
+        //         .text();
+        // tslint:disable-next-line:comment-format
+        // AmdLoader.current = module;
+        // const finalCode: string = `function (require, module){ ${result} }`;
+        // // tslint:disable-next-line:no-eval
+        // const fun: Function = eval(finalCode);
+        return Promise.resolve(require(module.name, module.url));
     }
 
     public async load(module: Module): Promise<any> {

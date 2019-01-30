@@ -27,6 +27,7 @@ declare class Module {
     loader: Promise<any>;
     ready: boolean;
 }
+declare var require: any;
 declare class AmdLoader {
     private mockTypes;
     static globalVar: any;

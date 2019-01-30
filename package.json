@@ -1,6 +1,6 @@
 {
   "name": "web-atoms-amd-loader",
-  "version": "1.0.133",
+  "version": "1.0.134",
   "description": "AMD Module loader for Web Atoms",
   "main": "index.js",
   "scripts": {

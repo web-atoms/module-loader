@@ -229,7 +229,7 @@ class AmdLoader {
         return module;
     }
 
-    public syncImport(module: Module): any {
+    public syncImport(module: Module, require: any): any {
         module.ready = true;
         this.currentStack.push(module);
         module.exports = require(module.name);
@@ -244,7 +244,7 @@ class AmdLoader {
                 const containerModule: Module = iterator.module;
                 const resolvedName: string = this.resolveRelativePath(iterator.moduleName, containerModule.name);
                 const m: Module = this.get(resolvedName);
-                const ex: any = this.syncImport(m);
+                const ex: any = this.syncImport(m, require);
                 const type: any = ex[iterator.exportName];
                 iterator.replaced = type;
             }
@@ -257,7 +257,7 @@ class AmdLoader {
         let module: Module = this.get(name);
 
         if (typeof require !== "undefined") {
-            return this.syncImport(module);
+            return this.syncImport(module, require);
         }
 
 

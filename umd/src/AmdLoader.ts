@@ -282,6 +282,7 @@ class AmdLoader {
 
         if (typeof require !== "undefined") {
             module.loader = this.nodeLoader(module);
+            return await module.loader;
         }
 
         module.loader = new Promise((resolve, reject) => {

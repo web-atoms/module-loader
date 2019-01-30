@@ -704,9 +704,11 @@ var AmdLoader = /** @class */ (function () {
                         return [4 /*yield*/, module.loader];
                     case 1: return [2 /*return*/, _a.sent()];
                     case 2:
-                        if (typeof require !== "undefined") {
-                            module.loader = this.nodeLoader(module);
-                        }
+                        if (!(typeof require !== "undefined")) return [3 /*break*/, 4];
+                        module.loader = this.nodeLoader(module);
+                        return [4 /*yield*/, module.loader];
+                    case 3: return [2 /*return*/, _a.sent()];
+                    case 4:
                         module.loader = new Promise(function (resolve, reject) {
                             AmdLoader.moduleLoader(module.name, module.url, function () {
                                 AmdLoader.current = module;
@@ -727,7 +729,7 @@ var AmdLoader = /** @class */ (function () {
                             });
                         });
                         return [4 /*yield*/, module.loader];
-                    case 3: return [2 /*return*/, _a.sent()];
+                    case 5: return [2 /*return*/, _a.sent()];
                 }
             });
         });

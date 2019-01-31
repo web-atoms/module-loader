@@ -205,11 +205,6 @@ class AmdLoader {
 
     public get(name1: string): Module {
 
-        if (typeof require !== "undefined") {
-            const last: any = this.nodeModules.length > 0 ? this.nodeModules[this.nodeModules.length-1] : undefined;
-            name1 = md._resolveFilename(name1, last);
-        }
-
         let module: Module = this.modules[name1];
         if (!module) {
 
@@ -243,11 +238,9 @@ class AmdLoader {
         return module;
     }
 
-    public syncImport(module: Module, req: any): any {
+    public syncImport(name: string, req: any): any {
         module.ready = true;
-        this.currentStack.push(module);
         module.exports = req(module.name);
-        this.currentStack.pop();
 
         const pendingList: MockType[] = this.mockTypes.filter((t) => !t.loaded );
         if (pendingList.length) {
@@ -255,10 +248,7 @@ class AmdLoader {
                 iterator.loaded = true;
             }
             for (const iterator of pendingList) {
-                const containerModule: Module = iterator.module;
-                const resolvedName: string = this.resolveRelativePath(iterator.moduleName, containerModule.name);
-                const m: Module = this.get(resolvedName);
-                const ex: any = this.syncImport(m, req);
+                const ex: any = this.syncImport(iterator.moduleName, req);
                 const type: any = ex[iterator.exportName];
                 iterator.replaced = type;
             }
@@ -268,12 +258,11 @@ class AmdLoader {
 
     public async import(name: string): Promise<any> {
 
-        let module: Module = this.get(name);
-
         if (typeof require !== "undefined") {
-            return this.syncImport(module, require);
+            return this.syncImport(name, require);
         }
 
+        let module: Module = this.get(name);
 
         if (!this.root) {
             this.root = module;

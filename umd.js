@@ -617,10 +617,6 @@ var AmdLoader = /** @class */ (function () {
     };
     AmdLoader.prototype.get = function (name1) {
         var _this = this;
-        if (typeof require !== "undefined") {
-            var last = this.nodeModules.length > 0 ? this.nodeModules[this.nodeModules.length - 1] : undefined;
-            name1 = md._resolveFilename(name1, last);
-        }
         var module = this.modules[name1];
         if (!module) {
             // strip '@' version info
@@ -649,11 +645,9 @@ var AmdLoader = /** @class */ (function () {
         }
         return module;
     };
-    AmdLoader.prototype.syncImport = function (module, req) {
+    AmdLoader.prototype.syncImport = function (name, req) {
         module.ready = true;
-        this.currentStack.push(module);
         module.exports = req(module.name);
-        this.currentStack.pop();
         var pendingList = this.mockTypes.filter(function (t) { return !t.loaded; });
         if (pendingList.length) {
             for (var _i = 0, pendingList_1 = pendingList; _i < pendingList_1.length; _i++) {
@@ -662,10 +656,7 @@ var AmdLoader = /** @class */ (function () {
             }
             for (var _a = 0, pendingList_2 = pendingList; _a < pendingList_2.length; _a++) {
                 var iterator = pendingList_2[_a];
-                var containerModule = iterator.module;
-                var resolvedName = this.resolveRelativePath(iterator.moduleName, containerModule.name);
-                var m = this.get(resolvedName);
-                var ex = this.syncImport(m, req);
+                var ex = this.syncImport(iterator.moduleName, req);
                 var type = ex[iterator.exportName];
                 iterator.replaced = type;
             }
@@ -678,10 +669,10 @@ var AmdLoader = /** @class */ (function () {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        module = this.get(name);
                         if (typeof require !== "undefined") {
-                            return [2 /*return*/, this.syncImport(module, require)];
+                            return [2 /*return*/, this.syncImport(name, require)];
                         }
+                        module = this.get(name);
                         if (!this.root) {
                             this.root = module;
                         }

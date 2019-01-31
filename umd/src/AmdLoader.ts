@@ -78,6 +78,8 @@ class AmdLoader {
         this.mockTypes.push(rt);
         if (typeof require !== "undefined") {
             // lets require this...
+            const last: any = this.nodeModules.length ? this.nodeModules[this.nodeModules.length - 1]: undefined;
+            name = md._resolveFilename(name, last);
             const e: any = require(name)[rt.exportName];
             rt.replaced = e;
         }

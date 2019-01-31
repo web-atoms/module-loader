@@ -510,8 +510,8 @@ var AmdLoader = /** @class */ (function () {
         this.mockTypes.push(rt);
         if (typeof require !== "undefined") {
             // lets require this...
-            var last = this.nodeModules.length ? this.nodeModules[this.nodeModules.length - 1] : undefined;
-            rt.moduleName = md._resolveFilename(rt.moduleName, last);
+            // const last: any = this.nodeModules.length ? this.nodeModules[this.nodeModules.length - 1]: undefined;
+            // rt.moduleName = md._resolveFilename(rt.moduleName, last);
             // rt.replaced = e;
         }
     };

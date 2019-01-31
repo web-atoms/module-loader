@@ -511,7 +511,7 @@ var AmdLoader = /** @class */ (function () {
         if (typeof require !== "undefined") {
             // lets require this...
             var last = this.nodeModules.length ? this.nodeModules[this.nodeModules.length - 1] : undefined;
-            name = md._resolveFilename(name, last);
+            name = md._resolveFilename(rt.moduleName, last);
             var e = require(name)[rt.exportName];
             rt.replaced = e;
         }

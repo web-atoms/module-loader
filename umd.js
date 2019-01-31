@@ -456,6 +456,9 @@ var Module = /** @class */ (function () {
 /// <reference path="./Promise.ts"/>
 /// <reference path="./ArrayHelper.ts"/>
 /// <reference path="./Module.ts"/>
+if (typeof require !== "undefined") {
+    md = require("module").Module;
+}
 var AmdLoader = /** @class */ (function () {
     function AmdLoader() {
         this.mockTypes = [];
@@ -616,7 +619,6 @@ var AmdLoader = /** @class */ (function () {
         var _this = this;
         if (typeof require !== "undefined") {
             var last = this.nodeModules.length > 0 ? this.nodeModules[this.nodeModules.length - 1] : undefined;
-            var md = require("module").Module;
             name1 = md._resolveFilename(name1, last);
         }
         var module = this.modules[name1];

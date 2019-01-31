@@ -28,6 +28,7 @@ declare class Module {
     ready: boolean;
 }
 declare var require: any;
+declare var md: any;
 declare class AmdLoader {
     private mockTypes;
     static globalVar: any;

@@ -3,6 +3,12 @@
 /// <reference path="./Module.ts"/>
 declare var require: any;
 
+declare var md: any;
+
+if (typeof require !== "undefined") {
+    md = require("module").Module;
+}
+
 class AmdLoader {
 
 
@@ -201,7 +207,6 @@ class AmdLoader {
 
         if (typeof require !== "undefined") {
             const last: any = this.nodeModules.length > 0 ? this.nodeModules[this.nodeModules.length-1] : undefined;
-            const { Module: md } = require("module");
             name1 = md._resolveFilename(name1, last);
         }
 

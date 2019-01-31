@@ -239,8 +239,7 @@ class AmdLoader {
     }
 
     public syncImport(name: string, req: any): any {
-        module.ready = true;
-        module.exports = req(module.name);
+        const exports: any = req(name);
 
         const pendingList: MockType[] = this.mockTypes.filter((t) => !t.loaded );
         if (pendingList.length) {
@@ -253,7 +252,7 @@ class AmdLoader {
                 iterator.replaced = type;
             }
         }
-        return module.exports;
+        return exports;
     }
 
     public async import(name: string): Promise<any> {

@@ -646,8 +646,7 @@ var AmdLoader = /** @class */ (function () {
         return module;
     };
     AmdLoader.prototype.syncImport = function (name, req) {
-        module.ready = true;
-        module.exports = req(module.name);
+        var exports = req(name);
         var pendingList = this.mockTypes.filter(function (t) { return !t.loaded; });
         if (pendingList.length) {
             for (var _i = 0, pendingList_1 = pendingList; _i < pendingList_1.length; _i++) {
@@ -661,7 +660,7 @@ var AmdLoader = /** @class */ (function () {
                 iterator.replaced = type;
             }
         }
-        return module.exports;
+        return exports;
     };
     AmdLoader.prototype.import = function (name) {
         return __awaiter(this, void 0, void 0, function () {

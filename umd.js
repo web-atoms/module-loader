@@ -505,8 +505,14 @@ var AmdLoader = /** @class */ (function () {
         if (mock && !this.enableMock) {
             return;
         }
-        var peek = this.currentStack[this.currentStack.length - 1];
-        this.mockTypes.push(new MockType(peek, type, name, mock));
+        var peek = this.currentStack.length ? this.currentStack[this.currentStack.length - 1] : undefined;
+        var rt = new MockType(peek, type, name, mock);
+        this.mockTypes.push(rt);
+        if (typeof require !== "undefined") {
+            // lets require this...
+            var e = require(name)[rt.exportName];
+            rt.replaced = e;
+        }
     };
     AmdLoader.prototype.resolveType = function (type) {
         var t = this.mockTypes.find(function (t) { return t.type === type; });
@@ -645,33 +651,31 @@ var AmdLoader = /** @class */ (function () {
         }
         return module;
     };
-    AmdLoader.prototype.syncImport = function (name, req) {
-        var exports = req(name);
-        var pendingList = this.mockTypes.filter(function (t) { return !t.loaded; });
-        if (pendingList.length) {
-            for (var _i = 0, pendingList_1 = pendingList; _i < pendingList_1.length; _i++) {
-                var iterator = pendingList_1[_i];
-                iterator.loaded = true;
-            }
-            var last = this.nodeModules.length ? this.nodeModules[this.nodeModules.length - 1] : undefined;
-            for (var _a = 0, pendingList_2 = pendingList; _a < pendingList_2.length; _a++) {
-                var iterator = pendingList_2[_a];
-                var n = md._resolveFilename(iterator.moduleName, last);
-                var ex = this.syncImport(n, req);
-                var type = ex[iterator.exportName];
-                iterator.replaced = type;
-            }
-        }
-        return exports;
-    };
+    // public syncImport(name: string, req: any): any {
+    //     const exports: any = req(name);
+    //     const pendingList: MockType[] = this.mockTypes.filter((t) => !t.loaded );
+    //     if (pendingList.length) {
+    //         for (const iterator of pendingList) {
+    //             iterator.loaded = true;
+    //         }
+    //         const last: any = this.nodeModules.length ? this.nodeModules[this.nodeModules.length - 1] : undefined;
+    //         for (const iterator of pendingList) {
+    //             const n: string = md._resolveFilename(iterator.moduleName, last);
+    //             const ex: any = this.syncImport(n, req);
+    //             const type: any = ex[iterator.exportName];
+    //             iterator.replaced = type;
+    //         }
+    //     }
+    //     return exports;
+    // }
     AmdLoader.prototype.import = function (name) {
         return __awaiter(this, void 0, void 0, function () {
-            var module, exports, pendingList, _i, pendingList_3, iterator, _a, pendingList_4, iterator, containerModule, resolvedName, ex, type;
+            var module, exports, pendingList, _i, pendingList_1, iterator, _a, pendingList_2, iterator, containerModule, resolvedName, ex, type;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         if (typeof require !== "undefined") {
-                            return [2 /*return*/, this.syncImport(name, require)];
+                            return [2 /*return*/, require(name)];
                         }
                         module = this.get(name);
                         if (!this.root) {
@@ -683,15 +687,15 @@ var AmdLoader = /** @class */ (function () {
                         exports = module.getExports();
                         pendingList = this.mockTypes.filter(function (t) { return !t.loaded; });
                         if (!pendingList.length) return [3 /*break*/, 5];
-                        for (_i = 0, pendingList_3 = pendingList; _i < pendingList_3.length; _i++) {
-                            iterator = pendingList_3[_i];
+                        for (_i = 0, pendingList_1 = pendingList; _i < pendingList_1.length; _i++) {
+                            iterator = pendingList_1[_i];
                             iterator.loaded = true;
                         }
-                        _a = 0, pendingList_4 = pendingList;
+                        _a = 0, pendingList_2 = pendingList;
                         _b.label = 2;
                     case 2:
-                        if (!(_a < pendingList_4.length)) return [3 /*break*/, 5];
-                        iterator = pendingList_4[_a];
+                        if (!(_a < pendingList_2.length)) return [3 /*break*/, 5];
+                        iterator = pendingList_2[_a];
                         containerModule = iterator.module;
                         resolvedName = this.resolveRelativePath(iterator.moduleName, containerModule.name);
                         return [4 /*yield*/, this.import(resolvedName)];

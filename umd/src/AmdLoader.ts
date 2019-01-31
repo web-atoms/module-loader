@@ -73,8 +73,14 @@ class AmdLoader {
         if (mock && !this.enableMock) {
             return;
         }
-        const peek: Module = this.currentStack[this.currentStack.length-1];
-        this.mockTypes.push(new MockType(peek, type, name, mock));
+        const peek: Module = this.currentStack.length ? this.currentStack[this.currentStack.length-1] : undefined;
+        const rt: MockType = new MockType(peek, type, name, mock);
+        this.mockTypes.push(rt);
+        if (typeof require !== "undefined") {
+            // lets require this...
+            const e: any = require(name)[rt.exportName];
+            rt.replaced = e;
+        }
     }
 
     public resolveType(type: any): any {
@@ -238,29 +244,29 @@ class AmdLoader {
         return module;
     }
 
-    public syncImport(name: string, req: any): any {
-        const exports: any = req(name);
+    // public syncImport(name: string, req: any): any {
+    //     const exports: any = req(name);
 
-        const pendingList: MockType[] = this.mockTypes.filter((t) => !t.loaded );
-        if (pendingList.length) {
-            for (const iterator of pendingList) {
-                iterator.loaded = true;
-            }
-            const last: any = this.nodeModules.length ? this.nodeModules[this.nodeModules.length - 1] : undefined;
-            for (const iterator of pendingList) {
-                const n: string = md._resolveFilename(iterator.moduleName, last);
-                const ex: any = this.syncImport(n, req);
-                const type: any = ex[iterator.exportName];
-                iterator.replaced = type;
-            }
-        }
-        return exports;
-    }
+    //     const pendingList: MockType[] = this.mockTypes.filter((t) => !t.loaded );
+    //     if (pendingList.length) {
+    //         for (const iterator of pendingList) {
+    //             iterator.loaded = true;
+    //         }
+    //         const last: any = this.nodeModules.length ? this.nodeModules[this.nodeModules.length - 1] : undefined;
+    //         for (const iterator of pendingList) {
+    //             const n: string = md._resolveFilename(iterator.moduleName, last);
+    //             const ex: any = this.syncImport(n, req);
+    //             const type: any = ex[iterator.exportName];
+    //             iterator.replaced = type;
+    //         }
+    //     }
+    //     return exports;
+    // }
 
     public async import(name: string): Promise<any> {
 
         if (typeof require !== "undefined") {
-            return this.syncImport(name, require);
+            return require(name);
         }
 
         let module: Module = this.get(name);

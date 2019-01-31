@@ -61,7 +61,6 @@ declare class AmdLoader {
         name: string;
     });
     get(name1: string): Module;
-    syncImport(name: string, req: any): any;
     import(name: string): Promise<any>;
     load(module: Module): Promise<any>;
     define: any;

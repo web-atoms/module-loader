@@ -8,7 +8,7 @@ class MockType {
         public type: any,
         public name: string,
         public mock: boolean,
-        public readonly moduleName?: string,
+        public moduleName?: string,
         public readonly exportName?: string) {
 
             this.name = name = name

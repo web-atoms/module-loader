@@ -75,7 +75,7 @@ declare class MockType {
     type: any;
     name: string;
     mock: boolean;
-    readonly moduleName: string;
+    moduleName: string;
     readonly exportName: string;
     loaded: boolean;
     replaced: any;

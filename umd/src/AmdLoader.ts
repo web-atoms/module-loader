@@ -79,9 +79,8 @@ class AmdLoader {
         if (typeof require !== "undefined") {
             // lets require this...
             const last: any = this.nodeModules.length ? this.nodeModules[this.nodeModules.length - 1]: undefined;
-            name = md._resolveFilename(rt.moduleName, last);
-            const e: any = require(name)[rt.exportName];
-            rt.replaced = e;
+            rt.moduleName = md._resolveFilename(rt.moduleName, last);
+            // rt.replaced = e;
         }
     }
 

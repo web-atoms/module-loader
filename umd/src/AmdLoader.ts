@@ -76,12 +76,6 @@ class AmdLoader {
         const peek: Module = this.currentStack.length ? this.currentStack[this.currentStack.length-1] : undefined;
         const rt: MockType = new MockType(peek, type, name, mock);
         this.mockTypes.push(rt);
-        if (typeof require !== "undefined") {
-            // lets require this...
-            // const last: any = this.nodeModules.length ? this.nodeModules[this.nodeModules.length - 1]: undefined;
-            // rt.moduleName = md._resolveFilename(rt.moduleName, last);
-            // rt.replaced = e;
-        }
     }
 
     public resolveType(type: any): any {

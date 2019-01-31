@@ -508,12 +508,6 @@ var AmdLoader = /** @class */ (function () {
         var peek = this.currentStack.length ? this.currentStack[this.currentStack.length - 1] : undefined;
         var rt = new MockType(peek, type, name, mock);
         this.mockTypes.push(rt);
-        if (typeof require !== "undefined") {
-            // lets require this...
-            // const last: any = this.nodeModules.length ? this.nodeModules[this.nodeModules.length - 1]: undefined;
-            // rt.moduleName = md._resolveFilename(rt.moduleName, last);
-            // rt.replaced = e;
-        }
     };
     AmdLoader.prototype.resolveType = function (type) {
         var t = this.mockTypes.find(function (t) { return t.type === type; });

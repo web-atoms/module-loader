@@ -653,9 +653,11 @@ var AmdLoader = /** @class */ (function () {
                 var iterator = pendingList_1[_i];
                 iterator.loaded = true;
             }
+            var last = this.nodeModules.length ? this.nodeModules[this.nodeModules.length - 1] : undefined;
             for (var _a = 0, pendingList_2 = pendingList; _a < pendingList_2.length; _a++) {
                 var iterator = pendingList_2[_a];
-                var ex = this.syncImport(iterator.moduleName, req);
+                var n = md._resolveFilename(iterator.moduleName, last);
+                var ex = this.syncImport(n, req);
                 var type = ex[iterator.exportName];
                 iterator.replaced = type;
             }

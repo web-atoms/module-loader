@@ -246,8 +246,10 @@ class AmdLoader {
             for (const iterator of pendingList) {
                 iterator.loaded = true;
             }
+            const last: any = this.nodeModules.length ? this.nodeModules[this.nodeModules.length - 1] : undefined;
             for (const iterator of pendingList) {
-                const ex: any = this.syncImport(iterator.moduleName, req);
+                const n: string = md._resolveFilename(iterator.moduleName, last);
+                const ex: any = this.syncImport(n, req);
                 const type: any = ex[iterator.exportName];
                 iterator.replaced = type;
             }

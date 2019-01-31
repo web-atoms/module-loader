@@ -39,6 +39,7 @@ declare class AmdLoader {
     static current: Module;
     root: Module;
     currentStack: Module[];
+    nodeModules: Module[];
     modules: {
         [key: string]: Module;
     };

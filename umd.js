@@ -461,6 +461,8 @@ var AmdLoader = /** @class */ (function () {
         this.mockTypes = [];
         this.root = null;
         this.currentStack = [];
+        // only useful in node environment
+        this.nodeModules = [];
         this.modules = {};
         this.pathMap = {};
     }
@@ -612,6 +614,11 @@ var AmdLoader = /** @class */ (function () {
     };
     AmdLoader.prototype.get = function (name1) {
         var _this = this;
+        if (typeof require !== "undefined") {
+            var last = this.nodeModules.length > 0 ? this.nodeModules[this.nodeModules.length - 1] : undefined;
+            var md = require("module").Module;
+            name1 = md._resolveFilename(name1, last);
+        }
         var module = this.modules[name1];
         if (!module) {
             // strip '@' version info

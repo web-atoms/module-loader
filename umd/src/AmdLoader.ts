@@ -22,6 +22,9 @@ class AmdLoader {
 
     public currentStack: Module[] = [];
 
+    // only useful in node environment
+    public nodeModules: Module[] = [];
+
     public modules: { [key: string]: Module } = {};
 
     public pathMap: { [key: string]: IPackage } = {};
@@ -195,6 +198,12 @@ class AmdLoader {
     }
 
     public get(name1: string): Module {
+
+        if (typeof require !== "undefined") {
+            const last: any = this.nodeModules.length > 0 ? this.nodeModules[this.nodeModules.length-1] : undefined;
+            const { Module: md } = require("module");
+            name1 = md._resolveFilename(name1, last);
+        }
 
         let module: Module = this.modules[name1];
         if (!module) {

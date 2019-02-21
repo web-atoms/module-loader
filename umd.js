@@ -404,6 +404,24 @@ var Module = /** @class */ (function () {
             iterator.resolve();
         }
     };
+    Module.prototype.isDependentOn = function (d) {
+        for (var _i = 0, _a = this.dependencies; _i < _a.length; _i++) {
+            var iterator = _a[_i];
+            if (iterator === d) {
+                return true;
+            }
+            if (iterator.isDependentOn(d)) {
+                return true;
+            }
+        }
+        return false;
+    };
+    Module.prototype.addDependency = function (d) {
+        if (d.isDependentOn(this)) {
+            return;
+        }
+        this.dependencies.push(d);
+    };
     Module.prototype.getExports = function () {
         if (this.exports) {
             return this.exports;
@@ -834,10 +852,7 @@ var define = function (requiresOrFactory, factory) {
             }
             var name_2 = loader.resolveRelativePath(s, current.name);
             var child = loader.get(name_2);
-            if (!child.loader) {
-                current.dependencies.push(child);
-            }
-            child.awaitedModules.push(current);
+            current.addDependency(child);
             if (!child.loader) {
                 child.loader = AmdLoader.instance._import(child).catch(function (e) {
                     console.error(e);

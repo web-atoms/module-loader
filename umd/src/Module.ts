@@ -65,6 +65,25 @@ class Module {
 
     }
 
+    public isDependentOn(d: Module): boolean {
+        for (const iterator of this.dependencies) {
+            if (iterator === d) {
+                return true;
+            }
+            if (iterator.isDependentOn(d)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public addDependency(d: Module): void {
+        if (d.isDependentOn(this)) {
+            return;
+        }
+        this.dependencies.push(d);
+    }
+
     public getExports(): any {
         if (this.exports) {
             return this.exports;

@@ -17,6 +17,8 @@ declare class Module {
     private static populateDependencies(root, list);
     private pendingResolver;
     resolve(resolve?: (r: any) => void, reject?: (e: any) => void): void;
+    isDependentOn(d: Module): boolean;
+    addDependency(d: Module): void;
     getExports(): any;
     require: (name: string) => any;
     code: () => Promise<any>;

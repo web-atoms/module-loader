@@ -417,11 +417,11 @@ var Module = /** @class */ (function () {
         return false;
     };
     Module.prototype.addDependency = function (d) {
+        d.awaitedModules.push(this);
         if (d.isDependentOn(this)) {
             return;
         }
         this.dependencies.push(d);
-        d.awaitedModules.push(this);
     };
     Module.prototype.getExports = function () {
         if (this.exports) {

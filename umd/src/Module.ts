@@ -78,11 +78,11 @@ class Module {
     }
 
     public addDependency(d: Module): void {
+        d.awaitedModules.push(this);
         if (d.isDependentOn(this)) {
             return;
         }
         this.dependencies.push(d);
-        d.awaitedModules.push(this);
     }
 
     public getExports(): any {

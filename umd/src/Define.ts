@@ -37,11 +37,6 @@ var define:IDefine = (
             const name: string = loader.resolveRelativePath(s, current.name);
             const child: Module = loader.get(name);
             current.addDependency(child);
-            if (!child.loader) {
-                child.loader = AmdLoader.instance._import(child).catch((e) => {
-                    console.error(e);
-                });
-            }
         }
         current.factory = factory;
     };

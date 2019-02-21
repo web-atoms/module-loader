@@ -864,11 +864,6 @@ var define = function (requiresOrFactory, factory) {
             var name_2 = loader.resolveRelativePath(s, current.name);
             var child = loader.get(name_2);
             current.addDependency(child);
-            if (!child.loader) {
-                child.loader = AmdLoader.instance._import(child).catch(function (e) {
-                    console.error(e);
-                });
-            }
         }
         current.factory = factory;
     };

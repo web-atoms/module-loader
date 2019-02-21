@@ -15,7 +15,7 @@ declare class Module {
     url: string;
     exports: any;
     private static populateDependencies(root, list);
-    private pendingResolver;
+    ignoreModule: Module;
     resolve(resolve?: (r: any) => void, reject?: (e: any) => void): void;
     isDependentOn(d: Module): boolean;
     addDependency(d: Module): void;

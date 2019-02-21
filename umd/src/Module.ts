@@ -44,7 +44,7 @@ class Module {
         }
     }
 
-    private pendingResolver: [any, any] = null;
+    public ignoreModule: Module = null;
 
     public resolve(resolve?: (r: any) => void, reject?: (e: any) => void): void {
 
@@ -75,6 +75,9 @@ class Module {
 
     public addDependency(d: Module): void {
         // d.awaitedModules.push(this);
+        if (d === this.ignoreModule) {
+            return;
+        }
         if (d.isDependentOn(this)) {
             return;
         }

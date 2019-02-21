@@ -365,7 +365,7 @@ var Module = /** @class */ (function () {
         this.name = name;
         this.folder = folder;
         this.awaitedModules = [];
-        this.pendingResolver = null;
+        this.ignoreModule = null;
         this.dependencies = [];
         this.ready = false;
         var index = name.lastIndexOf("/");
@@ -418,6 +418,9 @@ var Module = /** @class */ (function () {
     };
     Module.prototype.addDependency = function (d) {
         // d.awaitedModules.push(this);
+        if (d === this.ignoreModule) {
+            return;
+        }
         if (d.isDependentOn(this)) {
             return;
         }
@@ -679,7 +682,7 @@ var AmdLoader = /** @class */ (function () {
     };
     AmdLoader.prototype._import = function (module) {
         return __awaiter(this, void 0, void 0, function () {
-            var exports, pendingList, _i, pendingList_1, iterator, _a, pendingList_2, iterator, containerModule, resolvedName, ex, type;
+            var exports, pendingList, _i, pendingList_1, iterator, _a, pendingList_2, iterator, containerModule, resolvedName, im, ex, type;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -704,6 +707,8 @@ var AmdLoader = /** @class */ (function () {
                         iterator = pendingList_2[_a];
                         containerModule = iterator.module;
                         resolvedName = this.resolveRelativePath(iterator.moduleName, containerModule.name);
+                        im = this.get(resolvedName);
+                        im.ignoreModule = module;
                         return [4 /*yield*/, this.import(resolvedName)];
                     case 3:
                         ex = _b.sent();

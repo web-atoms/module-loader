@@ -48,19 +48,29 @@ class Module {
 
     public resolve(resolve?: (r: any) => void, reject?: (e: any) => void): void {
 
-        if (resolve && reject) {
-            this.pendingResolver = [resolve, reject];
-        }
+        // if (resolve && reject) {
+        //     this.pendingResolver = [resolve, reject];
+        // }
 
-        const d: Module[] = this.dependencies ? this.dependencies  : [];
-        if (d.filter(x => !x.exports).length) {
-            return;
-        }
+        // const d: Module[] = this.dependencies ? this.dependencies  : [];
+        // if (d.filter(x => !x.exports).length) {
+        //     return;
+        // }
 
-        this.pendingResolver[0](this.getExports());
+        // this.pendingResolver[0](this.getExports());
 
-        for (const iterator of this.awaitedModules) {
-            iterator.resolve();
+        // for (const iterator of this.awaitedModules) {
+        //     iterator.resolve();
+        // }
+
+        if (this.dependencies && this.dependencies.length) {
+            Promise.all(this.dependencies.map(x => AmdLoader.instance.import(x.name) ))
+                .then(() => {
+                    resolve(this.getExports());
+                })
+                .catch(reject);
+        } else {
+            resolve(this.getExports());
         }
 
     }
@@ -78,7 +88,7 @@ class Module {
     }
 
     public addDependency(d: Module): void {
-        d.awaitedModules.push(this);
+        // d.awaitedModules.push(this);
         if (d.isDependentOn(this)) {
             return;
         }

@@ -391,17 +391,27 @@ var Module = /** @class */ (function () {
         }
     };
     Module.prototype.resolve = function (resolve, reject) {
-        if (resolve && reject) {
-            this.pendingResolver = [resolve, reject];
+        // if (resolve && reject) {
+        //     this.pendingResolver = [resolve, reject];
+        // }
+        var _this = this;
+        // const d: Module[] = this.dependencies ? this.dependencies  : [];
+        // if (d.filter(x => !x.exports).length) {
+        //     return;
+        // }
+        // this.pendingResolver[0](this.getExports());
+        // for (const iterator of this.awaitedModules) {
+        //     iterator.resolve();
+        // }
+        if (this.dependencies && this.dependencies.length) {
+            Promise.all(this.dependencies.map(function (x) { return AmdLoader.instance.import(x.name); }))
+                .then(function () {
+                resolve(_this.getExports());
+            })
+                .catch(reject);
         }
-        var d = this.dependencies ? this.dependencies : [];
-        if (d.filter(function (x) { return !x.exports; }).length) {
-            return;
-        }
-        this.pendingResolver[0](this.getExports());
-        for (var _i = 0, _a = this.awaitedModules; _i < _a.length; _i++) {
-            var iterator = _a[_i];
-            iterator.resolve();
+        else {
+            resolve(this.getExports());
         }
     };
     Module.prototype.isDependentOn = function (d) {
@@ -417,7 +427,7 @@ var Module = /** @class */ (function () {
         return false;
     };
     Module.prototype.addDependency = function (d) {
-        d.awaitedModules.push(this);
+        // d.awaitedModules.push(this);
         if (d.isDependentOn(this)) {
             return;
         }

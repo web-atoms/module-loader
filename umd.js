@@ -375,7 +375,7 @@ var Module = /** @class */ (function () {
             this.folder = name.substr(0, index);
         }
     }
-    Object.defineProperty(Module.prototype, "dependentLoaders", {
+    Object.defineProperty(Module.prototype, "descendants", {
         get: function () {
             var root = [];
             if (!this.dependencies) {
@@ -383,10 +383,7 @@ var Module = /** @class */ (function () {
             }
             for (var _i = 0, _a = this.dependencies; _i < _a.length; _i++) {
                 var iterator = _a[_i];
-                if (!iterator.ready) {
-                    root.push(AmdLoader.instance.import(iterator.name));
-                }
-                for (var _b = 0, _c = iterator.dependentLoaders; _b < _c.length; _b++) {
+                for (var _b = 0, _c = iterator.descendants; _b < _c.length; _b++) {
                     var child = _c[_b];
                     root.push(child);
                 }
@@ -398,9 +395,11 @@ var Module = /** @class */ (function () {
     });
     Module.prototype.resolve = function (resolve, reject) {
         var _this = this;
-        var pendingLoaders = this.dependentLoaders;
+        var pendingLoaders = this.descendants;
         if (pendingLoaders.length) {
-            Promise.all(pendingLoaders)
+            Promise.all(pendingLoaders
+                .filter(function (x) { return x.ready; })
+                .map(function (x) { return AmdLoader.instance.import(x.name); }))
                 .then(function () {
                 resolve(_this.getExports());
             }).catch(reject);

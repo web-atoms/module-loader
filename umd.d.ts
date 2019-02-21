@@ -14,7 +14,7 @@ declare class Module {
     constructor(name: string, folder?: string);
     url: string;
     exports: any;
-    readonly dependentLoaders: Promise<any>[];
+    private readonly descendants;
     resolve(resolve: (r: any) => void, reject: (e: any) => void): void;
     getExports(): any;
     require: (name: string) => any;

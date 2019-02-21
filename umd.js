@@ -446,8 +446,8 @@ var Module = /** @class */ (function () {
             AmdLoader.instance.currentStack.pop();
             // we no longer need all these ...
             delete this.factory;
-            delete this.handlers;
-            delete this.dependencies;
+            // delete this.handlers;
+            // delete this.dependencies;
         }
         return this.exports;
     };

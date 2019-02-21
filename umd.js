@@ -367,6 +367,7 @@ var Module = /** @class */ (function () {
         this.handlers = [];
         this.dependencies = [];
         this.ready = false;
+        this.isLoading = false;
         var index = name.lastIndexOf("/");
         if (index === -1) {
             this.folder = "";
@@ -375,12 +376,30 @@ var Module = /** @class */ (function () {
             this.folder = name.substr(0, index);
         }
     }
+    Object.defineProperty(Module.prototype, "dependentLoaders", {
+        get: function () {
+            var root = [];
+            if (!this.dependencies) {
+                return root;
+            }
+            for (var _i = 0, _a = this.dependencies.filter(function (x) { return !x.isLoading; }); _i < _a.length; _i++) {
+                var iterator = _a[_i];
+                root.push(AmdLoader.instance.import(iterator.name));
+                for (var _b = 0, _c = iterator.dependentLoaders; _b < _c.length; _b++) {
+                    var child = _c[_b];
+                    root.push(child);
+                }
+            }
+            return root;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Module.prototype.resolve = function (resolve, reject) {
         var _this = this;
-        if (this.dependencies && this.dependencies.length) {
-            Promise.all(this.dependencies
-                .filter(function (x) { return !x.ready; })
-                .map(function (x) { return AmdLoader.instance.import(x.name); }))
+        var pendingLoaders = this.dependentLoaders;
+        if (pendingLoaders.length) {
+            Promise.all(pendingLoaders)
                 .then(function () {
                 resolve(_this.getExports());
             }).catch(reject);
@@ -431,6 +450,7 @@ var AmdLoader = /** @class */ (function () {
         this.mockTypes = [];
         this.root = null;
         this.currentStack = [];
+        this.pendingModules = [];
         // only useful in node environment
         this.nodeModules = [];
         this.modules = {};
@@ -645,6 +665,7 @@ var AmdLoader = /** @class */ (function () {
                         if (!this.root) {
                             this.root = module;
                         }
+                        module.isLoading = true;
                         return [4 /*yield*/, this.load(module)];
                     case 1:
                         _b.sent();
@@ -676,6 +697,7 @@ var AmdLoader = /** @class */ (function () {
                             this.root = null;
                             AmdLoader.moduleProgress(null, this.modules, "done");
                         }
+                        module.isLoading = false;
                         return [2 /*return*/, exports];
                 }
             });

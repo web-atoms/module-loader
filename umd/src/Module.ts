@@ -28,12 +28,24 @@ class Module {
 
     public exports: any;
 
+    public get dependentLoaders(): Promise<any>[] {
+        const root: Promise<any>[] = [];
+        if (!this.dependencies) {
+            return root;
+        }
+        for (const iterator of this.dependencies.filter(x => !x.isLoading)) {
+            root.push(AmdLoader.instance.import(iterator.name));
+            for (const child of iterator.dependentLoaders) {
+                root.push(child);
+            }
+        }
+        return root;
+    }
+
     public resolve(resolve: (r: any) => void, reject: (e: any) => void): void {
-        if (this.dependencies && this.dependencies.length) {
-            Promise.all(
-                this.dependencies
-                    .filter(x => !x.ready)
-                    .map((x) => AmdLoader.instance.import(x.name)))
+        const pendingLoaders: Promise<any>[] = this.dependentLoaders;
+        if (pendingLoaders.length) {
+            Promise.all(pendingLoaders)
             .then(() => {
                 resolve(this.getExports());
             }).catch(reject);
@@ -86,5 +98,7 @@ class Module {
     public loader: Promise<any>;
 
     public ready: boolean = false;
+
+    public isLoading: boolean = false;
 
 }

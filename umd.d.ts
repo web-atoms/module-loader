@@ -14,6 +14,7 @@ declare class Module {
     constructor(name: string, folder?: string);
     url: string;
     exports: any;
+    readonly dependentLoaders: Promise<any>[];
     resolve(resolve: (r: any) => void, reject: (e: any) => void): void;
     getExports(): any;
     require: (name: string) => any;
@@ -24,6 +25,7 @@ declare class Module {
     factory: (r: any, e: any) => void;
     loader: Promise<any>;
     ready: boolean;
+    isLoading: boolean;
 }
 declare var require: any;
 declare var md: any;
@@ -38,6 +40,7 @@ declare class AmdLoader {
     static current: Module;
     root: Module;
     currentStack: Module[];
+    pendingModules: Module[];
     nodeModules: Module[];
     modules: {
         [key: string]: Module;

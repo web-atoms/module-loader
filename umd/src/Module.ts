@@ -8,9 +8,9 @@ interface IPackage {
 
 class Module {
 
-    private handlers: Array<() => void> = [];
-
     public package: IPackage;
+
+    public awaitedModules: Module[] = [];
 
     constructor(
         public readonly name: string,
@@ -44,20 +44,25 @@ class Module {
         }
     }
 
-    public resolve(resolve: (r: any) => void, reject: (e: any) => void): void {
-        const pendingLoaders: Module[] = [];
-        Module.populateDependencies(this, pendingLoaders);
-        if (pendingLoaders && pendingLoaders.length) {
-            Promise.all(
-                pendingLoaders
-                    .filter(x => !x.ready)
-                    .map(x => AmdLoader.instance.import(x.name)))
-            .then(() => {
-                resolve(this.getExports());
-            }).catch(reject);
-        } else {
-            resolve(this.getExports());
+    private pendingResolver: [any, any] = null;
+
+    public resolve(resolve?: (r: any) => void, reject?: (e: any) => void): void {
+
+        if (resolve && reject) {
+            this.pendingResolver = [resolve, reject];
         }
+
+        const d: Module[] = this.dependencies ? this.dependencies  : [];
+        if (d.filter(x => !x.exports).length) {
+            return;
+        }
+
+        this.pendingResolver[0](this.getExports());
+
+        for (const iterator of this.awaitedModules) {
+            iterator.resolve();
+        }
+
     }
 
     public getExports(): any {

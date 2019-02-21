@@ -9,13 +9,14 @@ interface IPackage {
 declare class Module {
     readonly name: string;
     readonly folder: string;
-    private handlers;
     package: IPackage;
+    awaitedModules: Module[];
     constructor(name: string, folder?: string);
     url: string;
     exports: any;
     private static populateDependencies(root, list);
-    resolve(resolve: (r: any) => void, reject: (e: any) => void): void;
+    private pendingResolver;
+    resolve(resolve?: (r: any) => void, reject?: (e: any) => void): void;
     getExports(): any;
     require: (name: string) => any;
     code: () => Promise<any>;

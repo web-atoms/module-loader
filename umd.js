@@ -364,7 +364,8 @@ var Module = /** @class */ (function () {
     function Module(name, folder) {
         this.name = name;
         this.folder = folder;
-        this.handlers = [];
+        this.awaitedModules = [];
+        this.pendingResolver = null;
         this.dependencies = [];
         this.ready = false;
         var index = name.lastIndexOf("/");
@@ -390,19 +391,17 @@ var Module = /** @class */ (function () {
         }
     };
     Module.prototype.resolve = function (resolve, reject) {
-        var _this = this;
-        var pendingLoaders = [];
-        Module.populateDependencies(this, pendingLoaders);
-        if (pendingLoaders && pendingLoaders.length) {
-            Promise.all(pendingLoaders
-                .filter(function (x) { return !x.ready; })
-                .map(function (x) { return AmdLoader.instance.import(x.name); }))
-                .then(function () {
-                resolve(_this.getExports());
-            }).catch(reject);
+        if (resolve && reject) {
+            this.pendingResolver = [resolve, reject];
         }
-        else {
-            resolve(this.getExports());
+        var d = this.dependencies ? this.dependencies : [];
+        if (d.filter(function (x) { return !x.exports; }).length) {
+            return;
+        }
+        this.pendingResolver[0](this.getExports());
+        for (var _i = 0, _a = this.awaitedModules; _i < _a.length; _i++) {
+            var iterator = _a[_i];
+            iterator.resolve();
         }
     };
     Module.prototype.getExports = function () {
@@ -834,6 +833,12 @@ var define = function (requiresOrFactory, factory) {
             var name_2 = loader.resolveRelativePath(s, current.name);
             var child = loader.get(name_2);
             current.dependencies.push(child);
+            child.awaitedModules.push(current);
+            if (!child.loader) {
+                AmdLoader.instance._import(child).catch(function (e) {
+                    console.error(e);
+                });
+            }
         }
         current.factory = factory;
     };

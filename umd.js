@@ -382,7 +382,9 @@ var Module = /** @class */ (function () {
         for (var _i = 0, _a = root.dependencies; _i < _a.length; _i++) {
             var iterator = _a[_i];
             if (!iterator.ready) {
-                list.push(iterator);
+                if (list.indexOf(iterator) === -1) {
+                    list.push(iterator);
+                }
             }
             Module.populateDependencies(iterator, list);
         }

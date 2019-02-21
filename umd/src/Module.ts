@@ -36,7 +36,9 @@ class Module {
         }
         for (const iterator of root.dependencies) {
             if (!iterator.ready) {
-                list.push(iterator);
+                if (list.indexOf(iterator) === -1) {
+                    list.push(iterator);
+                }
             }
             Module.populateDependencies(iterator, list);
         }

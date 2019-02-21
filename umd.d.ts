@@ -14,7 +14,7 @@ declare class Module {
     constructor(name: string, folder?: string);
     url: string;
     exports: any;
-    private readonly descendants;
+    private static populateDependencies(root, list);
     resolve(resolve: (r: any) => void, reject: (e: any) => void): void;
     getExports(): any;
     require: (name: string) => any;

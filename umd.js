@@ -375,32 +375,22 @@ var Module = /** @class */ (function () {
             this.folder = name.substr(0, index);
         }
     }
-    Object.defineProperty(Module.prototype, "descendants", {
-        get: function () {
-            var root = [];
-            if (!this.dependencies) {
-                return root;
+    Module.populateDependencies = function (root, list) {
+        if (!root.dependencies) {
+            return;
+        }
+        for (var _i = 0, _a = root.dependencies; _i < _a.length; _i++) {
+            var iterator = _a[_i];
+            if (!iterator.ready) {
+                list.push(iterator);
             }
-            for (var _i = 0, _a = this.dependencies; _i < _a.length; _i++) {
-                var iterator = _a[_i];
-                if (!iterator.ready) {
-                    root.push(iterator);
-                }
-                for (var _b = 0, _c = iterator.descendants; _b < _c.length; _b++) {
-                    var child = _c[_b];
-                    if (root.indexOf(child) === -1) {
-                        root.push(child);
-                    }
-                }
-            }
-            return root;
-        },
-        enumerable: true,
-        configurable: true
-    });
+            Module.populateDependencies(iterator, list);
+        }
+    };
     Module.prototype.resolve = function (resolve, reject) {
         var _this = this;
-        var pendingLoaders = this.descendants;
+        var pendingLoaders = [];
+        Module.populateDependencies(this, pendingLoaders);
         if (pendingLoaders.length) {
             Promise.all(pendingLoaders
                 .map(function (x) { return AmdLoader.instance.import(x.name); }))

@@ -28,26 +28,23 @@ class Module {
 
     public exports: any;
 
-    private get descendants(): Module[] {
-        const root: Module[] = [];
-        if (!this.dependencies) {
-            return root;
+    private static populateDependencies(
+        root: Module,
+        list: Module[]): void {
+        if (!root.dependencies) {
+            return;
         }
-        for (const iterator of this.dependencies) {
+        for (const iterator of root.dependencies) {
             if (!iterator.ready) {
-                root.push(iterator);
+                list.push(iterator);
             }
-            for (const child of iterator.descendants) {
-                if (root.indexOf(child) === -1) {
-                    root.push(child);
-                }
-            }
+            Module.populateDependencies(iterator, list);
         }
-        return root;
     }
 
     public resolve(resolve: (r: any) => void, reject: (e: any) => void): void {
-        const pendingLoaders: Module[] = this.descendants;
+        const pendingLoaders: Module[] = [];
+        Module.populateDependencies(this, pendingLoaders);
         if (pendingLoaders.length) {
             Promise.all(
                 pendingLoaders

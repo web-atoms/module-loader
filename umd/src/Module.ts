@@ -48,24 +48,9 @@ class Module {
 
     public resolve(resolve?: (r: any) => void, reject?: (e: any) => void): void {
 
-        // if (resolve && reject) {
-        //     this.pendingResolver = [resolve, reject];
-        // }
-
-        // const d: Module[] = this.dependencies ? this.dependencies  : [];
-        // if (d.filter(x => !x.exports).length) {
-        //     return;
-        // }
-
-        // this.pendingResolver[0](this.getExports());
-
-        // for (const iterator of this.awaitedModules) {
-        //     iterator.resolve();
-        // }
-
         if (this.dependencies && this.dependencies.length) {
             Promise.all(this.dependencies
-                .filter( x => AmdLoader.instance.pendingModules.indexOf(x) === -1 )
+                .filter(x => !x.ready)
                 .map(x => AmdLoader.instance.import(x.name) ))
                 .then(() => {
                     resolve(this.getExports());

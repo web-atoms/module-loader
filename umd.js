@@ -391,21 +391,10 @@ var Module = /** @class */ (function () {
         }
     };
     Module.prototype.resolve = function (resolve, reject) {
-        // if (resolve && reject) {
-        //     this.pendingResolver = [resolve, reject];
-        // }
         var _this = this;
-        // const d: Module[] = this.dependencies ? this.dependencies  : [];
-        // if (d.filter(x => !x.exports).length) {
-        //     return;
-        // }
-        // this.pendingResolver[0](this.getExports());
-        // for (const iterator of this.awaitedModules) {
-        //     iterator.resolve();
-        // }
         if (this.dependencies && this.dependencies.length) {
             Promise.all(this.dependencies
-                .filter(function (x) { return AmdLoader.instance.pendingModules.indexOf(x) === -1; })
+                .filter(function (x) { return !x.ready; })
                 .map(function (x) { return AmdLoader.instance.import(x.name); }))
                 .then(function () {
                 resolve(_this.getExports());

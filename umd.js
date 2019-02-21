@@ -664,6 +664,7 @@ var AmdLoader = /** @class */ (function () {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
+                        this.pendingModules.push(module);
                         if (!this.root) {
                             this.root = module;
                         }
@@ -698,6 +699,7 @@ var AmdLoader = /** @class */ (function () {
                             this.root = null;
                             AmdLoader.moduleProgress(null, this.modules, "done");
                         }
+                        this.pendingModules = this.pendingModules.filter(function (x) { return x !== module; });
                         return [2 /*return*/, exports];
                 }
             });

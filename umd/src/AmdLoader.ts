@@ -274,6 +274,8 @@ class AmdLoader {
 
     public async _import(module: Module): Promise<any> {
 
+        this.pendingModules.push(module);
+
         if (!this.root) {
             this.root = module;
         }
@@ -302,6 +304,8 @@ class AmdLoader {
             this.root = null;
             AmdLoader.moduleProgress(null, this.modules, "done");
         }
+
+        this.pendingModules = this.pendingModules.filter(x => x !== module);
 
         return exports;
     }

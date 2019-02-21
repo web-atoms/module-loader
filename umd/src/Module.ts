@@ -50,7 +50,6 @@ class Module {
 
         if (this.dependencies && this.dependencies.length) {
             Promise.all(this.dependencies
-                .filter(x => !x.ready)
                 .map(x => AmdLoader.instance.import(x.name) ))
                 .then(() => {
                     resolve(this.getExports());

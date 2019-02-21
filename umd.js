@@ -394,7 +394,6 @@ var Module = /** @class */ (function () {
         var _this = this;
         if (this.dependencies && this.dependencies.length) {
             Promise.all(this.dependencies
-                .filter(function (x) { return !x.ready; })
                 .map(function (x) { return AmdLoader.instance.import(x.name); }))
                 .then(function () {
                 resolve(_this.getExports());

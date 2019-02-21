@@ -401,7 +401,7 @@ var Module = /** @class */ (function () {
         var pendingLoaders = this.descendants;
         if (pendingLoaders.length) {
             Promise.all(pendingLoaders
-                .filter(function (x) { return x.ready; })
+                .filter(function (x) { return !x.ready; })
                 .map(function (x) { return AmdLoader.instance.import(x.name); }))
                 .then(function () {
                 resolve(_this.getExports());

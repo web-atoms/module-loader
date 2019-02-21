@@ -378,7 +378,10 @@ var Module = /** @class */ (function () {
     Module.prototype.resolve = function (resolve, reject) {
         var _this = this;
         if (this.dependencies && this.dependencies.length) {
-            Promise.all(this.dependencies.map(function (x) { return AmdLoader.instance.load(x); })).then(function () {
+            Promise
+                .all(this.dependencies
+                .map(function (x) { return AmdLoader.instance.import(x.name); }))
+                .then(function () {
                 resolve(_this.getExports());
             }).catch(reject);
         }

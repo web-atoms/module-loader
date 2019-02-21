@@ -30,7 +30,10 @@ class Module {
 
     public resolve(resolve: (r: any) => void, reject: (e: any) => void): void {
         if (this.dependencies && this.dependencies.length) {
-            Promise.all( this.dependencies.map((x) => AmdLoader.instance.load(x))).then(() => {
+            Promise
+            .all( this.dependencies
+                .map((x) => AmdLoader.instance.import(x.name)))
+            .then(() => {
                 resolve(this.getExports());
             }).catch(reject);
         } else {

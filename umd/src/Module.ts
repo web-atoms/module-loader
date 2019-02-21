@@ -33,8 +33,10 @@ class Module {
         if (!this.dependencies) {
             return root;
         }
-        for (const iterator of this.dependencies.filter(x => !x.ready)) {
-            root.push(AmdLoader.instance.import(iterator.name));
+        for (const iterator of this.dependencies) {
+            if (!iterator.ready) {
+                root.push(AmdLoader.instance.import(iterator.name));
+            }
             for (const child of iterator.dependentLoaders) {
                 root.push(child);
             }

@@ -381,9 +381,11 @@ var Module = /** @class */ (function () {
             if (!this.dependencies) {
                 return root;
             }
-            for (var _i = 0, _a = this.dependencies.filter(function (x) { return !x.ready; }); _i < _a.length; _i++) {
+            for (var _i = 0, _a = this.dependencies; _i < _a.length; _i++) {
                 var iterator = _a[_i];
-                root.push(AmdLoader.instance.import(iterator.name));
+                if (!iterator.ready) {
+                    root.push(AmdLoader.instance.import(iterator.name));
+                }
                 for (var _b = 0, _c = iterator.dependentLoaders; _b < _c.length; _b++) {
                     var child = _c[_b];
                     root.push(child);

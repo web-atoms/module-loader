@@ -834,7 +834,9 @@ var define = function (requiresOrFactory, factory) {
             }
             var name_2 = loader.resolveRelativePath(s, current.name);
             var child = loader.get(name_2);
-            current.dependencies.push(child);
+            if (!child.loader) {
+                current.dependencies.push(child);
+            }
             child.awaitedModules.push(current);
             if (!child.loader) {
                 child.loader = AmdLoader.instance._import(child).catch(function (e) {

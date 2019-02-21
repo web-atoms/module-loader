@@ -41,7 +41,7 @@ var define:IDefine = (
             child.awaitedModules.push(current);
 
             if (!child.loader) {
-                AmdLoader.instance._import(child).catch((e) => {
+                child.loader = AmdLoader.instance._import(child).catch((e) => {
                     console.error(e);
                 });
             }

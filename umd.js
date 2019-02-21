@@ -835,7 +835,7 @@ var define = function (requiresOrFactory, factory) {
             current.dependencies.push(child);
             child.awaitedModules.push(current);
             if (!child.loader) {
-                AmdLoader.instance._import(child).catch(function (e) {
+                child.loader = AmdLoader.instance._import(child).catch(function (e) {
                     console.error(e);
                 });
             }

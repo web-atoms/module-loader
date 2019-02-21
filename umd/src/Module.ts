@@ -64,7 +64,9 @@ class Module {
         // }
 
         if (this.dependencies && this.dependencies.length) {
-            Promise.all(this.dependencies.map(x => AmdLoader.instance.import(x.name) ))
+            Promise.all(this.dependencies
+                .filter( x => AmdLoader.instance.pendingModules.indexOf(x) === -1 )
+                .map(x => AmdLoader.instance.import(x.name) ))
                 .then(() => {
                     resolve(this.getExports());
                 })

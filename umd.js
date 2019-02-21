@@ -404,7 +404,9 @@ var Module = /** @class */ (function () {
         //     iterator.resolve();
         // }
         if (this.dependencies && this.dependencies.length) {
-            Promise.all(this.dependencies.map(function (x) { return AmdLoader.instance.import(x.name); }))
+            Promise.all(this.dependencies
+                .filter(function (x) { return AmdLoader.instance.pendingModules.indexOf(x) === -1; })
+                .map(function (x) { return AmdLoader.instance.import(x.name); }))
                 .then(function () {
                 resolve(_this.getExports());
             })

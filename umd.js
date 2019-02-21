@@ -391,7 +391,8 @@ var Module = /** @class */ (function () {
     };
     Module.prototype.resolve = function (resolve, reject) {
         var _this = this;
-        var pendingLoaders = this.dependencies;
+        var pendingLoaders = [];
+        Module.populateDependencies(this, pendingLoaders);
         if (pendingLoaders && pendingLoaders.length) {
             Promise.all(pendingLoaders
                 .filter(function (x) { return !x.ready; })

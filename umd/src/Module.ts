@@ -45,7 +45,8 @@ class Module {
     }
 
     public resolve(resolve: (r: any) => void, reject: (e: any) => void): void {
-        const pendingLoaders: Module[] = this.dependencies;
+        const pendingLoaders: Module[] = [];
+        Module.populateDependencies(this, pendingLoaders);
         if (pendingLoaders && pendingLoaders.length) {
             Promise.all(
                 pendingLoaders

@@ -367,7 +367,6 @@ var Module = /** @class */ (function () {
         this.handlers = [];
         this.dependencies = [];
         this.ready = false;
-        this.isLoading = false;
         var index = name.lastIndexOf("/");
         if (index === -1) {
             this.folder = "";
@@ -382,7 +381,7 @@ var Module = /** @class */ (function () {
             if (!this.dependencies) {
                 return root;
             }
-            for (var _i = 0, _a = this.dependencies.filter(function (x) { return !x.isLoading; }); _i < _a.length; _i++) {
+            for (var _i = 0, _a = this.dependencies.filter(function (x) { return !x.ready; }); _i < _a.length; _i++) {
                 var iterator = _a[_i];
                 root.push(AmdLoader.instance.import(iterator.name));
                 for (var _b = 0, _c = iterator.dependentLoaders; _b < _c.length; _b++) {
@@ -665,7 +664,6 @@ var AmdLoader = /** @class */ (function () {
                         if (!this.root) {
                             this.root = module;
                         }
-                        module.isLoading = true;
                         return [4 /*yield*/, this.load(module)];
                     case 1:
                         _b.sent();
@@ -697,7 +695,6 @@ var AmdLoader = /** @class */ (function () {
                             this.root = null;
                             AmdLoader.moduleProgress(null, this.modules, "done");
                         }
-                        module.isLoading = false;
                         return [2 /*return*/, exports];
                 }
             });

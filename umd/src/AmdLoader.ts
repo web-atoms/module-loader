@@ -273,7 +273,6 @@ class AmdLoader {
             this.root = module;
         }
 
-        module.isLoading = true;
         await this.load(module);
 
         // tslint:disable-next-line:typedef
@@ -299,7 +298,6 @@ class AmdLoader {
             AmdLoader.moduleProgress(null, this.modules, "done");
         }
 
-        module.isLoading = false;
         return exports;
     }
 

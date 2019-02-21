@@ -25,7 +25,6 @@ declare class Module {
     factory: (r: any, e: any) => void;
     loader: Promise<any>;
     ready: boolean;
-    isLoading: boolean;
 }
 declare var require: any;
 declare var md: any;

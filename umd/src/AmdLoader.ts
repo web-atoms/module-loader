@@ -53,15 +53,19 @@ class AmdLoader {
         const define: Function = this.define;
         jsModule.loader = new Promise((resolve, reject) => {
             setTimeout(() => {
-                AmdLoader.current = jsModule;
-                if (define) {
-                    define();
+                try {
+                    AmdLoader.current = jsModule;
+                    if (define) {
+                        define();
+                    }
+                    jsModule.ready = true;
+                    if (jsModule.exportVar) {
+                        jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
+                    }
+                    jsModule.resolve(resolve, reject);
+                } catch (e) {
+                    reject(e);
                 }
-                jsModule.ready = true;
-                if (jsModule.exportVar) {
-                    jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
-                }
-                jsModule.resolve(resolve);
             }, 1);
         });
     }
@@ -305,20 +309,24 @@ class AmdLoader {
 
             AmdLoader.moduleLoader(module.name, module.url, () => {
 
-                AmdLoader.current = module;
-                AmdLoader.instance.define();
+                try {
+                    AmdLoader.current = module;
+                    AmdLoader.instance.define();
 
-                module.ready = true;
+                    module.ready = true;
 
-                if (module.exportVar) {
-                    module.exports = AmdLoader.globalVar[module.exportVar];
+                    if (module.exportVar) {
+                        module.exports = AmdLoader.globalVar[module.exportVar];
+                    }
+
+                    if (AmdLoader.moduleProgress) {
+                        AmdLoader.moduleProgress(module.name, this.modules , "loading");
+                    }
+
+                    module.resolve(resolve, reject);
+                } catch (e) {
+                    reject(e);
                 }
-
-                if (AmdLoader.moduleProgress) {
-                    AmdLoader.moduleProgress(module.name, this.modules , "loading");
-                }
-
-                module.resolve(resolve);
 
             }, (error) => {
                 reject(error);

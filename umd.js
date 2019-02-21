@@ -375,12 +375,12 @@ var Module = /** @class */ (function () {
             this.folder = name.substr(0, index);
         }
     }
-    Module.prototype.resolve = function (resolve) {
+    Module.prototype.resolve = function (resolve, reject) {
         var _this = this;
         if (this.dependencies && this.dependencies.length) {
             Promise.all(this.dependencies.map(function (x) { return AmdLoader.instance.load(x); })).then(function () {
                 resolve(_this.getExports());
-            });
+            }).catch(reject);
         }
         else {
             resolve(this.getExports());
@@ -450,15 +450,20 @@ var AmdLoader = /** @class */ (function () {
         var define = this.define;
         jsModule.loader = new Promise(function (resolve, reject) {
             setTimeout(function () {
-                AmdLoader.current = jsModule;
-                if (define) {
-                    define();
+                try {
+                    AmdLoader.current = jsModule;
+                    if (define) {
+                        define();
+                    }
+                    jsModule.ready = true;
+                    if (jsModule.exportVar) {
+                        jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
+                    }
+                    jsModule.resolve(resolve, reject);
                 }
-                jsModule.ready = true;
-                if (jsModule.exportVar) {
-                    jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
+                catch (e) {
+                    reject(e);
                 }
-                jsModule.resolve(resolve);
             }, 1);
         });
     };
@@ -685,16 +690,21 @@ var AmdLoader = /** @class */ (function () {
                     case 2:
                         module.loader = new Promise(function (resolve, reject) {
                             AmdLoader.moduleLoader(module.name, module.url, function () {
-                                AmdLoader.current = module;
-                                AmdLoader.instance.define();
-                                module.ready = true;
-                                if (module.exportVar) {
-                                    module.exports = AmdLoader.globalVar[module.exportVar];
+                                try {
+                                    AmdLoader.current = module;
+                                    AmdLoader.instance.define();
+                                    module.ready = true;
+                                    if (module.exportVar) {
+                                        module.exports = AmdLoader.globalVar[module.exportVar];
+                                    }
+                                    if (AmdLoader.moduleProgress) {
+                                        AmdLoader.moduleProgress(module.name, _this.modules, "loading");
+                                    }
+                                    module.resolve(resolve, reject);
                                 }
-                                if (AmdLoader.moduleProgress) {
-                                    AmdLoader.moduleProgress(module.name, _this.modules, "loading");
+                                catch (e) {
+                                    reject(e);
                                 }
-                                module.resolve(resolve);
                             }, function (error) {
                                 reject(error);
                             });

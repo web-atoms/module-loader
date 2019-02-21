@@ -28,11 +28,11 @@ class Module {
 
     public exports: any;
 
-    public resolve(resolve: (r: any) => void): void {
+    public resolve(resolve: (r: any) => void, reject: (e: any) => void): void {
         if (this.dependencies && this.dependencies.length) {
             Promise.all( this.dependencies.map((x) => AmdLoader.instance.load(x))).then(() => {
                 resolve(this.getExports());
-            });
+            }).catch(reject);
         } else {
             resolve(this.getExports());
         }

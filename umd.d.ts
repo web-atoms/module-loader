@@ -12,11 +12,9 @@ declare class Module {
     private handlers;
     package: IPackage;
     constructor(name: string, folder?: string);
-    onReady(h: () => void): void;
-    isReady(visited?: Module[]): boolean;
-    finish(): any;
     url: string;
     exports: any;
+    resolve(resolve: (r: any) => void): void;
     getExports(): any;
     require: (name: string) => any;
     code: () => Promise<any>;

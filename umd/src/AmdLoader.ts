@@ -61,10 +61,7 @@ class AmdLoader {
                 if (jsModule.exportVar) {
                     jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
                 }
-                jsModule.onReady(() => {
-                    resolve(jsModule.getExports());
-                });
-                jsModule.finish();
+                jsModule.resolve(resolve);
             }, 1);
         });
     }
@@ -317,15 +314,11 @@ class AmdLoader {
                     module.exports = AmdLoader.globalVar[module.exportVar];
                 }
 
-                module.onReady(() => {
-                    resolve(module.getExports());
-                });
-
-                module.finish();
-
                 if (AmdLoader.moduleProgress) {
                     AmdLoader.moduleProgress(module.name, this.modules , "loading");
                 }
+
+                module.resolve(resolve);
 
             }, (error) => {
                 reject(error);

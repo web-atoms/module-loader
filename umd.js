@@ -375,51 +375,15 @@ var Module = /** @class */ (function () {
             this.folder = name.substr(0, index);
         }
     }
-    Module.prototype.onReady = function (h) {
-        // remove self after execution...
-        // const a: any = {
-        //     handler: h
-        // };
-        // a.handler = () => {
-        //     // const index: number = this.handlers.indexOf(a.handler);
-        //     // this.handlers.splice(index, 1);
-        //     h();
-        // };
-        if (this.handlers) {
-            this.handlers.push(h);
+    Module.prototype.resolve = function (resolve) {
+        var _this = this;
+        if (this.dependencies && this.dependencies.length) {
+            Promise.all(this.dependencies.map(function (x) { return AmdLoader.instance.load(x); })).then(function () {
+                resolve(_this.getExports());
+            });
         }
         else {
-            h();
-        }
-    };
-    Module.prototype.isReady = function (visited) {
-        if (!this.ready) {
-            return false;
-        }
-        visited = visited || [];
-        visited.push(this);
-        if (this.dependencies) {
-            for (var _i = 0, _a = this.dependencies; _i < _a.length; _i++) {
-                var iterator = _a[_i];
-                if (visited.indexOf(iterator) !== -1) {
-                    continue;
-                }
-                if (!iterator.isReady(visited)) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    };
-    Module.prototype.finish = function () {
-        if (!this.isReady()) {
-            return;
-        }
-        if (this.handlers) {
-            for (var _i = 0, _a = this.handlers.map(function (a) { return a; }); _i < _a.length; _i++) {
-                var iterator = _a[_i];
-                iterator();
-            }
+            resolve(this.getExports());
         }
     };
     Module.prototype.getExports = function () {
@@ -494,10 +458,7 @@ var AmdLoader = /** @class */ (function () {
                 if (jsModule.exportVar) {
                     jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
                 }
-                jsModule.onReady(function () {
-                    resolve(jsModule.getExports());
-                });
-                jsModule.finish();
+                jsModule.resolve(resolve);
             }, 1);
         });
     };
@@ -730,13 +691,10 @@ var AmdLoader = /** @class */ (function () {
                                 if (module.exportVar) {
                                     module.exports = AmdLoader.globalVar[module.exportVar];
                                 }
-                                module.onReady(function () {
-                                    resolve(module.getExports());
-                                });
-                                module.finish();
                                 if (AmdLoader.moduleProgress) {
                                     AmdLoader.moduleProgress(module.name, _this.modules, "loading");
                                 }
+                                module.resolve(resolve);
                             }, function (error) {
                                 reject(error);
                             });
@@ -850,10 +808,6 @@ var define = function (requiresOrFactory, factory) {
             var name_2 = loader.resolveRelativePath(s, current.name);
             var child = loader.get(name_2);
             current.dependencies.push(child);
-            child.onReady(function () {
-                current.finish();
-            });
-            loader.load(child);
         }
         current.factory = factory;
     };

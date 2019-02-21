@@ -24,58 +24,19 @@ class Module {
         }
     }
 
-    public onReady(h: () => void): void {
-        // remove self after execution...
-        // const a: any = {
-        //     handler: h
-        // };
-        // a.handler = () => {
-        //     // const index: number = this.handlers.indexOf(a.handler);
-        //     // this.handlers.splice(index, 1);
-        //     h();
-        // };
-        if (this.handlers) {
-            this.handlers.push(h);
-        } else {
-            h();
-        }
-    }
-
-    public isReady(visited?: Module[]): boolean {
-        if (!this.ready) {
-            return false;
-        }
-        visited = visited || [];
-        visited.push(this);
-        if (this.dependencies) {
-            for (const iterator of this.dependencies) {
-                if (visited.indexOf(iterator) !== -1) {
-                    continue;
-                }
-                if (!iterator.isReady(visited)) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    public finish(): any {
-
-        if(!this.isReady()) {
-            return;
-        }
-
-        if (this.handlers) {
-            for (const iterator of this.handlers.map((a) => a)) {
-                iterator();
-            }
-        }
-    }
-
     public url: string;
 
     public exports: any;
+
+    public resolve(resolve: (r: any) => void): void {
+        if (this.dependencies && this.dependencies.length) {
+            Promise.all( this.dependencies.map((x) => AmdLoader.instance.load(x))).then(() => {
+                resolve(this.getExports());
+            });
+        } else {
+            resolve(this.getExports());
+        }
+    }
 
     public getExports(): any {
         if (this.exports) {

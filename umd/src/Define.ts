@@ -37,10 +37,6 @@ var define:IDefine = (
             const name: string = loader.resolveRelativePath(s, current.name);
             const child: Module = loader.get(name);
             current.dependencies.push(child);
-            child.onReady(() => {
-                current.finish();
-            });
-            loader.load(child);
         }
         current.factory = factory;
     };

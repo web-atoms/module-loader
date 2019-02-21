@@ -261,13 +261,18 @@ class AmdLoader {
     //     return exports;
     // }
 
-    public async import(name: string): Promise<any> {
-
+    public import(name: string): Promise<any> {
         if (typeof require !== "undefined") {
-            return require(name);
+            return Promise.resolve(require(name));
         }
+        const module: Module = this.get(name);
+        if (module.loader) {
+            return module.loader;
+        }
+        return module.loader = this._import(module);
+    }
 
-        let module: Module = this.get(name);
+    public async _import(module: Module): Promise<any> {
 
         if (!this.root) {
             this.root = module;
@@ -301,13 +306,9 @@ class AmdLoader {
         return exports;
     }
 
-    public async load(module: Module): Promise<any> {
+    public load(module: Module): Promise<any> {
 
-        if (module.loader) {
-            return await module.loader;
-        }
-
-        module.loader = new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
 
             AmdLoader.moduleLoader(module.name, module.url, () => {
 
@@ -338,8 +339,6 @@ class AmdLoader {
             });
 
         });
-
-        return await module.loader;
     }
 
     define: any;

@@ -50,7 +50,8 @@ class Module {
         if (pendingLoaders.length) {
             Promise.all(
                 pendingLoaders
-                    .map(x => x.loader || AmdLoader.instance.import(x.name)))
+                    .filter(x => !x.loader)
+                    .map(x => AmdLoader.instance.import(x.name)))
             .then(() => {
                 resolve(this.getExports());
             }).catch(reject);

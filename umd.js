@@ -395,7 +395,8 @@ var Module = /** @class */ (function () {
         Module.populateDependencies(this, pendingLoaders);
         if (pendingLoaders.length) {
             Promise.all(pendingLoaders
-                .map(function (x) { return x.loader || AmdLoader.instance.import(x.name); }))
+                .filter(function (x) { return !x.loader; })
+                .map(function (x) { return AmdLoader.instance.import(x.name); }))
                 .then(function () {
                 resolve(_this.getExports());
             }).catch(reject);
@@ -649,15 +650,21 @@ var AmdLoader = /** @class */ (function () {
     //     return exports;
     // }
     AmdLoader.prototype.import = function (name) {
+        if (typeof require !== "undefined") {
+            return Promise.resolve(require(name));
+        }
+        var module = this.get(name);
+        if (module.loader) {
+            return module.loader;
+        }
+        return module.loader = this._import(module);
+    };
+    AmdLoader.prototype._import = function (module) {
         return __awaiter(this, void 0, void 0, function () {
-            var module, exports, pendingList, _i, pendingList_1, iterator, _a, pendingList_2, iterator, containerModule, resolvedName, ex, type;
+            var exports, pendingList, _i, pendingList_1, iterator, _a, pendingList_2, iterator, containerModule, resolvedName, ex, type;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        if (typeof require !== "undefined") {
-                            return [2 /*return*/, require(name)];
-                        }
-                        module = this.get(name);
                         if (!this.root) {
                             this.root = module;
                         }
@@ -698,42 +705,29 @@ var AmdLoader = /** @class */ (function () {
         });
     };
     AmdLoader.prototype.load = function (module) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!module.loader) return [3 /*break*/, 2];
-                        return [4 /*yield*/, module.loader];
-                    case 1: return [2 /*return*/, _a.sent()];
-                    case 2:
-                        module.loader = new Promise(function (resolve, reject) {
-                            AmdLoader.moduleLoader(module.name, module.url, function () {
-                                try {
-                                    AmdLoader.current = module;
-                                    if (AmdLoader.instance.define) {
-                                        AmdLoader.instance.define();
-                                        AmdLoader.instance.define = null;
-                                    }
-                                    module.ready = true;
-                                    if (module.exportVar) {
-                                        module.exports = AmdLoader.globalVar[module.exportVar];
-                                    }
-                                    if (AmdLoader.moduleProgress) {
-                                        AmdLoader.moduleProgress(module.name, _this.modules, "loading");
-                                    }
-                                    module.resolve(resolve, reject);
-                                }
-                                catch (e) {
-                                    reject(e);
-                                }
-                            }, function (error) {
-                                reject(error);
-                            });
-                        });
-                        return [4 /*yield*/, module.loader];
-                    case 3: return [2 /*return*/, _a.sent()];
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            AmdLoader.moduleLoader(module.name, module.url, function () {
+                try {
+                    AmdLoader.current = module;
+                    if (AmdLoader.instance.define) {
+                        AmdLoader.instance.define();
+                        AmdLoader.instance.define = null;
+                    }
+                    module.ready = true;
+                    if (module.exportVar) {
+                        module.exports = AmdLoader.globalVar[module.exportVar];
+                    }
+                    if (AmdLoader.moduleProgress) {
+                        AmdLoader.moduleProgress(module.name, _this.modules, "loading");
+                    }
+                    module.resolve(resolve, reject);
                 }
+                catch (e) {
+                    reject(e);
+                }
+            }, function (error) {
+                reject(error);
             });
         });
     };

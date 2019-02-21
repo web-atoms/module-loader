@@ -383,7 +383,9 @@ var Module = /** @class */ (function () {
             }
             for (var _i = 0, _a = this.dependencies; _i < _a.length; _i++) {
                 var iterator = _a[_i];
-                root.push(iterator);
+                if (!iterator.ready) {
+                    root.push(iterator);
+                }
                 for (var _b = 0, _c = iterator.descendants; _b < _c.length; _b++) {
                     var child = _c[_b];
                     if (root.indexOf(child) === -1) {
@@ -401,7 +403,6 @@ var Module = /** @class */ (function () {
         var pendingLoaders = this.descendants;
         if (pendingLoaders.length) {
             Promise.all(pendingLoaders
-                .filter(function (x) { return !x.ready; })
                 .map(function (x) { return AmdLoader.instance.import(x.name); }))
                 .then(function () {
                 resolve(_this.getExports());

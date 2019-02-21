@@ -34,7 +34,9 @@ class Module {
             return root;
         }
         for (const iterator of this.dependencies) {
-            root.push(iterator);
+            if (!iterator.ready) {
+                root.push(iterator);
+            }
             for (const child of iterator.descendants) {
                 if (root.indexOf(child) === -1) {
                     root.push(child);
@@ -49,7 +51,6 @@ class Module {
         if (pendingLoaders.length) {
             Promise.all(
                 pendingLoaders
-                    .filter(x => !x.ready)
                     .map(x => AmdLoader.instance.import(x.name)))
             .then(() => {
                 resolve(this.getExports());

@@ -34,8 +34,11 @@ class Module {
             return root;
         }
         for (const iterator of this.dependencies) {
+            root.push(iterator);
             for (const child of iterator.descendants) {
-                root.push(child);
+                if (root.indexOf(child) === -1) {
+                    root.push(child);
+                }
             }
         }
         return root;

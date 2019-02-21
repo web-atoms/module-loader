@@ -311,7 +311,10 @@ class AmdLoader {
 
                 try {
                     AmdLoader.current = module;
-                    AmdLoader.instance.define();
+                    if(AmdLoader.instance.define) {
+                        AmdLoader.instance.define();
+                        AmdLoader.instance.define = null;
+                    }
 
                     module.ready = true;
 

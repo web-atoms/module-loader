@@ -695,7 +695,10 @@ var AmdLoader = /** @class */ (function () {
                             AmdLoader.moduleLoader(module.name, module.url, function () {
                                 try {
                                     AmdLoader.current = module;
-                                    AmdLoader.instance.define();
+                                    if (AmdLoader.instance.define) {
+                                        AmdLoader.instance.define();
+                                        AmdLoader.instance.define = null;
+                                    }
                                     module.ready = true;
                                     if (module.exportVar) {
                                         module.exports = AmdLoader.globalVar[module.exportVar];

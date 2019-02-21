@@ -391,9 +391,8 @@ var Module = /** @class */ (function () {
     };
     Module.prototype.resolve = function (resolve, reject) {
         var _this = this;
-        var pendingLoaders = [];
-        Module.populateDependencies(this, pendingLoaders);
-        if (pendingLoaders.length) {
+        var pendingLoaders = this.dependencies;
+        if (pendingLoaders && pendingLoaders.length) {
             Promise.all(pendingLoaders
                 .filter(function (x) { return !x.loader; })
                 .map(function (x) { return AmdLoader.instance.import(x.name); }))

@@ -10,24 +10,20 @@ declare class Module {
     readonly name: string;
     readonly folder: string;
     package: IPackage;
-    awaitedModules: Module[];
     constructor(name: string, folder?: string);
     url: string;
     exports: any;
-    private static populateDependencies(root, list);
     ignoreModule: Module;
     resolve(resolve?: (r: any) => void, reject?: (e: any) => void): void;
     isDependentOn(d: Module): boolean;
     addDependency(d: Module): void;
     getExports(): any;
     require: (name: string) => any;
-    code: () => Promise<any>;
     dependencies: Module[];
     type: "amd" | "global";
     exportVar: string;
     factory: (r: any, e: any) => void;
     loader: Promise<any>;
-    ready: boolean;
 }
 declare var require: any;
 declare var md: any;

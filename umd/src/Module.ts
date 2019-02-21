@@ -10,8 +10,6 @@ class Module {
 
     public package: IPackage;
 
-    public awaitedModules: Module[] = [];
-
     constructor(
         public readonly name: string,
         public readonly folder?: string
@@ -27,22 +25,6 @@ class Module {
     public url: string;
 
     public exports: any;
-
-    private static populateDependencies(
-        root: Module,
-        list: Module[]): void {
-        if (!root.dependencies) {
-            return;
-        }
-        for (const iterator of root.dependencies) {
-            if (!iterator.ready) {
-                if (list.indexOf(iterator) === -1) {
-                    list.push(iterator);
-                }
-            }
-            Module.populateDependencies(iterator, list);
-        }
-    }
 
     public ignoreModule: Module = null;
 
@@ -74,7 +56,7 @@ class Module {
     }
 
     public addDependency(d: Module): void {
-        // d.awaitedModules.push(this);
+        // ignore module contains dependency resolution module
         if (d === this.ignoreModule) {
             return;
         }
@@ -105,17 +87,12 @@ class Module {
                 }
             }
             AmdLoader.instance.currentStack.pop();
-            // we no longer need all these ...
             delete this.factory;
-            // delete this.handlers;
-            // delete this.dependencies;
         }
         return this.exports;
     }
 
     public require: (name: string) => any;
-
-    public code: () => Promise<any>;
 
     public dependencies: Module[] = [];
 
@@ -126,7 +103,5 @@ class Module {
     public factory: (r: any, e: any) => void;
 
     public loader: Promise<any>;
-
-    public ready: boolean = false;
 
 }

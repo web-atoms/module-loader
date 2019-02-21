@@ -60,7 +60,6 @@ class AmdLoader {
                     if (define) {
                         define();
                     }
-                    jsModule.ready = true;
                     if (jsModule.exportVar) {
                         jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
                     }
@@ -242,25 +241,6 @@ class AmdLoader {
         return module;
     }
 
-    // public syncImport(name: string, req: any): any {
-    //     const exports: any = req(name);
-
-    //     const pendingList: MockType[] = this.mockTypes.filter((t) => !t.loaded );
-    //     if (pendingList.length) {
-    //         for (const iterator of pendingList) {
-    //             iterator.loaded = true;
-    //         }
-    //         const last: any = this.nodeModules.length ? this.nodeModules[this.nodeModules.length - 1] : undefined;
-    //         for (const iterator of pendingList) {
-    //             const n: string = md._resolveFilename(iterator.moduleName, last);
-    //             const ex: any = this.syncImport(n, req);
-    //             const type: any = ex[iterator.exportName];
-    //             iterator.replaced = type;
-    //         }
-    //     }
-    //     return exports;
-    // }
-
     public import(name: string): Promise<any> {
         if (typeof require !== "undefined") {
             return Promise.resolve(require(name));
@@ -324,8 +304,6 @@ class AmdLoader {
                         AmdLoader.instance.define();
                         AmdLoader.instance.define = null;
                     }
-
-                    module.ready = true;
 
                     if (module.exportVar) {
                         module.exports = AmdLoader.globalVar[module.exportVar];

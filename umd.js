@@ -364,10 +364,8 @@ var Module = /** @class */ (function () {
     function Module(name, folder) {
         this.name = name;
         this.folder = folder;
-        this.awaitedModules = [];
         this.ignoreModule = null;
         this.dependencies = [];
-        this.ready = false;
         var index = name.lastIndexOf("/");
         if (index === -1) {
             this.folder = "";
@@ -376,20 +374,6 @@ var Module = /** @class */ (function () {
             this.folder = name.substr(0, index);
         }
     }
-    Module.populateDependencies = function (root, list) {
-        if (!root.dependencies) {
-            return;
-        }
-        for (var _i = 0, _a = root.dependencies; _i < _a.length; _i++) {
-            var iterator = _a[_i];
-            if (!iterator.ready) {
-                if (list.indexOf(iterator) === -1) {
-                    list.push(iterator);
-                }
-            }
-            Module.populateDependencies(iterator, list);
-        }
-    };
     Module.prototype.resolve = function (resolve, reject) {
         var _this = this;
         if (this.dependencies && this.dependencies.length) {
@@ -417,7 +401,7 @@ var Module = /** @class */ (function () {
         return false;
     };
     Module.prototype.addDependency = function (d) {
-        // d.awaitedModules.push(this);
+        // ignore module contains dependency resolution module
         if (d === this.ignoreModule) {
             return;
         }
@@ -448,10 +432,7 @@ var Module = /** @class */ (function () {
                 }
             }
             AmdLoader.instance.currentStack.pop();
-            // we no longer need all these ...
             delete this.factory;
-            // delete this.handlers;
-            // delete this.dependencies;
         }
         return this.exports;
     };
@@ -496,7 +477,6 @@ var AmdLoader = /** @class */ (function () {
                     if (define) {
                         define();
                     }
-                    jsModule.ready = true;
                     if (jsModule.exportVar) {
                         jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
                     }
@@ -653,23 +633,6 @@ var AmdLoader = /** @class */ (function () {
         }
         return module;
     };
-    // public syncImport(name: string, req: any): any {
-    //     const exports: any = req(name);
-    //     const pendingList: MockType[] = this.mockTypes.filter((t) => !t.loaded );
-    //     if (pendingList.length) {
-    //         for (const iterator of pendingList) {
-    //             iterator.loaded = true;
-    //         }
-    //         const last: any = this.nodeModules.length ? this.nodeModules[this.nodeModules.length - 1] : undefined;
-    //         for (const iterator of pendingList) {
-    //             const n: string = md._resolveFilename(iterator.moduleName, last);
-    //             const ex: any = this.syncImport(n, req);
-    //             const type: any = ex[iterator.exportName];
-    //             iterator.replaced = type;
-    //         }
-    //     }
-    //     return exports;
-    // }
     AmdLoader.prototype.import = function (name) {
         if (typeof require !== "undefined") {
             return Promise.resolve(require(name));
@@ -739,7 +702,6 @@ var AmdLoader = /** @class */ (function () {
                         AmdLoader.instance.define();
                         AmdLoader.instance.define = null;
                     }
-                    module.ready = true;
                     if (module.exportVar) {
                         module.exports = AmdLoader.globalVar[module.exportVar];
                     }

@@ -421,6 +421,7 @@ var Module = /** @class */ (function () {
             return;
         }
         this.dependencies.push(d);
+        d.awaitedModules.push(this);
     };
     Module.prototype.getExports = function () {
         if (this.exports) {

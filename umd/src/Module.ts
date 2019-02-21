@@ -82,6 +82,7 @@ class Module {
             return;
         }
         this.dependencies.push(d);
+        d.awaitedModules.push(this);
     }
 
     public getExports(): any {

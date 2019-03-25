@@ -70,25 +70,22 @@ class Module {
         if (this.exports) {
             return this.exports;
         }
+        this.exports = {};
         if (this.factory) {
             AmdLoader.instance.currentStack.push(this);
             const result: any = this.factory(this.require, this.exports);
-            this.exports = result;
-            if (typeof result !== "object") {
-                this.exports = { __esModule: true, default: result };
+            if (result) {
+                if (typeof result === "object") {
+                    for (const key in result) {
+                        if (result.hasOwnProperty(key)) {
+                            const element: any = result[key];
+                            this.exports[key] = element;
+                        }
+                    }
+                } else if (!this.exports.default) {
+                    this.exports.default = result;
+                }
             }
-            // if (result) {
-            //     if (typeof result === "object") {
-            //         for (const key in result) {
-            //             if (result.hasOwnProperty(key)) {
-            //                 const element: any = result[key];
-            //                 this.exports[key] = element;
-            //             }
-            //         }
-            //     } else if (!this.exports.default) {
-            //         this.exports.default = result;
-            //     }
-            // }
             AmdLoader.instance.currentStack.pop();
             delete this.factory;
         }

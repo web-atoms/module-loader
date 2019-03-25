@@ -1,13 +1,10 @@
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
 };
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -24,8 +21,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
         while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
+            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [0, t.value];
             switch (op[0]) {
                 case 0: case 1: t = op; break;
                 case 4: _.label++; return { value: op[1], done: false };
@@ -425,25 +422,23 @@ var Module = /** @class */ (function () {
         if (this.exports) {
             return this.exports;
         }
+        this.exports = {};
         if (this.factory) {
             AmdLoader.instance.currentStack.push(this);
             var result = this.factory(this.require, this.exports);
-            this.exports = result;
-            if (typeof result !== "object") {
-                this.exports = { __esModule: true, default: result };
+            if (result) {
+                if (typeof result === "object") {
+                    for (var key in result) {
+                        if (result.hasOwnProperty(key)) {
+                            var element = result[key];
+                            this.exports[key] = element;
+                        }
+                    }
+                }
+                else if (!this.exports.default) {
+                    this.exports.default = result;
+                }
             }
-            // if (result) {
-            //     if (typeof result === "object") {
-            //         for (const key in result) {
-            //             if (result.hasOwnProperty(key)) {
-            //                 const element: any = result[key];
-            //                 this.exports[key] = element;
-            //             }
-            //         }
-            //     } else if (!this.exports.default) {
-            //         this.exports.default = result;
-            //     }
-            // }
             AmdLoader.instance.currentStack.pop();
             delete this.factory;
         }
@@ -836,31 +831,48 @@ var define = function (requiresOrFactory, factory) {
         else {
             requires = requiresOrFactory;
         }
-        var args = [];
-        var exports = {};
         for (var _i = 0, requires_1 = requires; _i < requires_1.length; _i++) {
             var s = requires_1[_i];
-            if (s === "require") {
-                args.push(current.require);
-                continue;
-            }
-            if (s === "exports") {
-                args.push(exports);
+            // if (s === "require") {
+            //     args.push(current.require);
+            //     continue;
+            // }
+            // if (s === "exports") {
+            //     args.push(exports1);
+            //     continue;
+            // }
+            // if (/^global/.test(s)) {
+            //     args.push(loader.get(s).exports);
+            // }
+            if (/^(require|exports)$/.test(s)) {
                 continue;
             }
             if (/^global/.test(s)) {
-                args.push(loader.get(s).exports);
+                continue;
             }
-            // if(/^(require|exports)$/.test(s)) {
-            //     continue;
-            // }
             var name_2 = loader.resolveRelativePath(s, current.name);
             var child = loader.get(name_2);
             current.addDependency(child);
         }
         // const fx = factory.bind(current, ... args);
-        current.factory = function () {
-            return factory.apply(current, args) || exports;
+        current.factory = function (r, es) {
+            var args = [];
+            for (var _i = 0, requires_2 = requires; _i < requires_2.length; _i++) {
+                var a_1 = requires_2[_i];
+                if (a_1 === "require") {
+                    args.push(r);
+                    continue;
+                }
+                if (a_1 === "exports") {
+                    args.push(es);
+                    continue;
+                }
+                if (/^global/.test(a_1)) {
+                    args.push(loader.get(a_1).exports);
+                    continue;
+                }
+            }
+            return factory.apply(current, args) || es;
         };
     };
 };
@@ -971,8 +983,8 @@ var UMDClass = /** @class */ (function () {
      */
     UMDClass.prototype.hostView = function (id, path, designMode) {
         return __awaiter(this, void 0, void 0, function () {
-            var m, app_1, e_1;
             var _this = this;
+            var m, app_1, e_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -1016,8 +1028,8 @@ var UMDClass = /** @class */ (function () {
     };
     UMDClass.prototype.loadView = function (path, designMode, appPath) {
         return __awaiter(this, void 0, void 0, function () {
-            var m, app;
             var _this = this;
+            var m, app;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:

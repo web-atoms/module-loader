@@ -8,7 +8,7 @@ interface IPackage {
 }
 declare class Module {
     readonly name: string;
-    readonly folder?: string;
+    readonly folder: string;
     package: IPackage;
     constructor(name: string, folder?: string);
     url: string;
@@ -79,8 +79,8 @@ declare class MockType {
     type: any;
     name: string;
     mock: boolean;
-    moduleName?: string;
-    readonly exportName?: string;
+    moduleName: string;
+    readonly exportName: string;
     loaded: boolean;
     replaced: any;
     constructor(module: Module, type: any, name: string, mock: boolean, moduleName?: string, exportName?: string);

@@ -1,3 +1,14 @@
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -13,8 +24,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
         while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
                 case 0: case 1: t = op; break;
                 case 4: _.label++; return { value: op[1], done: false };
@@ -467,6 +478,12 @@ var AmdLoader = /** @class */ (function () {
             this.get(iterator);
         }
     };
+    AmdLoader.prototype.registerModule = function (name, moduleExports) {
+        var m = this.get(name);
+        m.package.url = "/";
+        m.exports = __assign({ __esModule: true }, moduleExports);
+        m.loader = Promise.resolve(m.exports);
+    };
     AmdLoader.prototype.setup = function (name) {
         var jsModule = this.get(name);
         var define = this.define;
@@ -723,6 +740,9 @@ var AmdLoader = /** @class */ (function () {
     AmdLoader.current = null;
     return AmdLoader;
 }());
+var a = AmdLoader.instance;
+a.registerModule("global/document", { document: document });
+a.registerModule("global/window", { window: window });
 AmdLoader.moduleLoader = function (name, url, success, error) {
     var script = document.createElement("script");
     script.type = "text/javascript";
@@ -932,8 +952,8 @@ var UMDClass = /** @class */ (function () {
      */
     UMDClass.prototype.hostView = function (id, path, designMode) {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
             var m, app_1, e_1;
+            var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -977,8 +997,8 @@ var UMDClass = /** @class */ (function () {
     };
     UMDClass.prototype.loadView = function (path, designMode, appPath) {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
             var m, app;
+            var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:

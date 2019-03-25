@@ -50,6 +50,14 @@ class AmdLoader {
             this.get(iterator);
         }
     }
+
+    public registerModule(name: string, moduleExports: { [key: string]: any }) {
+        const m = this.get(name);
+        m.package.url = "/";
+        m.exports = { __esModule: true, ... moduleExports };
+        m.loader = Promise.resolve(m.exports);
+    }
+
     public setup(name: string): void {
         const jsModule: Module = this.get(name);
         const define: Function = this.define;
@@ -328,6 +336,11 @@ class AmdLoader {
     define: any;
 
 }
+
+const a = AmdLoader.instance;
+
+a.registerModule("global/document",  { document });
+a.registerModule("global/window", { window });
 
 AmdLoader.moduleLoader = (name, url, success, error) => {
 

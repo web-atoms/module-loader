@@ -8,7 +8,7 @@ interface IPackage {
 }
 declare class Module {
     readonly name: string;
-    readonly folder: string;
+    readonly folder?: string;
     package: IPackage;
     constructor(name: string, folder?: string);
     url: string;
@@ -48,6 +48,9 @@ declare class AmdLoader {
     };
     enableMock: boolean;
     register(packages: string[], modules: string[]): void;
+    registerModule(name: string, moduleExports: {
+        [key: string]: any;
+    }): void;
     setup(name: string): void;
     replace(type: any, name: string, mock: boolean): void;
     resolveType(type: any): any;
@@ -65,6 +68,7 @@ declare class AmdLoader {
     load(module: Module): Promise<any>;
     define: any;
 }
+declare const a: AmdLoader;
 interface IDefine {
     (requiresOrFactory: string[] | (() => void), factory?: (r: any, e: any) => void): void;
     amd?: object;
@@ -75,8 +79,8 @@ declare class MockType {
     type: any;
     name: string;
     mock: boolean;
-    moduleName: string;
-    readonly exportName: string;
+    moduleName?: string;
+    readonly exportName?: string;
     loaded: boolean;
     replaced: any;
     constructor(module: Module, type: any, name: string, mock: boolean, moduleName?: string, exportName?: string);

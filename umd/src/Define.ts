@@ -30,15 +30,31 @@ var define:IDefine = (
             requires = requiresOrFactory;
         }
 
+        const args: any[] = [];
+        const exports = {};
         for (const s of requires) {
-            if(/^(require|exports)$/.test(s)) {
+            if (s === "require") {
+                args.push(current.require);
                 continue;
             }
+            if (s === "exports") {
+                args.push(exports);
+                continue;
+            }
+            if (/^global/.test(s)) {
+                args.push(loader.get(s).exports);
+            }
+            // if(/^(require|exports)$/.test(s)) {
+            //     continue;
+            // }
             const name: string = loader.resolveRelativePath(s, current.name);
             const child: Module = loader.get(name);
             current.addDependency(child);
         }
-        current.factory = factory;
+        const fx = factory.bind(current, args);
+        current.factory = () => {
+            return fx() || exports;
+        }
     };
 };
 

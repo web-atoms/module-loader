@@ -425,23 +425,25 @@ var Module = /** @class */ (function () {
         if (this.exports) {
             return this.exports;
         }
-        this.exports = {};
         if (this.factory) {
             AmdLoader.instance.currentStack.push(this);
             var result = this.factory(this.require, this.exports);
-            if (result) {
-                if (typeof result === "object") {
-                    for (var key in result) {
-                        if (result.hasOwnProperty(key)) {
-                            var element = result[key];
-                            this.exports[key] = element;
-                        }
-                    }
-                }
-                else if (!this.exports.default) {
-                    this.exports.default = result;
-                }
+            this.exports = result;
+            if (typeof result !== "object") {
+                this.exports = { __esModule: true, default: result };
             }
+            // if (result) {
+            //     if (typeof result === "object") {
+            //         for (const key in result) {
+            //             if (result.hasOwnProperty(key)) {
+            //                 const element: any = result[key];
+            //                 this.exports[key] = element;
+            //             }
+            //         }
+            //     } else if (!this.exports.default) {
+            //         this.exports.default = result;
+            //     }
+            // }
             AmdLoader.instance.currentStack.pop();
             delete this.factory;
         }
@@ -742,8 +744,8 @@ var AmdLoader = /** @class */ (function () {
 }());
 var a = AmdLoader.instance;
 a.map("global", "/", "global");
-a.registerModule("global/document", { document: document });
-a.registerModule("global/window", { window: window });
+a.registerModule("global/document", { default: document });
+a.registerModule("global/window", { default: window });
 AmdLoader.moduleLoader = function (name, url, success, error) {
     var script = document.createElement("script");
     script.type = "text/javascript";
@@ -834,16 +836,32 @@ var define = function (requiresOrFactory, factory) {
         else {
             requires = requiresOrFactory;
         }
+        var args = [];
+        var exports = {};
         for (var _i = 0, requires_1 = requires; _i < requires_1.length; _i++) {
             var s = requires_1[_i];
-            if (/^(require|exports)$/.test(s)) {
+            if (s === "require") {
+                args.push(current.require);
                 continue;
             }
+            if (s === "exports") {
+                args.push(exports);
+                continue;
+            }
+            if (/^global/.test(s)) {
+                args.push(loader.get(s).exports);
+            }
+            // if(/^(require|exports)$/.test(s)) {
+            //     continue;
+            // }
             var name_2 = loader.resolveRelativePath(s, current.name);
             var child = loader.get(name_2);
             current.addDependency(child);
         }
-        current.factory = factory;
+        var fx = factory.bind(current, args);
+        current.factory = function () {
+            return fx() || exports;
+        };
     };
 };
 define.amd = {};

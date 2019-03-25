@@ -338,7 +338,7 @@ class AmdLoader {
 }
 
 const a = AmdLoader.instance;
-
+a.map("global", "/", "global");
 a.registerModule("global/document",  { document });
 a.registerModule("global/window", { window });
 

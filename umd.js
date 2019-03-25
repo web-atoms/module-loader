@@ -741,6 +741,7 @@ var AmdLoader = /** @class */ (function () {
     return AmdLoader;
 }());
 var a = AmdLoader.instance;
+a.map("global", "/", "global");
 a.registerModule("global/document", { document: document });
 a.registerModule("global/window", { window: window });
 AmdLoader.moduleLoader = function (name, url, success, error) {

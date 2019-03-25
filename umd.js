@@ -372,6 +372,7 @@ var Module = /** @class */ (function () {
     function Module(name, folder) {
         this.name = name;
         this.folder = folder;
+        this.emptyExports = {};
         this.ignoreModule = null;
         this.dependencies = [];
         var index = name.lastIndexOf("/");
@@ -422,7 +423,7 @@ var Module = /** @class */ (function () {
         if (this.exports) {
             return this.exports;
         }
-        this.exports = {};
+        this.exports = this.emptyExports;
         if (this.factory) {
             AmdLoader.instance.currentStack.push(this);
             var result = this.factory(this.require, this.exports);
@@ -831,48 +832,27 @@ var define = function (requiresOrFactory, factory) {
         else {
             requires = requiresOrFactory;
         }
+        var args = [];
         for (var _i = 0, requires_1 = requires; _i < requires_1.length; _i++) {
             var s = requires_1[_i];
-            // if (s === "require") {
-            //     args.push(current.require);
-            //     continue;
-            // }
-            // if (s === "exports") {
-            //     args.push(exports1);
-            //     continue;
-            // }
-            // if (/^global/.test(s)) {
-            //     args.push(loader.get(s).exports);
-            // }
-            if (/^(require|exports)$/.test(s)) {
+            if (s === "require") {
+                args.push(current.require);
+                continue;
+            }
+            if (s === "exports") {
+                args.push(current.emptyExports);
                 continue;
             }
             if (/^global/.test(s)) {
-                continue;
+                args.push(loader.get(s).exports);
             }
             var name_2 = loader.resolveRelativePath(s, current.name);
             var child = loader.get(name_2);
             current.addDependency(child);
         }
         // const fx = factory.bind(current, ... args);
-        current.factory = function (r, es) {
-            var args = [];
-            for (var _i = 0, requires_2 = requires; _i < requires_2.length; _i++) {
-                var a_1 = requires_2[_i];
-                if (a_1 === "require") {
-                    args.push(r);
-                    continue;
-                }
-                if (a_1 === "exports") {
-                    args.push(es);
-                    continue;
-                }
-                if (/^global/.test(a_1)) {
-                    args.push(loader.get(a_1).exports);
-                    continue;
-                }
-            }
-            return factory.apply(current, args) || es;
+        current.factory = function () {
+            return factory.apply(current, args);
         };
     };
 };

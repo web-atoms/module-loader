@@ -30,46 +30,26 @@ var define:IDefine = (
             requires = requiresOrFactory;
         }
 
+        const args: any[] = [];
         for (const s of requires) {
-            // if (s === "require") {
-            //     args.push(current.require);
-            //     continue;
-            // }
-            // if (s === "exports") {
-            //     args.push(exports1);
-            //     continue;
-            // }
-            // if (/^global/.test(s)) {
-            //     args.push(loader.get(s).exports);
-            // }
-            if(/^(require|exports)$/.test(s)) {
-                 continue;
+            if (s === "require") {
+                args.push(current.require);
+                continue;
+            }
+            if (s === "exports") {
+                args.push(current.emptyExports);
+                continue;
             }
             if (/^global/.test(s)) {
-                continue;
+                args.push(loader.get(s).exports);
             }
             const name: string = loader.resolveRelativePath(s, current.name);
             const child: Module = loader.get(name);
             current.addDependency(child);
         }
         // const fx = factory.bind(current, ... args);
-        current.factory = (r, es) => {
-            const args: any[] = [];
-            for(const a of requires) {
-                if (a === "require") {
-                    args.push(r);
-                    continue;
-                }
-                if (a === "exports") {
-                    args.push(es);
-                    continue;
-                }
-                if (/^global/.test(a)) {
-                    args.push(loader.get(a).exports);
-                    continue;
-                }
-            }
-            return factory.apply(current, args) || es;
+        current.factory = () => {
+            return factory.apply(current, args);
         };
     };
 };

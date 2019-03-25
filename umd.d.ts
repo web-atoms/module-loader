@@ -10,6 +10,7 @@ declare class Module {
     readonly name: string;
     readonly folder: string;
     package: IPackage;
+    emptyExports: any;
     constructor(name: string, folder?: string);
     url: string;
     exports: any;

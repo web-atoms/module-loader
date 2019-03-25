@@ -10,6 +10,8 @@ class Module {
 
     public package: IPackage;
 
+    public emptyExports: any = {};
+
     constructor(
         public readonly name: string,
         public readonly folder?: string
@@ -70,7 +72,7 @@ class Module {
         if (this.exports) {
             return this.exports;
         }
-        this.exports = {};
+        this.exports = this.emptyExports;
         if (this.factory) {
             AmdLoader.instance.currentStack.push(this);
             const result: any = this.factory(this.require, this.exports);

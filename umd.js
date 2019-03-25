@@ -858,9 +858,9 @@ var define = function (requiresOrFactory, factory) {
             var child = loader.get(name_2);
             current.addDependency(child);
         }
-        var fx = factory.bind(current, args);
+        // const fx = factory.bind(current, ... args);
         current.factory = function () {
-            return fx() || exports;
+            return factory.apply(current, args) || exports;
         };
     };
 };

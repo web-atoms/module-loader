@@ -51,9 +51,9 @@ var define:IDefine = (
             const child: Module = loader.get(name);
             current.addDependency(child);
         }
-        const fx = factory.bind(current, args);
+        // const fx = factory.bind(current, ... args);
         current.factory = () => {
-            return fx() || exports;
+            return factory.apply(current, args) || exports;
         }
     };
 };

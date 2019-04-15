@@ -51,8 +51,8 @@ class AmdLoader {
         }
     }
 
-    public registerModule(name: string, moduleExports: { [key: string]: any }) {
-        const m = this.get(name);
+    public registerModule(name: string, moduleExports: { [key: string]: any }): void {
+        const m: Module = this.get(name);
         m.package.url = "/";
         m.exports = { __esModule: true, ... moduleExports };
         m.loader = Promise.resolve(m.exports);
@@ -337,7 +337,7 @@ class AmdLoader {
 
 }
 
-const a = AmdLoader.instance;
+const a: AmdLoader = AmdLoader.instance;
 a.map("global", "/", "global");
 a.registerModule("global/document",  { default: document });
 a.registerModule("global/window", { default: window });

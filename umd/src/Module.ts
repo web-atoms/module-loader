@@ -121,7 +121,7 @@ class Module {
     public loader: Promise<any>;
 
     /**
-     * This promise can be awaited by depdency resolver
+     * This promise can be awaited by dependency resolver
      */
     public resolver: Promise<any>;
 

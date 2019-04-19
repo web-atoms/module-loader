@@ -27,7 +27,7 @@ declare class Module {
     factory: (r: any, e: any) => void;
     loader: Promise<any>;
     /**
-     * This promise can be awaited by depdency resolver
+     * This promise can be awaited by dependency resolver
      */
     resolver: Promise<any>;
 }

@@ -58,6 +58,7 @@ class Module {
             if (r.find((x) => x === iterator)) {
                 return true;
             }
+            r.push(iterator);
             if (iterator === d) {
                 return true;
             }

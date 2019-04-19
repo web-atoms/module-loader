@@ -422,6 +422,7 @@ var Module = /** @class */ (function () {
             if (r.find(function (x) { return x === iterator; })) {
                 return { value: true };
             }
+            r.push(iterator);
             if (iterator === d) {
                 return { value: true };
             }

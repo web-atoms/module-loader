@@ -19,6 +19,7 @@ declare class Module {
     resolve(resolve?: (r: any) => void, reject?: (e: any) => void): void;
     isDependentOn(d: Module, r: Module[]): boolean;
     addDependency(d: Module): void;
+    private isExporting;
     getExports(): any;
     require: (name: string) => any;
     dependencies: Module[];

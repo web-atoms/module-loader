@@ -82,10 +82,22 @@ class Module {
         this.dependencies.push(d);
     }
 
+    private isExporting: boolean = false;
+
     public getExports(): any {
+        if (this.isExporting) {
+            return;
+        }
+        this.isExporting = true;
         if (this.exports) {
             return this.exports;
         }
+
+        // call get exports on all dependencies first...
+        for (const iterator of this.dependencies) {
+            iterator.getExports();
+        }
+
         this.exports = this.emptyExports;
         if (this.factory) {
             AmdLoader.instance.currentStack.push(this);

@@ -15,6 +15,7 @@ declare class Module {
     url: string;
     exports: any;
     ignoreModule: Module;
+    private isLoaded;
     resolve(resolve?: (r: any) => void, reject?: (e: any) => void): void;
     isDependentOn(d: Module): boolean;
     addDependency(d: Module): void;

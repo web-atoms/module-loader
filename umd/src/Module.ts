@@ -30,10 +30,12 @@ class Module {
 
     public ignoreModule: Module = null;
 
+    private isLoaded: boolean = false;
+
     public resolve(resolve?: (r: any) => void, reject?: (e: any) => void): void {
 
         if (this.dependencies && this.dependencies.length) {
-            Promise.all(this.dependencies
+            Promise.all(this.dependencies.filter((x) => !x.isDependentOn(this))
                 .map(x => AmdLoader.instance.import(x.name) ))
                 .then(() => {
                     resolve(this.getExports());
@@ -59,12 +61,12 @@ class Module {
 
     public addDependency(d: Module): void {
         // ignore module contains dependency resolution module
-        if (d === this.ignoreModule) {
-            return;
-        }
-        if (d.isDependentOn(this)) {
-            return;
-        }
+        // if (d === this.ignoreModule) {
+        //     return;
+        // }
+        // if (d.isDependentOn(this)) {
+        //     return;
+        // }
         this.dependencies.push(d);
     }
 

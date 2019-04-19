@@ -377,6 +377,7 @@ var Module = /** @class */ (function () {
         this.folder = folder;
         this.emptyExports = {};
         this.ignoreModule = null;
+        this.isLoaded = false;
         this.dependencies = [];
         var index = name.lastIndexOf("/");
         if (index === -1) {
@@ -389,7 +390,7 @@ var Module = /** @class */ (function () {
     Module.prototype.resolve = function (resolve, reject) {
         var _this = this;
         if (this.dependencies && this.dependencies.length) {
-            Promise.all(this.dependencies
+            Promise.all(this.dependencies.filter(function (x) { return !x.isDependentOn(_this); })
                 .map(function (x) { return AmdLoader.instance.import(x.name); }))
                 .then(function () {
                 resolve(_this.getExports());
@@ -414,12 +415,12 @@ var Module = /** @class */ (function () {
     };
     Module.prototype.addDependency = function (d) {
         // ignore module contains dependency resolution module
-        if (d === this.ignoreModule) {
-            return;
-        }
-        if (d.isDependentOn(this)) {
-            return;
-        }
+        // if (d === this.ignoreModule) {
+        //     return;
+        // }
+        // if (d.isDependentOn(this)) {
+        //     return;
+        // }
         this.dependencies.push(d);
     };
     Module.prototype.getExports = function () {

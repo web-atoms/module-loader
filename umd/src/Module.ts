@@ -56,6 +56,15 @@ class Module {
 
     // }
 
+    public dependenciesLoaded(): boolean {
+        for (const iterator of this.dependencies) {
+            if (!iterator.isLoaded) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public isDependentOn(d: Module, r: Module[]): boolean {
         for (const iterator of this.dependencies) {
             if (r.find((x) => x === iterator)) {

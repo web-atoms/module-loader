@@ -408,6 +408,15 @@ var Module = /** @class */ (function () {
     //         resolve(this.getExports());
     //     }
     // }
+    Module.prototype.dependenciesLoaded = function () {
+        for (var _i = 0, _a = this.dependencies; _i < _a.length; _i++) {
+            var iterator = _a[_i];
+            if (!iterator.isLoaded) {
+                return false;
+            }
+        }
+        return true;
+    };
     Module.prototype.isDependentOn = function (d, r) {
         var _loop_1 = function (iterator) {
             if (r.find(function (x) { return x === iterator; })) {
@@ -730,11 +739,8 @@ var AmdLoader = /** @class */ (function () {
         for (var _i = 0, _a = this.pendingModules; _i < _a.length; _i++) {
             var iterator = _a[_i];
             if (iterator.isLoaded) {
-                for (var _b = 0, _c = iterator.dependencies; _b < _c.length; _b++) {
-                    var d = _c[_b];
-                    if (!d.isLoaded) {
-                        continue;
-                    }
+                if (!iterator.dependenciesLoaded()) {
+                    continue;
                 }
                 iterator.hooks[0](iterator.getExports());
                 done.push(iterator);

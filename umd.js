@@ -412,17 +412,14 @@ var Module = /** @class */ (function () {
         if (list === void 0) { list = []; }
         if (list.indexOf(this) === -1) {
             list.push(this);
-        }
-        else {
-            return;
-        }
-        for (var _i = 0, _a = this.dependencies; _i < _a.length; _i++) {
-            var iterator = _a[_i];
-            if (!iterator.isLoaded) {
-                return false;
-            }
-            if (!iterator.dependenciesLoaded(list)) {
-                return false;
+            for (var _i = 0, _a = this.dependencies; _i < _a.length; _i++) {
+                var iterator = _a[_i];
+                if (!iterator.isLoaded) {
+                    return false;
+                }
+                if (!iterator.dependenciesLoaded(list)) {
+                    return false;
+                }
             }
         }
         return true;

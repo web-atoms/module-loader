@@ -414,6 +414,9 @@ var Module = /** @class */ (function () {
             if (!iterator.isLoaded) {
                 return false;
             }
+            if (!iterator.dependenciesLoaded()) {
+                return false;
+            }
         }
         return true;
     };

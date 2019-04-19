@@ -66,7 +66,7 @@ class Module {
             if (!iterator.isLoaded) {
                 return false;
             }
-            if (!iterator.dependenciesLoaded()) {
+            if (!iterator.dependenciesLoaded(list)) {
                 return false;
             }
         }

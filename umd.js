@@ -426,6 +426,9 @@ var Module = /** @class */ (function () {
             if (iterator.isDependentOn(d)) {
                 return true;
             }
+            if (this === d) {
+                return true;
+            }
         }
         return false;
     };

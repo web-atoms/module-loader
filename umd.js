@@ -452,17 +452,8 @@ var Module = /** @class */ (function () {
         this.dependencies.push(d);
     };
     Module.prototype.getExports = function () {
-        if (this.isExporting) {
-            return;
-        }
-        this.isExporting = true;
         if (this.exports) {
             return this.exports;
-        }
-        // call get exports on all dependencies first...
-        for (var _i = 0, _a = this.dependencies; _i < _a.length; _i++) {
-            var iterator = _a[_i];
-            iterator.getExports();
         }
         this.exports = this.emptyExports;
         if (this.factory) {
@@ -484,7 +475,6 @@ var Module = /** @class */ (function () {
             AmdLoader.instance.currentStack.pop();
             delete this.factory;
         }
-        this.isExporting = false;
         return this.exports;
     };
     return Module;

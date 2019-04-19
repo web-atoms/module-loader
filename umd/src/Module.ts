@@ -37,7 +37,7 @@ class Module {
         if (this.dependencies && this.dependencies.length) {
             Promise.all(this.dependencies
                 .map(async x => {
-                    if (!x.isDependentOn(this)) {
+                    if (!x.isDependentOn(this, [x])) {
                         await AmdLoader.instance.import(x.name);
                     } else {
                         await AmdLoader.instance.load(x);
@@ -53,18 +53,15 @@ class Module {
 
     }
 
-    public isDependentOn(d: Module): boolean {
-        if (this === d) {
-            return true;
-        }
+    public isDependentOn(d: Module, r: Module[]): boolean {
         for (const iterator of this.dependencies) {
-            if (iterator === this) {
+            if (r.find((x) => x === iterator)) {
                 return true;
             }
             if (iterator === d) {
                 return true;
             }
-            if (iterator.isDependentOn(d)) {
+            if (iterator.isDependentOn(d, r)) {
                 return true;
             }
         }

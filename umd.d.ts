@@ -17,7 +17,7 @@ declare class Module {
     ignoreModule: Module;
     private isLoaded;
     resolve(resolve?: (r: any) => void, reject?: (e: any) => void): void;
-    isDependentOn(d: Module): boolean;
+    isDependentOn(d: Module, r: Module[]): boolean;
     addDependency(d: Module): void;
     getExports(): any;
     require: (name: string) => any;

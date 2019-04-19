@@ -395,7 +395,7 @@ var Module = /** @class */ (function () {
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
-                            if (!!x.isDependentOn(this)) return [3 /*break*/, 2];
+                            if (!!x.isDependentOn(this, [x])) return [3 /*break*/, 2];
                             return [4 /*yield*/, AmdLoader.instance.import(x.name)];
                         case 1:
                             _a.sent();
@@ -417,21 +417,23 @@ var Module = /** @class */ (function () {
             resolve(this.getExports());
         }
     };
-    Module.prototype.isDependentOn = function (d) {
-        if (this === d) {
-            return true;
-        }
-        for (var _i = 0, _a = this.dependencies; _i < _a.length; _i++) {
-            var iterator = _a[_i];
-            if (iterator === this) {
-                return true;
+    Module.prototype.isDependentOn = function (d, r) {
+        var _loop_1 = function (iterator) {
+            if (r.find(function (x) { return x === iterator; })) {
+                return { value: true };
             }
             if (iterator === d) {
-                return true;
+                return { value: true };
             }
-            if (iterator.isDependentOn(d)) {
-                return true;
+            if (iterator.isDependentOn(d, r)) {
+                return { value: true };
             }
+        };
+        for (var _i = 0, _a = this.dependencies; _i < _a.length; _i++) {
+            var iterator = _a[_i];
+            var state_1 = _loop_1(iterator);
+            if (typeof state_1 === "object")
+                return state_1.value;
         }
         return false;
     };

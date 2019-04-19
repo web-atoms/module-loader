@@ -722,12 +722,10 @@ var AmdLoader = /** @class */ (function () {
                     resolve();
                     module.isLoaded = true;
                     var _loop_2 = function (iterator) {
-                        if (!iterator.isLoaded) {
-                            if (!iterator.hooks) {
-                                _this.load(iterator).then(function () {
-                                    _this.resolveModule(iterator);
-                                });
-                            }
+                        if (!iterator.hooks) {
+                            _this.load(iterator).then(function () {
+                                _this.resolveModule(iterator);
+                            });
                         }
                     };
                     // load dependencies...

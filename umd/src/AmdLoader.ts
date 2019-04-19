@@ -293,12 +293,10 @@ class AmdLoader {
 
                     // load dependencies...
                     for (const iterator of module.dependencies) {
-                        if (!iterator.isLoaded) {
-                            if (!iterator.hooks) {
-                                this.load(iterator).then(() => {
-                                    this.resolveModule(iterator);
-                                });
-                            }
+                        if (!iterator.hooks) {
+                            this.load(iterator).then(() => {
+                                this.resolveModule(iterator);
+                            });
                         }
                     }
 

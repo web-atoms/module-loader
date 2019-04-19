@@ -408,7 +408,14 @@ var Module = /** @class */ (function () {
     //         resolve(this.getExports());
     //     }
     // }
-    Module.prototype.dependenciesLoaded = function () {
+    Module.prototype.dependenciesLoaded = function (list) {
+        if (list === void 0) { list = []; }
+        if (list.indexOf(this) === -1) {
+            list.push(this);
+        }
+        else {
+            return;
+        }
         for (var _i = 0, _a = this.dependencies; _i < _a.length; _i++) {
             var iterator = _a[_i];
             if (!iterator.isLoaded) {

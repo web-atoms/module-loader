@@ -17,7 +17,7 @@ declare class Module {
     exports: any;
     ignoreModule: Module;
     isLoaded: boolean;
-    dependenciesLoaded(): boolean;
+    dependenciesLoaded(list?: Module[]): boolean;
     isDependentOn(d: Module, r: Module[]): boolean;
     addDependency(d: Module): void;
     private isExporting;

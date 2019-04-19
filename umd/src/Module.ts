@@ -56,7 +56,12 @@ class Module {
 
     // }
 
-    public dependenciesLoaded(): boolean {
+    public dependenciesLoaded(list: Module[] = []): boolean {
+        if(list.indexOf(this) === -1) {
+            list.push(this);
+        } else {
+            return;
+        }
         for (const iterator of this.dependencies) {
             if (!iterator.isLoaded) {
                 return false;

@@ -37,11 +37,11 @@ class Module {
         if (this.dependencies && this.dependencies.length) {
             Promise.all(this.dependencies
                 .map(async x => {
-                    if (!x.isDependentOn(this, [x])) {
-                        await AmdLoader.instance.import(x.name);
-                    } else {
+                    // if (!x.isDependentOn(this, [x])) {
+                    //     await AmdLoader.instance.import(x.name);
+                    // } else {
                         await AmdLoader.instance.load(x);
-                    }
+                    // }
                 }))
                 .then(() => {
                     setTimeout(() => {
@@ -117,6 +117,7 @@ class Module {
             AmdLoader.instance.currentStack.pop();
             delete this.factory;
         }
+        this.isExporting = false;
         return this.exports;
     }
 

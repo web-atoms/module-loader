@@ -395,17 +395,17 @@ var Module = /** @class */ (function () {
                 .map(function (x) { return __awaiter(_this, void 0, void 0, function () {
                 return __generator(this, function (_a) {
                     switch (_a.label) {
-                        case 0:
-                            if (!!x.isDependentOn(this, [x])) return [3 /*break*/, 2];
-                            return [4 /*yield*/, AmdLoader.instance.import(x.name)];
+                        case 0: 
+                        // if (!x.isDependentOn(this, [x])) {
+                        //     await AmdLoader.instance.import(x.name);
+                        // } else {
+                        return [4 /*yield*/, AmdLoader.instance.load(x)];
                         case 1:
+                            // if (!x.isDependentOn(this, [x])) {
+                            //     await AmdLoader.instance.import(x.name);
+                            // } else {
                             _a.sent();
-                            return [3 /*break*/, 4];
-                        case 2: return [4 /*yield*/, AmdLoader.instance.load(x)];
-                        case 3:
-                            _a.sent();
-                            _a.label = 4;
-                        case 4: return [2 /*return*/];
+                            return [2 /*return*/];
                     }
                 });
             }); }))
@@ -484,6 +484,7 @@ var Module = /** @class */ (function () {
             AmdLoader.instance.currentStack.pop();
             delete this.factory;
         }
+        this.isExporting = false;
         return this.exports;
     };
     return Module;

@@ -706,6 +706,7 @@ var AmdLoader = /** @class */ (function () {
                     if (AmdLoader.moduleProgress) {
                         AmdLoader.moduleProgress(module.name, _this.modules, "loading");
                     }
+                    resolve();
                 }
                 catch (e) {
                     reject(e);

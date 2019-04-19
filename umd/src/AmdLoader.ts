@@ -282,6 +282,8 @@ class AmdLoader {
                         AmdLoader.moduleProgress(module.name, this.modules , "loading");
                     }
 
+                    resolve();
+
                 } catch (e) {
                     reject(e);
                 }

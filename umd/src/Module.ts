@@ -35,8 +35,14 @@ class Module {
     public resolve(resolve?: (r: any) => void, reject?: (e: any) => void): void {
 
         if (this.dependencies && this.dependencies.length) {
-            Promise.all(this.dependencies.filter((x) => !x.isDependentOn(this))
-                .map(x => AmdLoader.instance.import(x.name) ))
+            Promise.all(this.dependencies
+                .map(async x => {
+                    if (!x.isDependentOn(this)) {
+                        await AmdLoader.instance.import(x.name);
+                    } else {
+                        await AmdLoader.instance.load(x);
+                    }
+                }))
                 .then(() => {
                     resolve(this.getExports());
                 })
@@ -107,5 +113,10 @@ class Module {
     public factory: (r: any, e: any) => void;
 
     public loader: Promise<any>;
+
+    /**
+     * This promise can be awaited by depdency resolver
+     */
+    public resolver: Promise<any>;
 
 }

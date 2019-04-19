@@ -26,6 +26,10 @@ declare class Module {
     exportVar: string;
     factory: (r: any, e: any) => void;
     loader: Promise<any>;
+    /**
+     * This promise can be awaited by depdency resolver
+     */
+    resolver: Promise<any>;
 }
 declare var require: any;
 declare var md: any;
@@ -66,9 +70,10 @@ declare class AmdLoader {
     });
     get(name1: string): Module;
     import(name: string): Promise<any>;
-    _import(module: Module): Promise<any>;
     load(module: Module): Promise<any>;
     define: any;
+    private resolveModule;
+    private _resolveModule;
 }
 declare const a: AmdLoader;
 interface IDefine {

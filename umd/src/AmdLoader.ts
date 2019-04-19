@@ -249,26 +249,73 @@ class AmdLoader {
         return module;
     }
 
-    public import(name: string): Promise<any> {
+    public async import(name: string): Promise<any> {
         if (typeof require !== "undefined") {
             return Promise.resolve(require(name));
         }
         const module: Module = this.get(name);
-        if (module.loader) {
-            return module.loader;
-        }
-        return module.loader = this._import(module);
+        await this.load(module);
+        return await this.resolveModule(module);
     }
 
-    public async _import(module: Module): Promise<any> {
+    public load(module: Module): Promise<any> {
+
+        if(module.loader) {
+            return module.loader;
+        }
+        module.loader = new Promise((resolve, reject) => {
+
+            AmdLoader.moduleLoader(module.name, module.url, () => {
+
+                try {
+                    AmdLoader.current = module;
+                    if(AmdLoader.instance.define) {
+                        AmdLoader.instance.define();
+                        AmdLoader.instance.define = null;
+                    }
+
+                    if (module.exportVar) {
+                        module.exports = AmdLoader.globalVar[module.exportVar];
+                    }
+
+                    if (AmdLoader.moduleProgress) {
+                        AmdLoader.moduleProgress(module.name, this.modules , "loading");
+                    }
+
+                } catch (e) {
+                    reject(e);
+                }
+
+            }, (error) => {
+                reject(error);
+            });
+
+        });
+
+        return module.loader;
+    }
+
+    define: any;
+
+    private resolveModule(module: Module): Promise<any> {
+        if (module.resolver) {
+            return module.resolver;
+        }
+        module.resolver = this._resolveModule(module);
+        return module.resolver;
+    }
+
+    private async _resolveModule(module: Module): Promise<any> {
+
+        await new Promise((resolve, reject) => {
+            module.resolve(resolve, reject);
+        });
 
         this.pendingModules.push(module);
 
         if (!this.root) {
             this.root = module;
         }
-
-        await this.load(module);
 
         // tslint:disable-next-line:typedef
         const exports = module.getExports();
@@ -300,40 +347,6 @@ class AmdLoader {
         return exports;
     }
 
-    public load(module: Module): Promise<any> {
-
-        return new Promise((resolve, reject) => {
-
-            AmdLoader.moduleLoader(module.name, module.url, () => {
-
-                try {
-                    AmdLoader.current = module;
-                    if(AmdLoader.instance.define) {
-                        AmdLoader.instance.define();
-                        AmdLoader.instance.define = null;
-                    }
-
-                    if (module.exportVar) {
-                        module.exports = AmdLoader.globalVar[module.exportVar];
-                    }
-
-                    if (AmdLoader.moduleProgress) {
-                        AmdLoader.moduleProgress(module.name, this.modules , "loading");
-                    }
-
-                    module.resolve(resolve, reject);
-                } catch (e) {
-                    reject(e);
-                }
-
-            }, (error) => {
-                reject(error);
-            });
-
-        });
-    }
-
-    define: any;
 
 }
 

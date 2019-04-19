@@ -1,14 +1,3 @@
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -43,6 +32,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
+};
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
 };
 // @ts-ignore
 (function (global, factory) {
@@ -390,8 +390,24 @@ var Module = /** @class */ (function () {
     Module.prototype.resolve = function (resolve, reject) {
         var _this = this;
         if (this.dependencies && this.dependencies.length) {
-            Promise.all(this.dependencies.filter(function (x) { return !x.isDependentOn(_this); })
-                .map(function (x) { return AmdLoader.instance.import(x.name); }))
+            Promise.all(this.dependencies
+                .map(function (x) { return __awaiter(_this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            if (!!x.isDependentOn(this)) return [3 /*break*/, 2];
+                            return [4 /*yield*/, AmdLoader.instance.import(x.name)];
+                        case 1:
+                            _a.sent();
+                            return [3 /*break*/, 4];
+                        case 2: return [4 /*yield*/, AmdLoader.instance.load(x)];
+                        case 3:
+                            _a.sent();
+                            _a.label = 4;
+                        case 4: return [2 /*return*/];
+                    }
+                });
+            }); }))
                 .then(function () {
                 resolve(_this.getExports());
             })
@@ -653,28 +669,74 @@ var AmdLoader = /** @class */ (function () {
         return module;
     };
     AmdLoader.prototype.import = function (name) {
-        if (typeof require !== "undefined") {
-            return Promise.resolve(require(name));
-        }
-        var module = this.get(name);
+        return __awaiter(this, void 0, void 0, function () {
+            var module;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (typeof require !== "undefined") {
+                            return [2 /*return*/, Promise.resolve(require(name))];
+                        }
+                        module = this.get(name);
+                        return [4 /*yield*/, this.load(module)];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, this.resolveModule(module)];
+                    case 2: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    AmdLoader.prototype.load = function (module) {
+        var _this = this;
         if (module.loader) {
             return module.loader;
         }
-        return module.loader = this._import(module);
+        module.loader = new Promise(function (resolve, reject) {
+            AmdLoader.moduleLoader(module.name, module.url, function () {
+                try {
+                    AmdLoader.current = module;
+                    if (AmdLoader.instance.define) {
+                        AmdLoader.instance.define();
+                        AmdLoader.instance.define = null;
+                    }
+                    if (module.exportVar) {
+                        module.exports = AmdLoader.globalVar[module.exportVar];
+                    }
+                    if (AmdLoader.moduleProgress) {
+                        AmdLoader.moduleProgress(module.name, _this.modules, "loading");
+                    }
+                }
+                catch (e) {
+                    reject(e);
+                }
+            }, function (error) {
+                reject(error);
+            });
+        });
+        return module.loader;
     };
-    AmdLoader.prototype._import = function (module) {
+    AmdLoader.prototype.resolveModule = function (module) {
+        if (module.resolver) {
+            return module.resolver;
+        }
+        module.resolver = this._resolveModule(module);
+        return module.resolver;
+    };
+    AmdLoader.prototype._resolveModule = function (module) {
         return __awaiter(this, void 0, void 0, function () {
             var exports, pendingList, _i, pendingList_1, iterator, _a, pendingList_2, iterator, containerModule, resolvedName, im, ex, type;
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0:
+                    case 0: return [4 /*yield*/, new Promise(function (resolve, reject) {
+                            module.resolve(resolve, reject);
+                        })];
+                    case 1:
+                        _b.sent();
                         this.pendingModules.push(module);
                         if (!this.root) {
                             this.root = module;
                         }
-                        return [4 /*yield*/, this.load(module)];
-                    case 1:
-                        _b.sent();
                         exports = module.getExports();
                         pendingList = this.mockTypes.filter(function (t) { return !t.loaded; });
                         if (!pendingList.length) return [3 /*break*/, 5];
@@ -708,32 +770,6 @@ var AmdLoader = /** @class */ (function () {
                         this.pendingModules = this.pendingModules.filter(function (x) { return x !== module; });
                         return [2 /*return*/, exports];
                 }
-            });
-        });
-    };
-    AmdLoader.prototype.load = function (module) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            AmdLoader.moduleLoader(module.name, module.url, function () {
-                try {
-                    AmdLoader.current = module;
-                    if (AmdLoader.instance.define) {
-                        AmdLoader.instance.define();
-                        AmdLoader.instance.define = null;
-                    }
-                    if (module.exportVar) {
-                        module.exports = AmdLoader.globalVar[module.exportVar];
-                    }
-                    if (AmdLoader.moduleProgress) {
-                        AmdLoader.moduleProgress(module.name, _this.modules, "loading");
-                    }
-                    module.resolve(resolve, reject);
-                }
-                catch (e) {
-                    reject(e);
-                }
-            }, function (error) {
-                reject(error);
             });
         });
     };

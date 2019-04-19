@@ -418,15 +418,18 @@ var Module = /** @class */ (function () {
         }
     };
     Module.prototype.isDependentOn = function (d) {
+        if (this === d) {
+            return true;
+        }
         for (var _i = 0, _a = this.dependencies; _i < _a.length; _i++) {
             var iterator = _a[_i];
+            if (iterator === this) {
+                return true;
+            }
             if (iterator === d) {
                 return true;
             }
             if (iterator.isDependentOn(d)) {
-                return true;
-            }
-            if (this === d) {
                 return true;
             }
         }

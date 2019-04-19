@@ -54,14 +54,17 @@ class Module {
     }
 
     public isDependentOn(d: Module): boolean {
+        if (this === d) {
+            return true;
+        }
         for (const iterator of this.dependencies) {
+            if (iterator === this) {
+                return true;
+            }
             if (iterator === d) {
                 return true;
             }
             if (iterator.isDependentOn(d)) {
-                return true;
-            }
-            if (this === d) {
                 return true;
             }
         }

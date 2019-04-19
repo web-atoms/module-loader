@@ -67,9 +67,9 @@ class Module {
 
     public addDependency(d: Module): void {
         // ignore module contains dependency resolution module
-        // if (d === this.ignoreModule) {
-        //     return;
-        // }
+        if (d === this.ignoreModule) {
+            return;
+        }
         // if (d.isDependentOn(this)) {
         //     return;
         // }

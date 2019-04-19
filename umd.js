@@ -431,9 +431,9 @@ var Module = /** @class */ (function () {
     };
     Module.prototype.addDependency = function (d) {
         // ignore module contains dependency resolution module
-        // if (d === this.ignoreModule) {
-        //     return;
-        // }
+        if (d === this.ignoreModule) {
+            return;
+        }
         // if (d.isDependentOn(this)) {
         //     return;
         // }

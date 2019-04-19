@@ -36,6 +36,7 @@ class AmdLoader {
     public modules: { [key: string]: Module } = {};
 
     public pathMap: { [key: string]: IPackage } = {};
+
     enableMock: boolean;
 
     public register(
@@ -71,7 +72,10 @@ class AmdLoader {
                     if (jsModule.exportVar) {
                         jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
                     }
-                    jsModule.resolve(resolve, reject);
+                    jsModule.isLoaded = true;
+                    resolve();
+
+                    this.resolvePendingModules();
                 } catch (e) {
                     reject(e);
                 }
@@ -263,6 +267,7 @@ class AmdLoader {
         if(module.loader) {
             return module.loader;
         }
+        this.pendingModules.push(module);
         module.loader = new Promise((resolve, reject) => {
 
             AmdLoader.moduleLoader(module.name, module.url, () => {
@@ -284,6 +289,12 @@ class AmdLoader {
 
                     resolve();
 
+                    module.isLoaded = true;
+
+                    setTimeout(() => {
+                        this.resolvePendingModules();
+                    }, 1);
+
                 } catch (e) {
                     reject(e);
                 }
@@ -299,6 +310,24 @@ class AmdLoader {
 
     define: any;
 
+    private resolvePendingModules(): void {
+        const done: Module[] = [];
+        for (const iterator of this.pendingModules) {
+            if (iterator.isLoaded) {
+                for (const d of iterator.dependencies) {
+                    if (!d.isLoaded) {
+                        continue;
+                    }
+                }
+                iterator.hooks[0](iterator.getExports());
+                done.push(iterator);
+            }
+        }
+        if (done.length) {
+            this.pendingModules = this.pendingModules.filter((x) => !done.find(a => a === x) );
+        }
+    }
+
     private resolveModule(module: Module): Promise<any> {
         if (module.resolver) {
             return module.resolver;
@@ -310,10 +339,8 @@ class AmdLoader {
     private async _resolveModule(module: Module): Promise<any> {
 
         await new Promise((resolve, reject) => {
-            module.resolve(resolve, reject);
+            module.hooks = [resolve, reject];
         });
-
-        this.pendingModules.push(module);
 
         if (!this.root) {
             this.root = module;
@@ -343,8 +370,6 @@ class AmdLoader {
             this.root = null;
             AmdLoader.moduleProgress(null, this.modules, "done");
         }
-
-        this.pendingModules = this.pendingModules.filter(x => x !== module);
 
         return exports;
     }

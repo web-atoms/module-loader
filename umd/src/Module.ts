@@ -11,6 +11,7 @@ class Module {
     public package: IPackage;
 
     public emptyExports: any = {};
+    hooks: [Function, Function];
 
     constructor(
         public readonly name: string,
@@ -30,30 +31,30 @@ class Module {
 
     public ignoreModule: Module = null;
 
-    private isLoaded: boolean = false;
+    public isLoaded: boolean = false;
 
-    public resolve(resolve?: (r: any) => void, reject?: (e: any) => void): void {
+    // public resolve(resolve?: (r: any) => void, reject?: (e: any) => void): void {
 
-        if (this.dependencies && this.dependencies.length) {
-            Promise.all(this.dependencies
-                .map(async x => {
-                    // if (!x.isDependentOn(this, [x])) {
-                    //     await AmdLoader.instance.import(x.name);
-                    // } else {
-                        await AmdLoader.instance.load(x);
-                    // }
-                }))
-                .then(() => {
-                    setTimeout(() => {
-                        resolve(this.getExports());
-                    }, 1);
-                })
-                .catch(reject);
-        } else {
-            resolve(this.getExports());
-        }
+    //     if (this.dependencies && this.dependencies.length) {
+    //         aPromise.all(this.dependencies
+    //             .map(async x => {
+    //                 // if (!x.isDependentOn(this, [x])) {
+    //                 //     await AmdLoader.instance.import(x.name);
+    //                 // } else {
+    //                     await AmdLoader.instance.load(x);
+    //                 // }
+    //             }))
+    //             .then(() => {
+    //                 setTimeout(() => {
+    //                     resolve(this.getExports());
+    //                 }, 1);
+    //             })
+    //             .catch(reject);
+    //     } else {
+    //         resolve(this.getExports());
+    //     }
 
-    }
+    // }
 
     public isDependentOn(d: Module, r: Module[]): boolean {
         for (const iterator of this.dependencies) {

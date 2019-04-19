@@ -11,12 +11,12 @@ declare class Module {
     readonly folder?: string;
     package: IPackage;
     emptyExports: any;
+    hooks: [Function, Function];
     constructor(name: string, folder?: string);
     url: string;
     exports: any;
     ignoreModule: Module;
-    private isLoaded;
-    resolve(resolve?: (r: any) => void, reject?: (e: any) => void): void;
+    isLoaded: boolean;
     isDependentOn(d: Module, r: Module[]): boolean;
     addDependency(d: Module): void;
     private isExporting;
@@ -73,6 +73,7 @@ declare class AmdLoader {
     import(name: string): Promise<any>;
     load(module: Module): Promise<any>;
     define: any;
+    private resolvePendingModules;
     private resolveModule;
     private _resolveModule;
 }

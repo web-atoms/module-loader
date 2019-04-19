@@ -409,7 +409,9 @@ var Module = /** @class */ (function () {
                 });
             }); }))
                 .then(function () {
-                resolve(_this.getExports());
+                setTimeout(function () {
+                    resolve(_this.getExports());
+                }, 1);
             })
                 .catch(reject);
         }

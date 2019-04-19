@@ -44,7 +44,9 @@ class Module {
                     }
                 }))
                 .then(() => {
-                    resolve(this.getExports());
+                    setTimeout(() => {
+                        resolve(this.getExports());
+                    }, 1);
                 })
                 .catch(reject);
         } else {

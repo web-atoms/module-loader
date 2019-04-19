@@ -721,6 +721,13 @@ var AmdLoader = /** @class */ (function () {
                     }
                     resolve();
                     module.isLoaded = true;
+                    // load dependencies...
+                    for (var _i = 0, _a = module.dependencies; _i < _a.length; _i++) {
+                        var iterator = _a[_i];
+                        _this.load(iterator).catch(function (error) {
+                            console.error(error);
+                        });
+                    }
                     setTimeout(function () {
                         _this.resolvePendingModules();
                     }, 1);

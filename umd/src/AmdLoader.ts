@@ -291,6 +291,13 @@ class AmdLoader {
 
                     module.isLoaded = true;
 
+                    // load dependencies...
+                    for (const iterator of module.dependencies) {
+                        this.load(iterator).catch((error) => {
+                            console.error(error);
+                        });
+                    }
+
                     setTimeout(() => {
                         this.resolvePendingModules();
                     }, 1);

@@ -17,8 +17,5 @@
     "url": "https://github.com/neurospeech/web-atoms-amd-loader/issues"
   },
   "homepage": "https://github.com/neurospeech/web-atoms-amd-loader#readme",
-  "dependencies": {},
-  "devDependencies": {
-    "@types/node": "^10.5.3"
-  }
+  "dependencies": {}
 }

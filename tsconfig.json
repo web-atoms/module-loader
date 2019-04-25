@@ -3,8 +3,7 @@
         "target": "es5",
         "sourceMap": true,
         "declaration": true,
-        "outFile": "../umd.js",
-        "downlevelIteration": false,
+        "outFile": "umd.js",
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "lib": [
@@ -13,10 +12,10 @@
         ]
     },
     "include": [
-        "src/**/*"
+        "umd/src/**/*"
     ],
     "exclude": [
-		"node_modules",
+        "node_modules",
 		"tests"
     ]
 }

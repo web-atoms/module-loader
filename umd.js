@@ -790,6 +790,7 @@ var AmdLoader = /** @class */ (function () {
                             this.root = module;
                         }
                         exports = module.getExports();
+                        module.isLoaded = false;
                         pendingList = this.mockTypes.filter(function (t) { return !t.loaded; });
                         if (!pendingList.length) return [3 /*break*/, 5];
                         for (_i = 0, pendingList_1 = pendingList; _i < pendingList_1.length; _i++) {
@@ -815,6 +816,7 @@ var AmdLoader = /** @class */ (function () {
                         _a++;
                         return [3 /*break*/, 2];
                     case 5:
+                        module.isLoaded = true;
                         if (this.root === module) {
                             this.root = null;
                             AmdLoader.moduleProgress(null, this.modules, "done");

@@ -356,6 +356,7 @@ class AmdLoader {
         // tslint:disable-next-line:typedef
         const exports = module.getExports();
 
+        module.isLoaded = false;
         // load requested dependencies for mock or abstract injects
         const pendingList: MockType[] = this.mockTypes.filter((t) => !t.loaded );
         if (pendingList.length) {
@@ -372,6 +373,7 @@ class AmdLoader {
                 iterator.replaced = type;
             }
         }
+        module.isLoaded = true;
 
         if (this.root === module) {
             this.root = null;

@@ -333,6 +333,13 @@ class AmdLoader {
         if (done.length) {
             this.pendingModules = this.pendingModules.filter((x) => !done.find(a => a === x) );
         }
+
+        if (this.pendingModules.length === 1) {
+            // try again after few seconds..
+            setTimeout(() => {
+                this.resolvePendingModules();
+            }, 200);
+        }
     }
 
     private resolveModule(module: Module): Promise<any> {

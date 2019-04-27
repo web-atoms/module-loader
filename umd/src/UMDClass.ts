@@ -36,6 +36,10 @@ class UMDClass {
         AmdLoader.instance.map(name, path, type, exportVar);
     }
 
+    public setupRoot(name: string, url: string): void {
+        AmdLoader.instance.setupRoot(name, url);
+    }
+
     public mockType(type: any, name: string): void {
         AmdLoader.instance.replace(type, name, true);
     }

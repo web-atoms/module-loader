@@ -329,6 +329,11 @@ class AmdLoader {
     define: any;
 
     private resolvePendingModules(): void {
+
+        if (!this.pendingModules.length) {
+            return;
+        }
+
         const done: Module[] = [];
         for (const iterator of this.pendingModules) {
             if (iterator.isLoaded) {
@@ -343,7 +348,7 @@ class AmdLoader {
             this.pendingModules = this.pendingModules.filter((x) => !done.find(a => a === x) );
         }
 
-        if (this.pendingModules.length === 1) {
+        if (this.pendingModules.length) {
             // try again after few seconds..
             setTimeout(() => {
                 this.resolvePendingModules();

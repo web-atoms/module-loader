@@ -328,6 +328,8 @@ class AmdLoader {
 
     define: any;
 
+    private lastTimeout: any = null;
+
     private resolvePendingModules(): void {
 
         if (!this.pendingModules.length) {
@@ -350,7 +352,10 @@ class AmdLoader {
 
         if (this.pendingModules.length) {
             // try again after few seconds..
-            setTimeout(() => {
+            if (this.lastTimeout) {
+                clearTimeout(this.lastTimeout);
+            }
+            this.lastTimeout = setTimeout(() => {
                 this.resolvePendingModules();
             }, 200);
         }

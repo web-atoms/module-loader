@@ -88,7 +88,7 @@ class AmdLoader {
                     });
 
                     jsModule.isLoaded = true;
-                    for (const iterator of module.dependencies) {
+                    for (const iterator of jsModule.dependencies) {
                         if (!iterator.hooks) {
                             this.load(iterator).then(() => {
                                 this.resolveModule(iterator);

@@ -81,10 +81,18 @@ class AmdLoader {
                     if (jsModule.exportVar) {
                         jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
                     }
-                    jsModule.isLoaded = true;
                     resolve();
-
-                    this.resolvePendingModules();
+                    jsModule.isLoaded = true;
+                    for (const iterator of module.dependencies) {
+                        if (!iterator.hooks) {
+                            this.load(iterator).then(() => {
+                                this.resolveModule(iterator);
+                            });
+                        }
+                    }
+                    setTimeout(() => {
+                        this.resolvePendingModules();
+                    }, 1);
                 } catch (e) {
                     reject(e);
                 }

@@ -81,6 +81,9 @@ class AmdLoader {
                     jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
                 }
                 setTimeout(() => {
+
+                    this.pendingModules.push(jsModule);
+
                     resolve();
 
                     this.resolveModule(jsModule).catch((e) => {

@@ -72,15 +72,15 @@ class AmdLoader {
         const jsModule: Module = this.get(name);
         const define: Function = this.define;
         jsModule.loader = new Promise((resolve, reject) => {
-            setTimeout(() => {
-                try {
-                    AmdLoader.current = jsModule;
-                    if (define) {
-                        define();
-                    }
-                    if (jsModule.exportVar) {
-                        jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
-                    }
+            try {
+                AmdLoader.current = jsModule;
+                if (define) {
+                    define();
+                }
+                if (jsModule.exportVar) {
+                    jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
+                }
+                setTimeout(() => {
                     resolve();
 
                     this.resolveModule(jsModule).catch((e) => {
@@ -98,10 +98,10 @@ class AmdLoader {
                     setTimeout(() => {
                         this.resolvePendingModules();
                     }, 1);
-                } catch (e) {
-                    reject(e);
-                }
-            }, 1);
+                }, 1);
+            } catch (e) {
+                reject(e);
+            }
         });
     }
 

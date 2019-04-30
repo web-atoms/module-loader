@@ -82,6 +82,11 @@ class AmdLoader {
                         jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
                     }
                     resolve();
+
+                    this.resolveModule(jsModule).catch((e) => {
+                        console.error(e);
+                    });
+
                     jsModule.isLoaded = true;
                     for (const iterator of module.dependencies) {
                         if (!iterator.hooks) {

@@ -71,41 +71,29 @@ class AmdLoader {
     public setup(name: string): void {
         const jsModule: Module = this.get(name);
         const define: Function = this.define;
-        jsModule.loader = new Promise((resolve, reject) => {
-            try {
-                AmdLoader.current = jsModule;
-                if (define) {
-                    define();
-                }
-                if (jsModule.exportVar) {
-                    jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
-                }
-                setTimeout(() => {
+        jsModule.loader = Promise.resolve();
+        AmdLoader.current = jsModule;
+        if (define) {
+            define();
+        }
+        if (jsModule.exportVar) {
+            jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
+        }
+        this.pendingModules.push(jsModule);
 
-                    this.pendingModules.push(jsModule);
-
-                    resolve();
-
-                    this.resolveModule(jsModule).catch((e) => {
-                        console.error(e);
-                    });
-
-                    jsModule.isLoaded = true;
-                    for (const iterator of jsModule.dependencies) {
-                        if (!iterator.hooks) {
-                            this.load(iterator).then(() => {
-                                this.resolveModule(iterator);
-                            });
-                        }
-                    }
-                    setTimeout(() => {
-                        this.resolvePendingModules();
-                    }, 1);
-                }, 1);
-            } catch (e) {
-                reject(e);
-            }
+        this.resolveModule(jsModule).catch((e) => {
+            console.error(e);
         });
+
+        jsModule.isLoaded = true;
+        for (const iterator of jsModule.dependencies) {
+            if (!iterator.hooks) {
+                this.load(iterator).then(() => {
+                    this.resolveModule(iterator);
+                });
+            }
+        }
+        this.resolvePendingModules();
     }
 
     public replace(type: any, name: string, mock: boolean): void {

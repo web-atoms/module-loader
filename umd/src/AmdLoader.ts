@@ -26,6 +26,8 @@ class AmdLoader {
 
     public root: Module = null;
 
+    public defaultUrl: string = null;
+
     public currentStack: Module[] = [];
 
     public pendingModules: Module[] = [];
@@ -59,6 +61,7 @@ class AmdLoader {
                 this.map(key, moduleUrl);
             }
         }
+        this.defaultUrl = `${url}/node_modules/`;
     }
 
     public registerModule(name: string, moduleExports: { [key: string]: any }): void {
@@ -254,8 +257,12 @@ class AmdLoader {
 
             module.url = this.resolveSource(name);
             if (!module.url) {
-                if (typeof require === "undefined") {
-                    throw new Error(`No url mapped for ${name}`);
+                if (this.defaultUrl) {
+                    module.url = this.defaultUrl + "/" + packageName;
+                } else {
+                    if (typeof require === "undefined") {
+                        throw new Error(`No url mapped for ${name}`);
+                    }
                 }
             }
             module.require = (n: string) => {

@@ -252,7 +252,8 @@ class AmdLoader {
                         type: "amd",
                         name: packageName,
                         version,
-                        url: this.defaultUrl + packageName
+                        url: this.defaultUrl ?
+                            (this.defaultUrl + packageName) : undefined
                     });
 
             module.url = this.resolveSource(name);

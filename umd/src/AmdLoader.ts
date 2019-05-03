@@ -61,7 +61,7 @@ class AmdLoader {
                 this.map(key, moduleUrl);
             }
         }
-        this.defaultUrl = `${url}/node_modules/`;
+        this.defaultUrl = `${url}/node_modules`;
     }
 
     public registerModule(name: string, moduleExports: { [key: string]: any }): void {
@@ -252,17 +252,13 @@ class AmdLoader {
                         type: "amd",
                         name: packageName,
                         version,
-                        url: undefined
+                        url: this.defaultUrl + packageName
                     });
 
             module.url = this.resolveSource(name);
             if (!module.url) {
-                if (this.defaultUrl) {
-                    module.url = this.defaultUrl + "/" + packageName;
-                } else {
-                    if (typeof require === "undefined") {
-                        throw new Error(`No url mapped for ${name}`);
-                    }
+                if (typeof require === "undefined") {
+                    throw new Error(`No url mapped for ${name}`);
                 }
             }
             module.require = (n: string) => {

@@ -86,14 +86,16 @@ class AmdLoader {
         });
 
         jsModule.isLoaded = true;
-        for (const iterator of jsModule.dependencies) {
-            if (!iterator.hooks) {
-                this.load(iterator).then(() => {
-                    this.resolveModule(iterator);
-                });
+        setTimeout(() => {
+            for (const iterator of jsModule.dependencies) {
+                if (!iterator.hooks) {
+                    this.load(iterator).then(() => {
+                        this.resolveModule(iterator);
+                    });
+                }
             }
-        }
-        this.resolvePendingModules();
+            this.resolvePendingModules();
+        },1);
     }
 
     public replace(type: any, name: string, mock: boolean): void {

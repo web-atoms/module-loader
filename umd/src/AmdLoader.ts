@@ -61,7 +61,7 @@ class AmdLoader {
                 this.map(key, moduleUrl);
             }
         }
-        this.defaultUrl = `${url}/node_modules`;
+        this.defaultUrl = `${url}/node_modules/`;
     }
 
     public registerModule(name: string, moduleExports: { [key: string]: any }): void {

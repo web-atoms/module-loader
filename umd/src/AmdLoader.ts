@@ -91,11 +91,9 @@ class AmdLoader {
         jsModule.isLoaded = true;
         setTimeout(() => {
             for (const iterator of jsModule.dependencies) {
-                if (!iterator.hooks) {
-                    this.load(iterator).then(() => {
-                        this.resolveModule(iterator);
-                    });
-                }
+                this.load(iterator).then(() => {
+                    this.resolveModule(iterator);
+                });
             }
             this.resolvePendingModules();
         },1);

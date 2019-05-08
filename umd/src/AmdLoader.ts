@@ -450,6 +450,7 @@ AmdLoader.moduleProgress = (() => {
     }
 
     const progressDiv: HTMLDivElement = document.createElement("div");
+    progressDiv.className = "web-atoms-progress-div";
     const style: CSSStyleDeclaration = progressDiv.style;
 
     style.position = "absolute";

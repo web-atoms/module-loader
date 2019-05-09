@@ -38,16 +38,15 @@ class Module {
     public async loadDependencies(tree?: Module[]): Promise<void> {
         const i = AmdLoader.instance;
         for (const iterator of this.dependencies) {
-            await i.load(iterator);
-        }
-
-        for (const iterator of this.dependencies) {
             if (iterator.isResolved) {
                 continue;
             }
             if(tree && tree.indexOf(iterator) !== -1) {
                 // already waiting.. so ignore...
                 continue;
+            }
+            if(!iterator.isLoaded) {
+                await i.load(iterator);
             }
             if(!iterator.resolver) {
                 await i.resolveModule(iterator);
@@ -63,23 +62,23 @@ class Module {
         }
     }
 
-    public dependenciesLoaded(list: Module[] = []): boolean {
-        if(list.indexOf(this) === -1) {
-            list.push(this);
-            for (const iterator of this.dependencies) {
-                if (!iterator.isLoaded) {
-                    return false;
-                }
-                if (iterator.isDependentOn(this, [])) {
-                    continue;
-                }
-                if (!iterator.dependenciesLoaded(list)) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+    // public dependenciesLoaded(list: Module[] = []): boolean {
+    //     if(list.indexOf(this) === -1) {
+    //         list.push(this);
+    //         for (const iterator of this.dependencies) {
+    //             if (!iterator.isLoaded) {
+    //                 return false;
+    //             }
+    //             if (iterator.isDependentOn(this, [])) {
+    //                 continue;
+    //             }
+    //             if (!iterator.dependenciesLoaded(list)) {
+    //                 return false;
+    //             }
+    //         }
+    //     }
+    //     return true;
+    // }
 
     public isDependentOn(d: Module, r: Module[]): boolean {
         for (const iterator of this.dependencies) {

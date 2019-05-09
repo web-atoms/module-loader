@@ -62,11 +62,16 @@ class Module {
         await Promise.all(loader);
 
         const resolvers = this.dependencies.map(async (iterator) => {
+            if (tree && tree.indexOf(iterator) !== -1) {
+                return;
+            }
             if (iterator.isResolved) {
                 return;
             }
-            if (iterator.resolver) {
-                await iterator.loadDependencies();
+            if (iterator.resolver && iterator.isDependentOn(this, [])) {
+                const a = tree.slice();
+                a.push(this);
+                await iterator.loadDependencies(a);
                 return;
             }
             await i.resolveModule(iterator);

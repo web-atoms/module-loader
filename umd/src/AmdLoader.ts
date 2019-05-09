@@ -363,6 +363,18 @@ class AmdLoader {
         return module.resolver;
     }
 
+    private async resolveDependentModules(m: Module, d: Module[]): Promise<void> {
+        for (const iterator of m.dependencies) {
+            for (const di of d) {
+                if (!di.isDependentOn(m, [])) {
+                    await this.resolveModule(iterator);
+                    continue;
+                }
+                await this.resolveDependentModules(di, [... d, iterator]);
+            }
+        }
+    }
+
     private async _resolveModule(module: Module): Promise<any> {
 
         if (!this.root) {
@@ -378,8 +390,10 @@ class AmdLoader {
             if (!iterator.resolver) {
                 await this.resolveModule(iterator);
             } else {
-                if (!iterator.isDependentOn(module, [])) {
-                    await this.resolveModule(iterator);
+                if (iterator.isDependentOn(module, [])) {
+                    await this.resolveDependentModules(iterator, [module]);
+                } else {
+                    await this.resolveModule(iterator);                    
                 }
             }
         }

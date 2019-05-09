@@ -89,7 +89,7 @@ class AmdLoader {
             this.resolveModule(jsModule).catch((e) => {
                 console.error(e);
             });
-            this.resolvePendingModules();
+            this.queueResolveModules();
         },1);
     }
 
@@ -301,7 +301,17 @@ class AmdLoader {
                     module.isLoaded = true;
 
                     setTimeout(() => {
-                        this.resolvePendingModules();
+
+                        // load dependencies...
+                        for (const iterator of module.dependencies) {
+                            this.load(iterator).catch((e) => {
+                                console.error(e);
+                            }).then(() => {
+                                this.queueResolveModules();
+                            });
+                        }
+
+                        this.queueResolveModules();
                     }, 1);
                     resolve();
 
@@ -322,11 +332,18 @@ class AmdLoader {
 
     private lastTimeout: any = null;
 
-    private resolvePendingModules(): void {
-
+    private queueResolveModules(): void {
         if (this.lastTimeout) {
             clearTimeout(this.lastTimeout);
+            this.lastTimeout = null;
         }
+        this.lastTimeout = setTimeout(() => {
+            this.resolvePendingModules();
+        }, 200);
+    }
+
+    private resolvePendingModules(): void {
+
         if (!this.pendingModules.length) {
             return;
         }
@@ -345,10 +362,7 @@ class AmdLoader {
         }
 
         if (this.pendingModules.length) {
-            // try again after few seconds..
-            this.lastTimeout = setTimeout(() => {
-                this.resolvePendingModules();
-            }, 200);
+            this.queueResolveModules();
         }
     }
 

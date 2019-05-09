@@ -3,11 +3,12 @@
 // tslint:disable-next-line
 interface IDefine {
     (requiresOrFactory: string[] | (() => void ),
-    factory?: (r: any, e: any) => void): void;
+     factory?: (r: any, e: any) => void): void;
     amd?: object;
 }
 
-var define:IDefine = (
+// tslint:disable-next-line:no-var-keyword
+var define: IDefine = (
     requiresOrFactory: string[] | (() => void ),
     factory: (r: any, e: any) => void): void => {
 

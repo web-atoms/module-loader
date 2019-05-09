@@ -11,7 +11,33 @@ class Module {
     public package: IPackage;
 
     public emptyExports: any = {};
-    hooks: [Function, Function];
+    public hooks: [(... a: any) => void, () => void];
+    public url: string;
+
+    public exports: any;
+
+    public ignoreModule: Module = null;
+
+    public isLoaded: boolean = false;
+
+    public isResolved: boolean = false;
+
+    public require: (name: string) => any;
+
+    public dependencies: Module[] = [];
+
+    public type: "amd" | "global";
+
+    public exportVar: string;
+
+    public factory: (r: any, e: any) => void;
+
+    public loader: Promise<any>;
+
+    /**
+     * This promise can be awaited by dependency resolver
+     */
+    public resolver: Promise<any>;
 
     constructor(
         public readonly name: string,
@@ -24,16 +50,6 @@ class Module {
             this.folder = name.substr(0, index);
         }
     }
-
-    public url: string;
-
-    public exports: any;
-
-    public ignoreModule: Module = null;
-
-    public isLoaded: boolean = false;
-
-    public isResolved: boolean = false;
 
     public async loadDependencies(tree?: Module[]): Promise<void> {
         const i = AmdLoader.instance;
@@ -49,16 +65,23 @@ class Module {
             if (iterator.isResolved) {
                 return;
             }
-            if(tree && tree.indexOf(iterator) !== -1) {
+            if (tree && tree.indexOf(iterator) !== -1) {
                 // already waiting.. so ignore...
                 return;
             }
-            if(!iterator.resolver) {
+            if (!iterator.resolver) {
                 await i.resolveModule(iterator);
             } else {
                 if (!iterator.isDependentOn(this, [])) {
                     await i.resolveModule(iterator);
                 } else {
+
+                    // resolve but do not wait...
+                    i.resolveModule(iterator).catch((e) => {
+                        // tslint:disable-next-line:no-console
+                        console.error(e);
+                    });
+
                     const a = tree ? tree.slice() : [];
                     a.push(this);
                     await iterator.loadDependencies(a);
@@ -115,8 +138,6 @@ class Module {
         this.dependencies.push(d);
     }
 
-    private isExporting: boolean = false;
-
     public getExports(): any {
         if (this.exports) {
             return this.exports;
@@ -143,22 +164,5 @@ class Module {
         }
         return this.exports;
     }
-
-    public require: (name: string) => any;
-
-    public dependencies: Module[] = [];
-
-    public type: "amd" | "global";
-
-    public exportVar: string;
-
-    public factory: (r: any, e: any) => void;
-
-    public loader: Promise<any>;
-
-    /**
-     * This promise can be awaited by dependency resolver
-     */
-    public resolver: Promise<any>;
 
 }

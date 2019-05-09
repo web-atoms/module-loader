@@ -86,10 +86,12 @@ class UMDClass {
                     const element: HTMLElement = document.getElementById(id);
                     element.appendChild(view.element);
                 } catch (e) {
+                    // tslint:disable-next-line:no-console
                     console.error(e);
                 }
             });
             } catch (e) {
+            // tslint:disable-next-line:no-console
             console.error(e);
         }
     }
@@ -106,11 +108,11 @@ class UMDClass {
                 const view: any = new (viewClass.default)(app);
                 app.root = view;
             } catch (e) {
+                // tslint:disable-next-line:no-console
                 console.error(e);
             }
         });
     }
-
 
 }
 

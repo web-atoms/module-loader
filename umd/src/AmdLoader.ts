@@ -11,14 +11,12 @@ if (typeof require !== "undefined") {
 
 class AmdLoader {
 
-
-    private mockTypes: MockType[] = [];
-
     public static globalVar: any = {};
 
     public static moduleProgress: (name: string, modules: {[key: string]: Module}, status: "done" | "loading") => void;
 
-    public static moduleLoader: (packageName: string, url: string, success: () => void, failed: (error: any) => void) => void;
+    public static moduleLoader:
+        (packageName: string, url: string, success: () => void, failed: (error: any) => void) => void;
 
     public static instance: AmdLoader = new AmdLoader();
 
@@ -32,6 +30,8 @@ class AmdLoader {
 
     public pendingModules: Module[] = [];
 
+    public resolverStack: Module[] = [];
+
     // only useful in node environment
     public nodeModules: Module[] = [];
 
@@ -39,7 +39,13 @@ class AmdLoader {
 
     public pathMap: { [key: string]: IPackage } = {};
 
-    enableMock: boolean;
+    public enableMock: boolean;
+
+    public define: any;
+
+    private mockTypes: MockType[] = [];
+
+    private lastTimeout: any = null;
 
     public register(
         packages: string[],
@@ -73,6 +79,7 @@ class AmdLoader {
 
     public setup(name: string): void {
         const jsModule: Module = this.get(name);
+        // tslint:disable-next-line:ban-types
         const define: Function = this.define;
         jsModule.loader = Promise.resolve();
         AmdLoader.current = jsModule;
@@ -87,23 +94,24 @@ class AmdLoader {
         jsModule.isLoaded = true;
         setTimeout(() => {
             this.resolveModule(jsModule).catch((e) => {
+                // tslint:disable-next-line:no-console
                 console.error(e);
             });
             this.queueResolveModules();
-        },1);
+        }, 1);
     }
 
     public replace(type: any, name: string, mock: boolean): void {
         if (mock && !this.enableMock) {
             return;
         }
-        const peek: Module = this.currentStack.length ? this.currentStack[this.currentStack.length-1] : undefined;
+        const peek: Module = this.currentStack.length ? this.currentStack[this.currentStack.length - 1] : undefined;
         const rt: MockType = new MockType(peek, type, name, mock);
         this.mockTypes.push(rt);
     }
 
     public resolveType(type: any): any {
-        const t: MockType = this.mockTypes.find((t) => t.type === type);
+        const t: MockType = this.mockTypes.find((tx) => tx.type === type);
         return t ? t.replaced : type;
     }
 
@@ -126,7 +134,7 @@ class AmdLoader {
         existing = {
             name: packageName,
             url: packageUrl,
-            type: type,
+            type,
             exportVar,
             version: ""
         };
@@ -159,7 +167,7 @@ class AmdLoader {
                             return path;
                         }
                         if (path.endsWith("/")) {
-                            path = path.substr(0, path.length-1);
+                            path = path.substr(0, path.length - 1);
                         }
                         path = path + "/" + name;
                         if (defExt && !path.endsWith(defExt)) {
@@ -170,8 +178,10 @@ class AmdLoader {
                 }
             }
             return name;
-        } catch(e) {
+        } catch (e) {
+            // tslint:disable-next-line:no-console
             console.error(`Failed to resolve ${name} with error ${JSON.stringify(e)}`);
+            // tslint:disable-next-line:no-console
             console.error(e);
         }
     }
@@ -188,8 +198,8 @@ class AmdLoader {
 
         currentTokens.pop();
 
-        while(tokens.length) {
-            const first:string = tokens[0];
+        while (tokens.length) {
+            const first: string = tokens[0];
             if (first === "..") {
                 currentTokens.pop();
                 tokens.splice(0, 1);
@@ -209,7 +219,7 @@ class AmdLoader {
         version: string,
         name: string
     }) {
-        let [scope, packageName, path] = name.split("/",3);
+        let [scope, packageName] = name.split("/", 3);
         let version: string = "";
         if (scope[0] !== "@") {
             packageName = scope;
@@ -219,7 +229,7 @@ class AmdLoader {
         }
 
         const versionTokens: string[] = packageName.split("@");
-        if (versionTokens.length>1) {
+        if (versionTokens.length > 1) {
             // remove version and map it..
             version = versionTokens[1];
             name = name.replace("@" + version, "");
@@ -275,7 +285,7 @@ class AmdLoader {
 
     public load(module: Module): Promise<any> {
 
-        if(module.loader) {
+        if (module.loader) {
             return module.loader;
         }
         this.pendingModules.push(module);
@@ -285,7 +295,7 @@ class AmdLoader {
 
                 try {
                     AmdLoader.current = module;
-                    if(AmdLoader.instance.define) {
+                    if (AmdLoader.instance.define) {
                         AmdLoader.instance.define();
                         AmdLoader.instance.define = null;
                     }
@@ -305,9 +315,11 @@ class AmdLoader {
                         // load dependencies...
                         for (const iterator of module.dependencies) {
                             this.load(iterator).catch((e) => {
+                                // tslint:disable-next-line:no-console
                                 console.error(e);
                             }).then(() => {
                                 this.resolveModule(iterator).catch((e) => {
+                                    // tslint:disable-next-line:no-console
                                     console.error(e);
                                 });
                                 this.queueResolveModules();
@@ -331,9 +343,13 @@ class AmdLoader {
         return module.loader;
     }
 
-    define: any;
-
-    private lastTimeout: any = null;
+    public resolveModule(module: Module): Promise<any> {
+        if (module.resolver) {
+            return module.resolver;
+        }
+        module.resolver = this._resolveModule(module);
+        return module.resolver;
+    }
 
     private queueResolveModules(): void {
         if (this.lastTimeout) {
@@ -361,20 +377,12 @@ class AmdLoader {
             }
         }
         if (done.length) {
-            this.pendingModules = this.pendingModules.filter((x) => !done.find(a => a === x) );
+            this.pendingModules = this.pendingModules.filter((x) => !done.find((a1) => a1 === x) );
         }
 
         if (this.pendingModules.length) {
             this.queueResolveModules();
         }
-    }
-
-    public resolveModule(module: Module): Promise<any> {
-        if (module.resolver) {
-            return module.resolver;
-        }
-        module.resolver = this._resolveModule(module);
-        return module.resolver;
     }
 
     private async _resolveModule(module: Module): Promise<any> {
@@ -416,10 +424,8 @@ class AmdLoader {
             this.root = null;
             AmdLoader.moduleProgress(null, this.modules, "done");
         }
-
         return exports;
     }
-
 
 }
 
@@ -448,6 +454,7 @@ AmdLoader.moduleProgress = (() => {
 
     if (!document) {
         return (name, p) => {
+            // tslint:disable-next-line:no-console
             console.log(`${name} ${p}%`);
         };
     }

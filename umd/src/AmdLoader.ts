@@ -375,10 +375,10 @@ class AmdLoader {
         }
 
         for (const iterator of module.dependencies) {
-            if (!iterator.isDependentOn(module,[])) {
+            if (!iterator.resolver) {
                 await this.resolveModule(iterator);
             } else {
-                if (!iterator.resolver) {
+                if (!iterator.isDependentOn(module, [])) {
                     await this.resolveModule(iterator);
                 }
             }

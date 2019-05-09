@@ -61,15 +61,12 @@ class Module {
 
         await Promise.all(loader);
 
-        tree = tree || [];
-        tree.push(this);
-
         const resolvers = this.dependencies.map(async (iterator) => {
             if (iterator.isResolved) {
                 return;
             }
-            if (tree && tree.indexOf(iterator) !== -1) {
-                // already waiting.. so ignore...
+            if (iterator.resolver) {
+                await iterator.loadDependencies();
                 return;
             }
             await i.resolveModule(iterator);

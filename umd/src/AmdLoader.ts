@@ -403,7 +403,7 @@ class AmdLoader {
             for (const iterator of pendingList) {
                 iterator.loaded = true;
             }
-            for (const iterator of pendingList) {
+            const tasks = pendingList.map(async (iterator) => {
                 const containerModule: Module = iterator.module;
                 const resolvedName: string = this.resolveRelativePath(iterator.moduleName, containerModule.name);
                 const im: Module = this.get(resolvedName);
@@ -415,7 +415,8 @@ class AmdLoader {
                 console.log(`Loading ${resolvedName} for ${module.name} Success`);
                 const type: any = ex[iterator.exportName];
                 iterator.replaced = type;
-            }
+            });
+            await Promise.all(tasks);
         }
 
         const setHooks: Promise<void> = new Promise((resolve, reject) => {

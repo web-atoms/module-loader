@@ -380,6 +380,11 @@ class AmdLoader {
             await this.load(iterator);
             if (!iterator.isDependentOn(module, [])) {
                 await this.resolveModule(iterator);
+            } else {
+                // do not await.. but initiate resolver...
+                this.resolveModule(iterator).catch((e) => {
+                    console.error(e);
+                });
             }
         }
 

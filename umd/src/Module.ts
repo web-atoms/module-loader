@@ -38,6 +38,9 @@ class Module {
     public async loadDependencies(tree?: Module[]): Promise<void> {
         const i = AmdLoader.instance;
         for (const iterator of this.dependencies) {
+            if (iterator.isLoaded) {
+                continue;
+            }
             await i.load(iterator);
         }
 

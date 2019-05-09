@@ -17,6 +17,8 @@ declare class Module {
     exports: any;
     ignoreModule: Module;
     isLoaded: boolean;
+    isResolved: boolean;
+    loadDependencies(tree?: Module[]): Promise<void>;
     dependenciesLoaded(list?: Module[]): boolean;
     isDependentOn(d: Module, r: Module[]): boolean;
     addDependency(d: Module): void;
@@ -45,6 +47,7 @@ declare class AmdLoader {
     static instance: AmdLoader;
     static current: Module;
     root: Module;
+    defaultUrl: string;
     currentStack: Module[];
     pendingModules: Module[];
     nodeModules: Module[];
@@ -56,6 +59,7 @@ declare class AmdLoader {
     };
     enableMock: boolean;
     register(packages: string[], modules: string[]): void;
+    setupRoot(root: string, url: string): void;
     registerModule(name: string, moduleExports: {
         [key: string]: any;
     }): void;
@@ -74,8 +78,9 @@ declare class AmdLoader {
     import(name: string): Promise<any>;
     load(module: Module): Promise<any>;
     define: any;
+    private lastTimeout;
     private resolvePendingModules;
-    private resolveModule;
+    resolveModule(module: Module): Promise<any>;
     private _resolveModule;
 }
 declare const a: AmdLoader;
@@ -104,6 +109,7 @@ declare class UMDClass {
     resolveViewPath(path: string): string;
     resolveType(type: any): any;
     map(name: string, path: string, type?: ("amd" | "global"), exportVar?: string): void;
+    setupRoot(name: string, url: string): void;
     mockType(type: any, name: string): void;
     inject(type: any, name: string): void;
     resolveViewClassAsync(path: string): Promise<any>;

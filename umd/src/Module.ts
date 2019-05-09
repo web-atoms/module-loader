@@ -44,6 +44,9 @@ class Module {
         tree = tree || [this];
 
         for (const iterator of this.dependencies) {
+            if (iterator.isResolved) {
+                continue;
+            }
             if(tree.indexOf(iterator) !== -1) {
                 // already waiting.. so ignore...
                 continue;

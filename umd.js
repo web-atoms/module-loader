@@ -1,14 +1,3 @@
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -43,6 +32,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
+};
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
 };
 // @ts-ignore
 (function (global, factory) {
@@ -378,6 +378,7 @@ var Module = /** @class */ (function () {
         this.emptyExports = {};
         this.ignoreModule = null;
         this.isLoaded = false;
+        this.isResolved = false;
         this.isExporting = false;
         this.dependencies = [];
         var index = name.lastIndexOf("/");
@@ -388,6 +389,56 @@ var Module = /** @class */ (function () {
             this.folder = name.substr(0, index);
         }
     }
+    Module.prototype.loadDependencies = function (tree) {
+        return __awaiter(this, void 0, void 0, function () {
+            var i, _i, _a, iterator, _b, _c, iterator;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
+                    case 0:
+                        i = AmdLoader.instance;
+                        _i = 0, _a = this.dependencies;
+                        _d.label = 1;
+                    case 1:
+                        if (!(_i < _a.length)) return [3 /*break*/, 4];
+                        iterator = _a[_i];
+                        return [4 /*yield*/, i.load(iterator)];
+                    case 2:
+                        _d.sent();
+                        _d.label = 3;
+                    case 3:
+                        _i++;
+                        return [3 /*break*/, 1];
+                    case 4:
+                        tree = tree || [this];
+                        _b = 0, _c = this.dependencies;
+                        _d.label = 5;
+                    case 5:
+                        if (!(_b < _c.length)) return [3 /*break*/, 10];
+                        iterator = _c[_b];
+                        if (iterator.isResolved) {
+                            return [3 /*break*/, 9];
+                        }
+                        if (tree.indexOf(iterator) !== -1) {
+                            // already waiting.. so ignore...
+                            return [3 /*break*/, 9];
+                        }
+                        if (!!iterator.resolver) return [3 /*break*/, 7];
+                        return [4 /*yield*/, i.resolveModule(iterator)];
+                    case 6:
+                        _d.sent();
+                        return [3 /*break*/, 9];
+                    case 7: return [4 /*yield*/, iterator.loadDependencies(tree.concat([this]))];
+                    case 8:
+                        _d.sent();
+                        _d.label = 9;
+                    case 9:
+                        _b++;
+                        return [3 /*break*/, 5];
+                    case 10: return [2 /*return*/];
+                }
+            });
+        });
+    };
     // public resolve(resolve?: (r: any) => void, reject?: (e: any) => void): void {
     //     if (this.dependencies && this.dependencies.length) {
     //         aPromise.all(this.dependencies
@@ -416,6 +467,9 @@ var Module = /** @class */ (function () {
                 var iterator = _a[_i];
                 if (!iterator.isLoaded) {
                     return false;
+                }
+                if (iterator.isDependentOn(this, [])) {
+                    continue;
                 }
                 if (!iterator.dependenciesLoaded(list)) {
                     return false;
@@ -493,12 +547,14 @@ var AmdLoader = /** @class */ (function () {
     function AmdLoader() {
         this.mockTypes = [];
         this.root = null;
+        this.defaultUrl = null;
         this.currentStack = [];
         this.pendingModules = [];
         // only useful in node environment
         this.nodeModules = [];
         this.modules = {};
         this.pathMap = {};
+        this.lastTimeout = null;
     }
     AmdLoader.prototype.register = function (packages, modules) {
         for (var _i = 0, packages_1 = packages; _i < packages_1.length; _i++) {
@@ -512,6 +568,15 @@ var AmdLoader = /** @class */ (function () {
             this.get(iterator);
         }
     };
+    AmdLoader.prototype.setupRoot = function (root, url) {
+        for (var key in this.pathMap) {
+            if (this.pathMap.hasOwnProperty(key)) {
+                var moduleUrl = key === root ? url : url + "/node_modules/" + key;
+                this.map(key, moduleUrl);
+            }
+        }
+        this.defaultUrl = url + "/node_modules/";
+    };
     AmdLoader.prototype.registerModule = function (name, moduleExports) {
         var m = this.get(name);
         m.package.url = "/";
@@ -522,25 +587,22 @@ var AmdLoader = /** @class */ (function () {
         var _this = this;
         var jsModule = this.get(name);
         var define = this.define;
-        jsModule.loader = new Promise(function (resolve, reject) {
-            setTimeout(function () {
-                try {
-                    AmdLoader.current = jsModule;
-                    if (define) {
-                        define();
-                    }
-                    if (jsModule.exportVar) {
-                        jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
-                    }
-                    jsModule.isLoaded = true;
-                    resolve();
-                    _this.resolvePendingModules();
-                }
-                catch (e) {
-                    reject(e);
-                }
-            }, 1);
-        });
+        jsModule.loader = Promise.resolve();
+        AmdLoader.current = jsModule;
+        if (define) {
+            define();
+        }
+        if (jsModule.exportVar) {
+            jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
+        }
+        this.pendingModules.push(jsModule);
+        jsModule.isLoaded = true;
+        setTimeout(function () {
+            _this.resolveModule(jsModule).catch(function (e) {
+                console.error(e);
+            });
+            _this.resolvePendingModules();
+        }, 1);
     };
     AmdLoader.prototype.replace = function (type, name, mock) {
         if (mock && !this.enableMock) {
@@ -670,7 +732,8 @@ var AmdLoader = /** @class */ (function () {
                     type: "amd",
                     name: packageName,
                     version: version,
-                    url: undefined
+                    url: this.defaultUrl ?
+                        (this.defaultUrl + packageName) : undefined
                 });
             module.url = this.resolveSource(name_1);
             if (!module.url) {
@@ -726,23 +789,11 @@ var AmdLoader = /** @class */ (function () {
                     if (AmdLoader.moduleProgress) {
                         AmdLoader.moduleProgress(module.name, _this.modules, "loading");
                     }
-                    resolve();
                     module.isLoaded = true;
-                    var _loop_2 = function (iterator) {
-                        if (!iterator.hooks) {
-                            _this.load(iterator).then(function () {
-                                _this.resolveModule(iterator);
-                            });
-                        }
-                    };
-                    // load dependencies...
-                    for (var _i = 0, _a = module.dependencies; _i < _a.length; _i++) {
-                        var iterator = _a[_i];
-                        _loop_2(iterator);
-                    }
                     setTimeout(function () {
                         _this.resolvePendingModules();
                     }, 1);
+                    resolve();
                 }
                 catch (e) {
                     reject(e);
@@ -754,6 +805,13 @@ var AmdLoader = /** @class */ (function () {
         return module.loader;
     };
     AmdLoader.prototype.resolvePendingModules = function () {
+        var _this = this;
+        if (this.lastTimeout) {
+            clearTimeout(this.lastTimeout);
+        }
+        if (!this.pendingModules.length) {
+            return;
+        }
         var done = [];
         for (var _i = 0, _a = this.pendingModules; _i < _a.length; _i++) {
             var iterator = _a[_i];
@@ -761,12 +819,20 @@ var AmdLoader = /** @class */ (function () {
                 if (!iterator.dependenciesLoaded()) {
                     continue;
                 }
-                iterator.hooks[0](iterator.getExports());
-                done.push(iterator);
+                if (iterator.isResolved) {
+                    iterator.hooks[0](iterator.getExports());
+                    done.push(iterator);
+                }
             }
         }
         if (done.length) {
             this.pendingModules = this.pendingModules.filter(function (x) { return !done.find(function (a) { return a === x; }); });
+        }
+        if (this.pendingModules.length) {
+            // try again after few seconds..
+            this.lastTimeout = setTimeout(function () {
+                _this.resolvePendingModules();
+            }, 200);
         }
     };
     AmdLoader.prototype.resolveModule = function (module) {
@@ -781,16 +847,16 @@ var AmdLoader = /** @class */ (function () {
             var exports, pendingList, _i, pendingList_1, iterator, _a, pendingList_2, iterator, containerModule, resolvedName, im, ex, type;
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, new Promise(function (resolve, reject) {
-                            module.hooks = [resolve, reject];
-                        })];
-                    case 1:
-                        _b.sent();
+                    case 0:
                         if (!this.root) {
                             this.root = module;
                         }
+                        // make sure all dependencies are loaded and resolved
+                        return [4 /*yield*/, module.loadDependencies()];
+                    case 1:
+                        // make sure all dependencies are loaded and resolved
+                        _b.sent();
                         exports = module.getExports();
-                        module.isLoaded = false;
                         pendingList = this.mockTypes.filter(function (t) { return !t.loaded; });
                         if (!pendingList.length) return [3 /*break*/, 5];
                         for (_i = 0, pendingList_1 = pendingList; _i < pendingList_1.length; _i++) {
@@ -816,7 +882,12 @@ var AmdLoader = /** @class */ (function () {
                         _a++;
                         return [3 /*break*/, 2];
                     case 5:
-                        module.isLoaded = true;
+                        module.isResolved = true;
+                        return [4 /*yield*/, new Promise(function (resolve, reject) {
+                                module.hooks = [resolve, reject];
+                            })];
+                    case 6:
+                        _b.sent();
                         if (this.root === module) {
                             this.root = null;
                             AmdLoader.moduleProgress(null, this.modules, "done");
@@ -856,6 +927,7 @@ AmdLoader.moduleProgress = (function () {
         };
     }
     var progressDiv = document.createElement("div");
+    progressDiv.className = "web-atoms-progress-div";
     var style = progressDiv.style;
     style.position = "absolute";
     style.margin = "auto";
@@ -1003,6 +1075,9 @@ var UMDClass = /** @class */ (function () {
     UMDClass.prototype.map = function (name, path, type, exportVar) {
         if (type === void 0) { type = "amd"; }
         AmdLoader.instance.map(name, path, type, exportVar);
+    };
+    UMDClass.prototype.setupRoot = function (name, url) {
+        AmdLoader.instance.setupRoot(name, url);
     };
     UMDClass.prototype.mockType = function (type, name) {
         AmdLoader.instance.replace(type, name, true);

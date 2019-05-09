@@ -45,7 +45,7 @@ class Module {
             if (iterator.isResolved) {
                 continue;
             }
-            if(tree.indexOf(iterator) !== -1) {
+            if(tree && tree.indexOf(iterator) !== -1) {
                 // already waiting.. so ignore...
                 continue;
             }

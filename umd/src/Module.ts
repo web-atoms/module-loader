@@ -33,6 +33,8 @@ class Module {
 
     public isLoaded: boolean = false;
 
+    public isResolved: boolean = false;
+
     // public resolve(resolve?: (r: any) => void, reject?: (e: any) => void): void {
 
     //     if (this.dependencies && this.dependencies.length) {

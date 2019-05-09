@@ -304,8 +304,6 @@ class AmdLoader {
                         AmdLoader.moduleProgress(module.name, this.modules , "loading");
                     }
 
-                    resolve();
-
                     module.isLoaded = true;
 
                     // load dependencies...
@@ -320,6 +318,7 @@ class AmdLoader {
                     setTimeout(() => {
                         this.resolvePendingModules();
                     }, 1);
+                    resolve();
 
                 } catch (e) {
                     reject(e);
@@ -353,8 +352,10 @@ class AmdLoader {
                 if (!iterator.dependenciesLoaded()) {
                     continue;
                 }
-                iterator.hooks[0](iterator.getExports());
-                done.push(iterator);
+                if (iterator.isResolved) {
+                    iterator.hooks[0](iterator.getExports());
+                    done.push(iterator);
+                }
             }
         }
         if (done.length) {
@@ -378,10 +379,6 @@ class AmdLoader {
     }
 
     private async _resolveModule(module: Module): Promise<any> {
-
-        await new Promise((resolve, reject) => {
-            module.hooks = [resolve, reject];
-        });
 
         if (!this.root) {
             this.root = module;
@@ -408,7 +405,12 @@ class AmdLoader {
             }
         }
         module.isLoaded = true;
+        module.isResolved = true;
 
+        await new Promise((resolve, reject) => {
+            module.hooks = [resolve, reject];
+        });
+        
         if (this.root === module) {
             this.root = null;
             AmdLoader.moduleProgress(null, this.modules, "done");

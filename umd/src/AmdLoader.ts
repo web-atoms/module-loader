@@ -365,12 +365,15 @@ class AmdLoader {
 
     private async resolveDependentModules(m: Module, d: Module[]): Promise<void> {
         for (const iterator of m.dependencies) {
+            let isDependent = false;
             for (const di of d) {
-                if (!di.isDependentOn(m, [])) {
-                    await this.resolveModule(iterator);
-                    continue;
+                if (di.isDependentOn(m, [])) {
+                    await this.resolveDependentModules(iterator, [... d, di]);
+                    isDependent = true;
                 }
-                await this.resolveDependentModules(di, [... d, iterator]);
+            }
+            if (!isDependent) {
+                await this.resolveModule(iterator);
             }
         }
     }

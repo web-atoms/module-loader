@@ -378,13 +378,15 @@ class AmdLoader {
         // make sure all dependencies are loaded and resolved
         for (const iterator of module.dependencies) {
             await this.load(iterator);
-            if (!iterator.isDependentOn(module, [])) {
+        }
+
+        for (const iterator of module.dependencies) {
+            if (!iterator.isDependentOn(module,[])) {
                 await this.resolveModule(iterator);
             } else {
-                // do not await.. but initiate resolver...
-                this.resolveModule(iterator).catch((e) => {
-                    console.error(e);
-                });
+                if (!iterator.resolver) {
+                    await this.resolveModule(iterator);
+                }
             }
         }
 

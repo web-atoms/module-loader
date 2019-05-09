@@ -61,6 +61,9 @@ class Module {
 
         await Promise.all(loader);
 
+        tree = tree || [];
+        tree.push(this);
+
         const resolvers = this.dependencies.map(async (iterator) => {
             if (iterator.isResolved) {
                 return;
@@ -69,24 +72,7 @@ class Module {
                 // already waiting.. so ignore...
                 return;
             }
-            if (!iterator.resolver) {
-                await i.resolveModule(iterator);
-            } else {
-                if (!iterator.isDependentOn(this, [])) {
-                    await i.resolveModule(iterator);
-                } else {
-
-                    // resolve but do not wait...
-                    i.resolveModule(iterator).catch((e) => {
-                        // tslint:disable-next-line:no-console
-                        console.error(e);
-                    });
-
-                    const a = tree ? tree.slice() : [];
-                    a.push(this);
-                    await iterator.loadDependencies(a);
-                }
-            }
+            await i.resolveModule(iterator);
         });
 
         await Promise.all(resolvers);

@@ -303,10 +303,13 @@ class AmdLoader {
                     setTimeout(() => {
 
                         // load dependencies...
-                        for (const iterator of module.dependencies.filter((m) => !m.isLoaded)) {
+                        for (const iterator of module.dependencies) {
                             this.load(iterator).catch((e) => {
                                 console.error(e);
                             }).then(() => {
+                                this.resolveModule(iterator).catch((e) => {
+                                    console.error(e);
+                                });
                                 this.queueResolveModules();
                             });
                         }

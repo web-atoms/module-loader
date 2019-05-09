@@ -69,7 +69,7 @@ class Module {
                 return;
             }
             if (iterator.resolver && iterator.isDependentOn(this, [])) {
-                const a = tree.slice();
+                const a = tree ? tree.slice() : [];
                 a.push(this);
                 await iterator.loadDependencies(a);
                 return;

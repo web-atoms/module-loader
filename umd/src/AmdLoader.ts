@@ -375,9 +375,10 @@ class AmdLoader {
             this.root = module;
         }
 
-        // make sure all dependencies are loaded
+        // make sure all dependencies are loaded and resolved
         for (const iterator of module.dependencies) {
             await this.load(iterator);
+            await this.resolveModule(iterator);
         }
 
         // tslint:disable-next-line:typedef

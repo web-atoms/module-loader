@@ -334,9 +334,6 @@ class AmdLoader {
         const done: Module[] = [];
         for (const iterator of this.pendingModules) {
             if (iterator.isLoaded) {
-                if (!iterator.dependenciesLoaded()) {
-                    continue;
-                }
                 if (iterator.isResolved) {
                     iterator.hooks[0](iterator.getExports());
                     done.push(iterator);

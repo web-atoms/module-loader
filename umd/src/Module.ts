@@ -41,8 +41,6 @@ class Module {
             await i.load(iterator);
         }
 
-        tree = tree || [this];
-
         for (const iterator of this.dependencies) {
             if (iterator.isResolved) {
                 continue;
@@ -54,33 +52,16 @@ class Module {
             if(!iterator.resolver) {
                 await i.resolveModule(iterator);
             } else {
-                await iterator.loadDependencies([...tree, this]);
+                if (!iterator.isDependentOn(this, [])) {
+                    await i.resolveModule(iterator);
+                } else {
+                    const a = tree ? tree.slice() : [];
+                    a.push(this);
+                    await iterator.loadDependencies(a);
+                }
             }
         }
     }
-
-    // public resolve(resolve?: (r: any) => void, reject?: (e: any) => void): void {
-
-    //     if (this.dependencies && this.dependencies.length) {
-    //         aPromise.all(this.dependencies
-    //             .map(async x => {
-    //                 // if (!x.isDependentOn(this, [x])) {
-    //                 //     await AmdLoader.instance.import(x.name);
-    //                 // } else {
-    //                     await AmdLoader.instance.load(x);
-    //                 // }
-    //             }))
-    //             .then(() => {
-    //                 setTimeout(() => {
-    //                     resolve(this.getExports());
-    //                 }, 1);
-    //             })
-    //             .catch(reject);
-    //     } else {
-    //         resolve(this.getExports());
-    //     }
-
-    // }
 
     public dependenciesLoaded(list: Module[] = []): boolean {
         if(list.indexOf(this) === -1) {

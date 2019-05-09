@@ -408,7 +408,11 @@ class AmdLoader {
                 const resolvedName: string = this.resolveRelativePath(iterator.moduleName, containerModule.name);
                 const im: Module = this.get(resolvedName);
                 im.ignoreModule = module;
+                // tslint:disable-next-line:no-console
+                console.log(`Loading ${resolvedName} for ${module.name}`);
                 const ex: any = await this.import(resolvedName);
+                // tslint:disable-next-line:no-console
+                console.log(`Loading ${resolvedName} for ${module.name} Success`);
                 const type: any = ex[iterator.exportName];
                 iterator.replaced = type;
             }

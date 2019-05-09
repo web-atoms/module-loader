@@ -84,17 +84,11 @@ class AmdLoader {
         }
         this.pendingModules.push(jsModule);
 
-        this.resolveModule(jsModule).catch((e) => {
-            console.error(e);
-        });
-
         jsModule.isLoaded = true;
         setTimeout(() => {
-            for (const iterator of jsModule.dependencies) {
-                this.load(iterator).then(() => {
-                    this.resolveModule(iterator);
-                });
-            }
+            this.resolveModule(jsModule).catch((e) => {
+                console.error(e);
+            });
             this.resolvePendingModules();
         },1);
     }

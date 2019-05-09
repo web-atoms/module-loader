@@ -306,15 +306,6 @@ class AmdLoader {
 
                     module.isLoaded = true;
 
-                    // load dependencies...
-                    for (const iterator of module.dependencies) {
-                        this.load(iterator).then(() => {
-                            this.resolveModule(iterator).then(() => {
-                                this.resolvePendingModules();
-                            });
-                        });
-                    }
-
                     setTimeout(() => {
                         this.resolvePendingModules();
                     }, 1);
@@ -384,10 +375,14 @@ class AmdLoader {
             this.root = module;
         }
 
+        // make sure all dependencies are loaded
+        for (const iterator of module.dependencies) {
+            await this.load(iterator);
+        }
+
         // tslint:disable-next-line:typedef
         const exports = module.getExports();
 
-        module.isLoaded = false;
         // load requested dependencies for mock or abstract injects
         const pendingList: MockType[] = this.mockTypes.filter((t) => !t.loaded );
         if (pendingList.length) {
@@ -404,7 +399,6 @@ class AmdLoader {
                 iterator.replaced = type;
             }
         }
-        module.isLoaded = true;
         module.isResolved = true;
 
         await new Promise((resolve, reject) => {

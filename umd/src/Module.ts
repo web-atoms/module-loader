@@ -35,6 +35,27 @@ class Module {
 
     public isResolved: boolean = false;
 
+    public async loadDependencies(tree?: Module[]): Promise<void> {
+        const i = AmdLoader.instance;
+        for (const iterator of this.dependencies) {
+            await i.load(iterator);
+        }
+
+        tree = tree || [this];
+
+        for (const iterator of this.dependencies) {
+            if(tree.indexOf(iterator) !== -1) {
+                // already waiting.. so ignore...
+                continue;
+            }
+            if(!iterator.resolver) {
+                await i.resolveModule(iterator);
+            } else {
+                await iterator.loadDependencies([...tree, this]);
+            }
+        }
+    }
+
     // public resolve(resolve?: (r: any) => void, reject?: (e: any) => void): void {
 
     //     if (this.dependencies && this.dependencies.length) {

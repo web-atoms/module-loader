@@ -355,27 +355,12 @@ class AmdLoader {
         }
     }
 
-    private resolveModule(module: Module): Promise<any> {
+    public resolveModule(module: Module): Promise<any> {
         if (module.resolver) {
             return module.resolver;
         }
         module.resolver = this._resolveModule(module);
         return module.resolver;
-    }
-
-    private async resolveDependentModules(m: Module, d: Module[]): Promise<void> {
-        for (const iterator of m.dependencies) {
-            let isDependent = false;
-            for (const di of d) {
-                if (di.isDependentOn(m, [])) {
-                    await this.resolveDependentModules(iterator, [... d, di]);
-                    isDependent = true;
-                }
-            }
-            if (!isDependent) {
-                await this.resolveModule(iterator);
-            }
-        }
     }
 
     private async _resolveModule(module: Module): Promise<any> {
@@ -385,21 +370,7 @@ class AmdLoader {
         }
 
         // make sure all dependencies are loaded and resolved
-        for (const iterator of module.dependencies) {
-            await this.load(iterator);
-        }
-
-        for (const iterator of module.dependencies) {
-            if (!iterator.resolver) {
-                await this.resolveModule(iterator);
-            } else {
-                if (iterator.isDependentOn(module, [])) {
-                    await this.resolveDependentModules(iterator, [module]);
-                } else {
-                    await this.resolveModule(iterator);                    
-                }
-            }
-        }
+        await module.loadDependencies();
 
         // tslint:disable-next-line:typedef
         const exports = module.getExports();

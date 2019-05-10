@@ -59,7 +59,9 @@ class Module {
             }
         });
 
-        await Promise.all(loader);
+        if (loader.length) {
+            await Promise.all(loader);
+        }
 
         const resolvers = this.dependencies.map(async (iterator) => {
             if (tree && tree.indexOf(iterator) !== -1) {
@@ -71,7 +73,9 @@ class Module {
             await i.resolveModule(iterator);
         });
 
-        await Promise.all(resolvers);
+        if (resolvers.length) {
+            await Promise.all(resolvers);
+        }
 
     }
 

@@ -313,19 +313,10 @@ class AmdLoader {
 
                     setTimeout(() => {
 
-                        // load dependencies...
-                        for (const iterator of module.dependencies) {
-                            this.load(iterator).catch((e) => {
-                                // tslint:disable-next-line:no-console
-                                console.error(e);
-                            }).then(() => {
-                                this.resolveModule(iterator).catch((e) => {
-                                    // tslint:disable-next-line:no-console
-                                    console.error(e);
-                                });
-                                this.queueResolveModules();
-                            });
-                        }
+                        this.resolveModule(module).catch((e) => {
+                            // tslint:disable-next-line:no-console
+                            console.error(e);
+                        });
 
                         this.queueResolveModules();
                     }, 1);

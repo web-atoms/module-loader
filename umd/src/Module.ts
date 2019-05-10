@@ -163,10 +163,6 @@ class Module {
     }
 
     public getExports(): any {
-        if (this.exports) {
-            return this.exports;
-        }
-
         this.exports = this.emptyExports;
         if (this.factory) {
             AmdLoader.instance.currentStack.push(this);

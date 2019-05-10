@@ -378,11 +378,9 @@ class AmdLoader {
             this.root = module;
         }
 
-        if (module.dependencies.length) {
-            await new Promise((resolve, reject) => {
-                module.dependencyHooks = [resolve, reject];
-            });
-        }
+        await new Promise((resolve, reject) => {
+            module.dependencyHooks = [resolve, reject];
+        });
 
         // tslint:disable-next-line:typedef
         const exports = module.getExports();

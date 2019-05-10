@@ -359,14 +359,15 @@ class AmdLoader {
             return;
         }
 
-        while (true) {
+        while (this.pendingModules.length) {
             const peek = this.pendingModules[this.pendingModules.length - 1];
             if (peek.isLoaded && peek.isResolved) {
                 this.pendingModules.pop();
                 peek.hooks[0](peek.getExports());
                 continue;
+            } else {
+                break;
             }
-            break;
         }
 
         if (this.pendingModules.length) {

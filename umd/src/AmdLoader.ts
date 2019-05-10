@@ -281,8 +281,6 @@ class AmdLoader {
         const module: Module = this.get(name);
         await this.load(module);
         const e = await this.resolveModule(module);
-        // tslint:disable-next-line:no-console
-        console.log(`Loaded: ${name}`)
         return e;
     }
 
@@ -432,6 +430,9 @@ class AmdLoader {
             this.root = null;
             AmdLoader.moduleProgress(null, this.modules, "done");
         }
+
+        // tslint:disable-next-line:no-console
+        console.info(`Resolved: ${name}`);
         return exports;
     }
 

@@ -71,6 +71,9 @@ class Module {
         a.push(this);
 
         const resolvers = this.dependencies.map(async (iterator) => {
+            if (a.indexOf(iterator) !== -1) {
+                return;
+            }
             await iterator.resolveDependencies(a);
         });
 

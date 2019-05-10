@@ -30,7 +30,7 @@ class AmdLoader {
 
     public pendingModules: Module[] = [];
 
-    public resolverStack: Module[] = [];
+    // public resolverStack: Module[] = [];
 
     // only useful in node environment
     public nodeModules: Module[] = [];
@@ -374,13 +374,14 @@ class AmdLoader {
 
     private async _resolveModule(module: Module): Promise<any> {
 
-        this.resolverStack.push(module);
-
         if (!this.root) {
             this.root = module;
         }
 
-        await module.loadDependencies();
+        const start = [module];
+
+        await Promise.all(
+            module.dependencies.map((m) => m.resolveDependencies(start) ));
 
         // tslint:disable-next-line:typedef
         const exports = module.getExports();

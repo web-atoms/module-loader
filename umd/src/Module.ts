@@ -51,7 +51,7 @@ class Module {
         }
     }
 
-    public async loadDependencies(tree?: Module[]): Promise<void> {
+    public async resolveDependencies(tree: Module[]): Promise<void> {
         const i = AmdLoader.instance;
         const loader = this.dependencies.map(async (m) => {
             if (!m.isLoaded) {
@@ -62,16 +62,15 @@ class Module {
         if (loader.length) {
             await Promise.all(loader);
         }
+
+        if (tree.indexOf(this) === -1) {
+            await i.resolveModule(this);
+        }
+
         const resolvers = this.dependencies.map(async (iterator) => {
-            const index = i.pendingModules.indexOf(this);
-            const itIndex = i.pendingModules.indexOf(iterator);
-            if (itIndex === -1 || itIndex > index) {
-                await i.resolveModule(iterator);
-            } else {
-                if (!iterator.isDependentOn(this, [])) {
-                    await i.resolveModule(iterator);
-                }
-            }
+            const a = tree ? tree : [];
+            a.push(this);
+            await iterator.resolveDependencies(a);
         });
 
         if (resolvers.length) {

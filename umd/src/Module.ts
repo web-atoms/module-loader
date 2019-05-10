@@ -124,6 +124,7 @@ class Module {
                 const index = i.pendingModules.indexOf(this);
                 if (index !== -1) {
                     i.pendingModules.splice(index, 1);
+                    i.queueResolveModules();
                 }
                 return true;
             }

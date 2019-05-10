@@ -64,7 +64,7 @@ class Module {
         }
 
         const resolvers = this.dependencies.map(async (iterator) => {
-            if (tree && tree.indexOf(iterator) !== -1) {
+            if (i.pendingModules.indexOf(iterator) !== -1) {
                 return;
             }
             const a = tree ? tree.slice() : [];

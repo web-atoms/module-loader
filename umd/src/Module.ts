@@ -65,9 +65,6 @@ class Module {
             if (tree && tree.indexOf(iterator) !== -1) {
                 return;
             }
-            if (iterator.isResolved) {
-                return;
-            }
             if (iterator.isDependentOn(this, [])) {
                 const a = tree ? tree.slice() : [];
                 a.push(this);

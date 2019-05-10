@@ -98,11 +98,19 @@ class AmdLoader {
     }
 
     public loadDependencies(m: Module): void {
-        for (const iterator of m.dependencies) {
-            this.import(iterator).catch((e) => {
-                // tslint:disable-next-line:no-console
-                console.error(e);
-            });
+        this.resolveModule(m).catch((e) => {
+            // tslint:disable-next-line:no-console
+            console.error(e);
+        });
+        if (m.dependencies.length) {
+            for (const iterator of m.dependencies) {
+                this.import(iterator).catch((e) => {
+                    // tslint:disable-next-line:no-console
+                    console.error(e);
+                });
+            }
+        } else {
+            m.resolve();
         }
         this.queueResolveModules();
     }

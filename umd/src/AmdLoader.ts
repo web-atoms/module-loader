@@ -381,13 +381,13 @@ class AmdLoader {
 
     private async _resolveModule(module: Module): Promise<any> {
 
+        this.resolverStack.push(module);
+
         if (!this.root) {
             this.root = module;
         }
 
         await module.loadDependencies();
-
-        this.resolverStack.push(module);
 
         // tslint:disable-next-line:typedef
         const exports = module.getExports();

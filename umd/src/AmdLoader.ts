@@ -343,7 +343,7 @@ class AmdLoader {
         return module.resolver;
     }
 
-    private queueResolveModules(): void {
+    public queueResolveModules(): void {
         if (this.lastTimeout) {
             clearTimeout(this.lastTimeout);
             this.lastTimeout = null;
@@ -359,15 +359,12 @@ class AmdLoader {
             return;
         }
 
-        while (this.pendingModules.length) {
-            const peek = this.pendingModules[this.pendingModules.length - 1];
-            if (peek.isLoaded && peek.isResolved) {
-                this.pendingModules.pop();
-                peek.hooks[0](peek.getExports());
-                continue;
-            } else {
-                break;
-            }
+        const modules = this.pendingModules.slice();
+
+        for (let i = modules.length - 1; i >= 0 ; i --) {
+            const peek = modules[i];
+            peek.resolve();
+            break;
         }
 
         if (this.pendingModules.length) {

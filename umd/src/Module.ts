@@ -76,6 +76,30 @@ class Module {
 
     }
 
+    public resolve(): boolean {
+        if (this.isResolved) {
+            if (this.hooks) {
+                this.hooks[0](this.getExports());
+                this.hooks = null;
+
+                const i = AmdLoader.instance;
+
+                const index = i.pendingModules.indexOf(this);
+                if (index !== -1) {
+                    i.pendingModules.splice(index, 1);
+                }
+
+                i.queueResolveModules();
+
+                return true;
+            }
+        }
+
+        for (const iterator of this.dependencies) {
+            iterator.resolve();
+        }
+    }
+
     // public dependenciesLoaded(list: Module[] = []): boolean {
     //     if(list.indexOf(this) === -1) {
     //         list.push(this);

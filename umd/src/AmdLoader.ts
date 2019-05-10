@@ -93,12 +93,18 @@ class AmdLoader {
 
         jsModule.isLoaded = true;
         setTimeout(() => {
-            this.resolveModule(jsModule).catch((e) => {
+            this.loadDependencies(jsModule);
+        }, 1);
+    }
+
+    public loadDependencies(m: Module): void {
+        for (const iterator of m.dependencies) {
+            this.import(iterator).catch((e) => {
                 // tslint:disable-next-line:no-console
                 console.error(e);
             });
-            this.queueResolveModules();
-        }, 1);
+        }
+        this.queueResolveModules();
     }
 
     public replace(type: any, name: string, mock: boolean): void {
@@ -274,11 +280,11 @@ class AmdLoader {
         return module;
     }
 
-    public async import(name: string): Promise<any> {
+    public async import(name: string | Module): Promise<any> {
         if (typeof require !== "undefined") {
             return Promise.resolve(require(name));
         }
-        const module: Module = this.get(name);
+        const module: Module = typeof name === "object" ? name as Module : this.get(name);
         await this.load(module);
         const e = await this.resolveModule(module);
         return e;
@@ -312,13 +318,7 @@ class AmdLoader {
                     module.isLoaded = true;
 
                     setTimeout(() => {
-
-                        this.resolveModule(module).catch((e) => {
-                            // tslint:disable-next-line:no-console
-                            console.error(e);
-                        });
-
-                        this.queueResolveModules();
+                        this.loadDependencies(module);
                     }, 1);
                     resolve();
 

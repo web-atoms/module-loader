@@ -76,8 +76,21 @@ class Module {
 
     }
 
-    public resolve(): boolean {
-        if (this.isResolved) {
+    public resolve(tree?: Module[]): boolean {
+
+        const a = tree ? tree : [];
+        a.push(this);
+
+        for (const iterator of this.dependencies) {
+            if (tree && tree.indexOf(iterator) !== -1) {
+                continue;
+            }
+            if (!iterator.resolve(a)) {
+                return false;
+            }
+        }
+
+        if (this.isLoaded && this.isResolved) {
             if (this.hooks) {
                 this.hooks[0](this.getExports());
                 this.hooks = null;
@@ -95,9 +108,8 @@ class Module {
             }
         }
 
-        for (const iterator of this.dependencies) {
-            iterator.resolve();
-        }
+        return false;
+
     }
 
     // public dependenciesLoaded(list: Module[] = []): boolean {

@@ -169,13 +169,13 @@ class Module {
     }
 
     public getExports(): any {
-        if (this.exports) {
-            return this.exports;
-        }
         this.exports = this.emptyExports;
         if (this.factory) {
+            const factory = this.factory;
+            this.factory = null;
+            delete this.factory;
             AmdLoader.instance.currentStack.push(this);
-            const result: any = this.factory(this.require, this.exports);
+            const result: any = factory(this.require, this.exports);
             if (result) {
                 if (typeof result === "object") {
                     for (const key in result) {

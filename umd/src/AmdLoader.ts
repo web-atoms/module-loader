@@ -359,17 +359,14 @@ class AmdLoader {
             return;
         }
 
-        const done: Module[] = [];
-        for (const iterator of this.pendingModules) {
-            if (iterator.isLoaded) {
-                if (iterator.isResolved) {
-                    iterator.hooks[0](iterator.getExports());
-                    done.push(iterator);
-                }
+        while (true) {
+            const peek = this.pendingModules[this.pendingModules.length - 1];
+            if (peek.isLoaded && peek.isResolved) {
+                peek.hooks[0](peek.getExports());
+                this.pendingModules.pop();
+                continue;
             }
-        }
-        if (done.length) {
-            this.pendingModules = this.pendingModules.filter((x) => !done.find((a1) => a1 === x) );
+            break;
         }
 
         if (this.pendingModules.length) {
@@ -379,14 +376,10 @@ class AmdLoader {
 
     private async _resolveModule(module: Module): Promise<any> {
 
-        // tslint:disable-next-line:no-console
-        console.info(`Resolving: ${module.name}`);
-
         if (!this.root) {
             this.root = module;
         }
 
-        // make sure all dependencies are loaded and resolved
         await module.loadDependencies();
 
         // tslint:disable-next-line:typedef
@@ -403,11 +396,7 @@ class AmdLoader {
                 const resolvedName: string = this.resolveRelativePath(iterator.moduleName, containerModule.name);
                 const im: Module = this.get(resolvedName);
                 im.ignoreModule = module;
-                // tslint:disable-next-line:no-console
-                console.log(`Loading ${resolvedName} for ${module.name}`);
                 const ex: any = await this.import(resolvedName);
-                // tslint:disable-next-line:no-console
-                console.log(`Loading ${resolvedName} for ${module.name} Success`);
                 const type: any = ex[iterator.exportName];
                 iterator.replaced = type;
             });
@@ -425,8 +414,6 @@ class AmdLoader {
             AmdLoader.moduleProgress(null, this.modules, "done");
         }
 
-        // tslint:disable-next-line:no-console
-        console.info(`Resolved: ${module.name}`);
         return exports;
     }
 

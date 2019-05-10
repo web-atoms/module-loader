@@ -362,8 +362,8 @@ class AmdLoader {
         while (true) {
             const peek = this.pendingModules[this.pendingModules.length - 1];
             if (peek.isLoaded && peek.isResolved) {
-                peek.hooks[0](peek.getExports());
                 this.pendingModules.pop();
+                peek.hooks[0](peek.getExports());
                 continue;
             }
             break;

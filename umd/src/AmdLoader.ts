@@ -388,6 +388,9 @@ class AmdLoader {
 
     private async _resolveModule(module: Module): Promise<any> {
 
+        // tslint:disable-next-line:no-console
+        console.info(`Resolving: ${name}`);
+
         if (!this.root) {
             this.root = module;
         }

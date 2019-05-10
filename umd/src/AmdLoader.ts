@@ -383,6 +383,8 @@ class AmdLoader {
 
         await module.loadDependencies();
 
+        this.resolverStack.push(module);
+
         // tslint:disable-next-line:typedef
         const exports = module.getExports();
 
@@ -414,6 +416,9 @@ class AmdLoader {
             this.root = null;
             AmdLoader.moduleProgress(null, this.modules, "done");
         }
+
+        const index = this.resolverStack.indexOf(module);
+        this.resolverStack.splice(index, 1);
 
         return exports;
     }

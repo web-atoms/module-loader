@@ -64,19 +64,10 @@ class Module {
         }
 
         const resolvers = this.dependencies.map(async (iterator) => {
-            if (i.pendingModules.indexOf(iterator) !== -1) {
+            if (i.resolverStack.indexOf(iterator) !== -1) {
                 return;
             }
-            const a = tree ? tree.slice() : [];
-            a.push(this);
-            await iterator.loadDependencies(a);
-            if (!iterator.resolver) {
-                await i.resolveModule(iterator);
-            } else {
-                if (!iterator.isDependentOn(this, [])) {
-                    await i.resolveModule(iterator);
-                }
-            }
+            await i.resolveModule(iterator);
         });
 
         if (resolvers.length) {

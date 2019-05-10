@@ -280,7 +280,10 @@ class AmdLoader {
         }
         const module: Module = this.get(name);
         await this.load(module);
-        return await this.resolveModule(module);
+        const e = await this.resolveModule(module);
+        // tslint:disable-next-line:no-console
+        console.log(`Loaded: ${name}`)
+        return e;
     }
 
     public load(module: Module): Promise<any> {

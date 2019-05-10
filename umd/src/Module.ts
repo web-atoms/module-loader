@@ -70,7 +70,9 @@ class Module {
             const a = tree ? tree.slice() : [];
             a.push(this);
             await iterator.loadDependencies(a);
-            await i.resolveModule(iterator);
+            if (!iterator.resolver) {
+                await i.resolveModule(iterator);
+            }
         });
 
         if (resolvers.length) {

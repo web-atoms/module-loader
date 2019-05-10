@@ -110,7 +110,6 @@ class Module {
                 }
                 return true;
             }
-            i.queueResolveModules();
         }
 
         return false;

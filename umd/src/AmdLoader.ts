@@ -366,7 +366,8 @@ class AmdLoader {
             peek.resolve();
         }
 
-        if (this.pendingModules.length) {
+        // only queue if at lest one module was resolved
+        if (this.pendingModules.length !== modules.length) {
             this.queueResolveModules();
         }
     }

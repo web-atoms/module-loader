@@ -364,7 +364,6 @@ class AmdLoader {
         for (let i = modules.length - 1; i >= 0 ; i --) {
             const peek = modules[i];
             peek.resolve();
-            break;
         }
 
         if (this.pendingModules.length) {

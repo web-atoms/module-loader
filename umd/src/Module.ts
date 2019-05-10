@@ -72,6 +72,10 @@ class Module {
             await iterator.loadDependencies(a);
             if (!iterator.resolver) {
                 await i.resolveModule(iterator);
+            } else {
+                if (!iterator.isDependentOn(this, [])) {
+                    await i.resolveModule(iterator);
+                }
             }
         });
 

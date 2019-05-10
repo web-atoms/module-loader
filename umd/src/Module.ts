@@ -89,6 +89,9 @@ class Module {
 
     public resolve(tree?: Module[]): boolean {
 
+        if (this.isResolved) {
+            return true;
+        }
         const a = tree ? tree : [];
         a.push(this);
 
@@ -105,9 +108,6 @@ class Module {
 
         if (!allResolved) {
             return false;
-        }
-        if (this.isResolved) {
-            return true;
         }
         if (this.isLoaded) {
             const i = AmdLoader.instance;
@@ -126,6 +126,9 @@ class Module {
                     i.pendingModules.splice(index, 1);
                     i.queueResolveModules();
                 }
+                return true;
+            }
+            if (this.isResolved) {
                 return true;
             }
         }

@@ -359,15 +359,11 @@ class AmdLoader {
             return;
         }
 
-        while (this.resolverStack.length) {
-            const peek = this.resolverStack[this.resolverStack.length - 1];
+        while (this.pendingModules.length) {
+            const peek = this.pendingModules[this.pendingModules.length - 1];
             if (peek.isLoaded && peek.isResolved) {
-                this.resolverStack.pop();
+                this.pendingModules.pop();
                 peek.hooks[0](peek.getExports());
-                const i = this.pendingModules.indexOf(peek);
-                if (i !== -1) {
-                    this.pendingModules.splice(i, 1);
-                }
                 continue;
             } else {
                 break;

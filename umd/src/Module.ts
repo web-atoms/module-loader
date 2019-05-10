@@ -62,12 +62,12 @@ class Module {
         if (loader.length) {
             await Promise.all(loader);
         }
-
+        const index = i.pendingModules.indexOf(this);
         const resolvers = this.dependencies.map(async (iterator) => {
-            if (i.resolverStack.indexOf(iterator) !== -1) {
-                return;
+            const itIndex = i.pendingModules.indexOf(iterator);
+            if (itIndex === -1 || itIndex > index) {
+                await i.resolveModule(iterator);
             }
-            await i.resolveModule(iterator);
         });
 
         if (resolvers.length) {

@@ -67,6 +67,10 @@ class Module {
             const itIndex = i.pendingModules.indexOf(iterator);
             if (itIndex === -1 || itIndex > index) {
                 await i.resolveModule(iterator);
+            } else {
+                if (!iterator.isDependentOn(this, [])) {
+                    await i.resolveModule(iterator);
+                }
             }
         });
 

@@ -396,7 +396,7 @@ class AmdLoader {
                 const resolvedName: string = this.resolveRelativePath(iterator.moduleName, containerModule.name);
                 const im: Module = this.get(resolvedName);
                 im.ignoreModule = module;
-                const ex: any = await this.import(resolvedName);
+                const ex: any = await this.import(im);
                 const type: any = ex[iterator.exportName];
                 iterator.replaced = type;
             });

@@ -62,8 +62,8 @@ class Module {
         if (loader.length) {
             await Promise.all(loader);
         }
-        const index = i.pendingModules.indexOf(this);
         const resolvers = this.dependencies.map(async (iterator) => {
+            const index = i.pendingModules.indexOf(this);
             const itIndex = i.pendingModules.indexOf(iterator);
             if (itIndex === -1 || itIndex > index) {
                 await i.resolveModule(iterator);

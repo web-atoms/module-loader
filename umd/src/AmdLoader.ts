@@ -421,9 +421,6 @@ class AmdLoader {
             AmdLoader.moduleProgress(null, this.modules, "done");
         }
 
-        const index = this.resolverStack.indexOf(module);
-        this.resolverStack.splice(index, 1);
-
         return exports;
     }
 

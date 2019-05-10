@@ -406,13 +406,13 @@ class AmdLoader {
         const setHooks: Promise<void> = new Promise((resolve, reject) => {
             module.hooks = [resolve, reject];
         });
-        module.isResolved = true;
         await setHooks;
 
         if (this.root === module) {
             this.root = null;
             AmdLoader.moduleProgress(null, this.modules, "done");
         }
+        module.isResolved = true;
 
         return exports;
     }

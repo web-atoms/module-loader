@@ -95,23 +95,22 @@ class Module {
         if (!allResolved) {
             return false;
         }
-
-        if (this.isLoaded && this.isResolved) {
+        if (this.isResolved) {
+            return true;
+        }
+        if (this.isLoaded) {
+            const i = AmdLoader.instance;
             if (this.hooks) {
                 this.hooks[0](this.getExports());
                 this.hooks = null;
-
-                const i = AmdLoader.instance;
 
                 const index = i.pendingModules.indexOf(this);
                 if (index !== -1) {
                     i.pendingModules.splice(index, 1);
                 }
-
-                i.queueResolveModules();
-
                 return true;
             }
+            i.queueResolveModules();
         }
 
         return false;

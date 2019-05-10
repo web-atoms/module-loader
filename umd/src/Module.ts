@@ -81,13 +81,19 @@ class Module {
         const a = tree ? tree : [];
         a.push(this);
 
+        let allResolved = true;
+
         for (const iterator of this.dependencies) {
             if (tree && tree.indexOf(iterator) !== -1) {
                 continue;
             }
             if (!iterator.resolve(a)) {
-                return false;
+                allResolved = false;
             }
+        }
+
+        if (!allResolved) {
+            return false;
         }
 
         if (this.isLoaded && this.isResolved) {

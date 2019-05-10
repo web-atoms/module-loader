@@ -11,7 +11,11 @@ class Module {
     public package: IPackage;
 
     public emptyExports: any = {};
-    public hooks: [(... a: any) => void, () => void];
+
+    public dependencyHooks: [(...a: any) => void, () => void];
+
+    public resolveHooks: [(... a: any) => void, () => void];
+
     public url: string;
 
     public exports: any;
@@ -107,9 +111,15 @@ class Module {
         }
         if (this.isLoaded) {
             const i = AmdLoader.instance;
-            if (this.hooks) {
-                this.hooks[0](this.getExports());
-                this.hooks = null;
+
+            if (this.dependencyHooks) {
+                this.dependencyHooks[0]();
+                this.dependencyHooks = null;
+            }
+
+            if (this.resolveHooks) {
+                this.resolveHooks[0](this.getExports());
+                this.resolveHooks = null;
 
                 const index = i.pendingModules.indexOf(this);
                 if (index !== -1) {

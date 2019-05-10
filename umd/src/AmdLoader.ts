@@ -367,7 +367,7 @@ class AmdLoader {
         }
 
         // only queue if at lest one module was resolved
-        if (this.pendingModules.length !== modules.length) {
+        if (this.pendingModules.length) {
             this.queueResolveModules();
         }
     }

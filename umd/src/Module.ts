@@ -67,9 +67,10 @@ class Module {
             await i.resolveModule(this);
         }
 
+        const a = tree.slice();
+        a.push(this);
+
         const resolvers = this.dependencies.map(async (iterator) => {
-            const a = tree ? tree : [];
-            a.push(this);
             await iterator.resolveDependencies(a);
         });
 
@@ -165,6 +166,9 @@ class Module {
     }
 
     public getExports(): any {
+        if (this.exports) {
+            return this.exports;
+        }
         this.exports = this.emptyExports;
         if (this.factory) {
             AmdLoader.instance.currentStack.push(this);

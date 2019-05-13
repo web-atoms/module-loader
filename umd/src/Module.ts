@@ -87,7 +87,16 @@ class Module {
 
     }
 
-    public resolve(tree?: Module[]): boolean {
+    public resolve(tree?: Module[], resolveChild: boolean = false): boolean {
+
+        if (resolveChild === true) {
+            for (const iterator of this.dependencies) {
+                if (!iterator.isResolved) {
+                    return false;
+                }
+            }
+            return true;
+        }
 
         if (!this.isLoaded) {
             return false;
@@ -103,7 +112,9 @@ class Module {
 
         for (const iterator of this.dependencies) {
             if (a.indexOf(iterator) !== -1) {
-                continue;
+                if (!iterator.resolve(a, true)) {
+                    allResolved = true;
+                }
             }
             if (!iterator.resolve(a)) {
                 allResolved = false;

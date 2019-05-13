@@ -60,7 +60,9 @@ class Module {
             tree.push(this);
         }
         for (const iterator of this.dependencies) {
-            iterator.flattenDependencies(tree);
+            if (tree.indexOf(iterator) === -1) {
+                iterator.flattenDependencies(tree);
+            }
         }
         return tree;
     }

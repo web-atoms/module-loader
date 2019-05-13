@@ -102,7 +102,7 @@ class Module {
         let allResolved = true;
 
         for (const iterator of this.dependencies) {
-            if (tree && tree.indexOf(iterator) !== -1) {
+            if (a.indexOf(iterator) !== -1) {
                 continue;
             }
             if (!iterator.resolve(a)) {

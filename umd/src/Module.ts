@@ -55,52 +55,18 @@ class Module {
         }
     }
 
-    public async resolveDependencies(tree: Module[]): Promise<void> {
-        const i = AmdLoader.instance;
-        const loader = this.dependencies.map(async (m) => {
-            if (!m.isLoaded) {
-                await i.load(m);
+    public flattenDependencies(tree?: Module[]): Module[] {
+        let a = tree ? tree : [];
+        for (const iterator of this.dependencies) {
+            if (a.indexOf(iterator) === -1) {
+                a.push(iterator);
             }
-        });
-
-        if (loader.length) {
-            await Promise.all(loader);
+            a = [ ... a, ... iterator.flattenDependencies(a)];
         }
-
-        if (tree.indexOf(this) === -1) {
-            await i.resolveModule(this);
-        }
-
-        const a = tree.slice();
-        a.push(this);
-
-        const resolvers = this.dependencies.map(async (iterator) => {
-            if (a.indexOf(iterator) !== -1) {
-                return;
-            }
-            await iterator.resolveDependencies(a);
-        });
-
-        if (resolvers.length) {
-            await Promise.all(resolvers);
-        }
-
+        return a;
     }
 
-    public resolve(tree?: Module[], resolveChild: boolean = false): boolean {
-
-        if (resolveChild === true) {
-            let ad = true;
-            for (const iterator of this.dependencies) {
-                if (tree && tree.indexOf(iterator) !== -1) {
-                    continue;
-                }
-                if (!iterator.resolve(tree)) {
-                    ad = false;
-                }
-            }
-            return ad;
-        }
+    public resolve(): boolean {
 
         if (!this.isLoaded) {
             return false;
@@ -109,19 +75,11 @@ class Module {
         if (this.isResolved) {
             return true;
         }
-        const a = tree ? tree : [];
-        a.push(this);
 
         let allResolved = true;
 
-        for (const iterator of this.dependencies) {
-            if (a.indexOf(iterator) !== -1) {
-                if (!iterator.resolve(a, true)) {
-                    allResolved = false;
-                }
-                continue;
-            }
-            if (!iterator.resolve(a)) {
+        for (const iterator of this.flattenDependencies()) {
+            if (!iterator.resolve()) {
                 allResolved = false;
             }
         }

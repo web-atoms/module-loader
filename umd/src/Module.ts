@@ -89,6 +89,10 @@ class Module {
 
     public resolve(tree?: Module[]): boolean {
 
+        if (!this.isLoaded) {
+            return false;
+        }
+
         if (this.isResolved) {
             return true;
         }
@@ -109,28 +113,23 @@ class Module {
         if (!allResolved) {
             return false;
         }
-        if (this.isLoaded) {
-            const i = AmdLoader.instance;
+        const i = AmdLoader.instance;
 
-            if (this.dependencyHooks) {
-                this.dependencyHooks[0]();
-                this.dependencyHooks = null;
-            }
+        if (this.dependencyHooks) {
+            this.dependencyHooks[0]();
+            this.dependencyHooks = null;
+        }
 
-            if (this.resolveHooks) {
-                this.resolveHooks[0](this.getExports());
-                this.resolveHooks = null;
+        if (this.resolveHooks) {
+            this.resolveHooks[0](this.getExports());
+            this.resolveHooks = null;
 
-                const index = i.pendingModules.indexOf(this);
-                if (index !== -1) {
-                    i.pendingModules.splice(index, 1);
-                    i.queueResolveModules();
-                }
-                return true;
+            const index = i.pendingModules.indexOf(this);
+            if (index !== -1) {
+                i.pendingModules.splice(index, 1);
+                i.queueResolveModules();
             }
-            if (this.isResolved) {
-                return true;
-            }
+            return true;
         }
 
         return false;

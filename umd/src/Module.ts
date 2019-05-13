@@ -55,13 +55,15 @@ class Module {
         }
     }
 
-    public flattenDependencies(tree?: Module[]): Module[] {
-        let a = tree ? tree : [];
+    public flattenDependencies(tree: Module[]): Module[] {
+        let a = tree;
         for (const iterator of this.dependencies) {
             if (a.indexOf(iterator) === -1) {
                 a.push(iterator);
             }
-            a = [ ... a, ... iterator.flattenDependencies(a)];
+        }
+        for (const iterator of this.dependencies) {
+            a = [...a, ... iterator.flattenDependencies(a)];
         }
         return a;
     }
@@ -78,7 +80,7 @@ class Module {
 
         let allResolved = true;
 
-        for (const iterator of this.flattenDependencies()) {
+        for (const iterator of this.flattenDependencies([this])) {
             if (!iterator.resolve()) {
                 allResolved = false;
             }

@@ -447,6 +447,7 @@ AmdLoader.moduleLoader = (name, url, success, error) => {
         script.onload = s.onreadystatechange = null;
         success();
     };
+    script.onerror = (e) => { error(e); };
     document.body.appendChild(script);
 };
 

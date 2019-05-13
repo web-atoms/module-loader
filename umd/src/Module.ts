@@ -59,7 +59,7 @@ class Module {
         tree = tree || [this];
         let a = [];
         for (const iterator of this.dependencies) {
-            if (tree.indexOf(iterator) !== -1) {
+            if (tree.indexOf(iterator) === -1) {
                 a.push(iterator);
                 tree.push(iterator);
                 const n = iterator.flattenDependencies(tree);

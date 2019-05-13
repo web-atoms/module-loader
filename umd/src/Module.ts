@@ -113,8 +113,9 @@ class Module {
         for (const iterator of this.dependencies) {
             if (a.indexOf(iterator) !== -1) {
                 if (!iterator.resolve(a, true)) {
-                    allResolved = true;
+                    allResolved = false;
                 }
+                continue;
             }
             if (!iterator.resolve(a)) {
                 allResolved = false;

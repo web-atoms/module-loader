@@ -97,17 +97,16 @@ class Module {
             return true;
         }
         const a = tree ? tree : [];
-        if (a.indexOf(this) !== -1) {
-            return false;
-        }
         a.push(this);
 
         let allResolved = true;
 
         for (const iterator of this.dependencies) {
+            if (a.indexOf(iterator) !== -1) {
+                continue;
+            }
             if (!iterator.resolve(a)) {
                 allResolved = false;
-                break;
             }
         }
 

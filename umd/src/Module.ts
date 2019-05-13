@@ -59,6 +59,7 @@ class Module {
         if (tree && tree.indexOf(this) === -1) {
             tree.push(this);
         }
+        tree = tree || [];
         for (const iterator of this.dependencies) {
             if (tree.indexOf(iterator) === -1) {
                 iterator.flattenDependencies(tree || []);

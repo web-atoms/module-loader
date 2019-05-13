@@ -80,7 +80,7 @@ class Module {
         let allResolved = true;
 
         for (const iterator of this.flattenDependencies([this])) {
-            if (!iterator.resolve()) {
+            if (!iterator.isResolved) {
                 allResolved = false;
             }
         }

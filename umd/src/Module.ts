@@ -55,21 +55,20 @@ class Module {
         }
     }
 
-    public flattenDependencies(tree?: Module[]): Module[] {
-        tree = tree || [this];
-        let a = [];
-        for (const iterator of this.dependencies) {
-            if (tree.indexOf(iterator) === -1) {
-                a.push(iterator);
-                tree.push(iterator);
-                const n = iterator.flattenDependencies(tree);
-                a = a.concat(n);
-            }
-        }
-        return a;
-    }
+    public resolve(tree?: Module[], resolveChild: boolean = false): boolean {
 
-    public resolve(): boolean {
+        if (resolveChild === true) {
+            let ad = true;
+            for (const iterator of this.dependencies) {
+                if (tree && tree.indexOf(iterator) !== -1) {
+                    continue;
+                }
+                if (!iterator.resolve(tree)) {
+                    ad = false;
+                }
+            }
+            return ad;
+        }
 
         if (!this.isLoaded) {
             return false;
@@ -78,12 +77,19 @@ class Module {
         if (this.isResolved) {
             return true;
         }
+        const a = tree ? tree : [];
+        a.push(this);
 
         let allResolved = true;
 
-        const all = this.flattenDependencies();
-        for (const iterator of all) {
-            if (!iterator.isResolved) {
+        for (const iterator of this.dependencies) {
+            if (a.indexOf(iterator) !== -1) {
+                if (!iterator.resolve(a, true)) {
+                    allResolved = false;
+                }
+                continue;
+            }
+            if (!iterator.resolve(a)) {
                 allResolved = false;
             }
         }

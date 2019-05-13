@@ -62,7 +62,8 @@ class Module {
             if (tree.indexOf(iterator) !== -1) {
                 a.push(iterator);
                 tree.push(iterator);
-                a = [... a, ... iterator.flattenDependencies(tree)];
+                const n = iterator.flattenDependencies(tree);
+                a = a.concat(n);
             }
         }
         return a;

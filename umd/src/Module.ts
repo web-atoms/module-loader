@@ -90,12 +90,16 @@ class Module {
     public resolve(tree?: Module[], resolveChild: boolean = false): boolean {
 
         if (resolveChild === true) {
+            let ad = true;
             for (const iterator of this.dependencies) {
-                if (!iterator.isResolved) {
-                    return false;
+                if (tree && tree.indexOf(iterator) !== -1) {
+                    continue;
+                }
+                if (!iterator.resolve(tree)) {
+                    ad = false;
                 }
             }
-            return true;
+            return ad;
         }
 
         if (!this.isLoaded) {

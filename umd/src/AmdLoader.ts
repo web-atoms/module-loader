@@ -107,6 +107,8 @@ class AmdLoader {
                 this.import(iterator).catch((e) => {
                     // tslint:disable-next-line:no-console
                     console.error(e);
+                }).then(() => {
+                    m.resolve();
                 });
             }
         } else {

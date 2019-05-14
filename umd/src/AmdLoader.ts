@@ -103,14 +103,13 @@ class AmdLoader {
             console.error(e);
         });
         if (m.dependencies.length) {
-            for (const iterator of m.dependencies) {
-                this.import(iterator).catch((e) => {
-                    // tslint:disable-next-line:no-console
-                    console.error(e);
-                }).then(() => {
-                    m.resolve();
-                });
-            }
+            const all = m.dependencies.map((m1) => this.import(m1));
+            Promise.all(all).catch((e) => {
+                // tslint:disable-next-line:no-console
+                console.error(e);
+            }).then(() => {
+                m.resolve();
+            });
         } else {
             m.resolve();
         }

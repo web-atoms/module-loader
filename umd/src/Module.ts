@@ -57,6 +57,14 @@ class Module {
 
     public resolve(tree?: Module[], resolveChild: boolean = false): boolean {
 
+        if (this.isResolved) {
+            return true;
+        }
+
+        if (!this.isLoaded) {
+            return false;
+        }
+
         if (resolveChild === true) {
             let ad = true;
             for (const iterator of this.dependencies) {
@@ -70,13 +78,6 @@ class Module {
             return ad;
         }
 
-        if (!this.isLoaded) {
-            return false;
-        }
-
-        if (this.isResolved) {
-            return true;
-        }
         const a = tree ? tree : [];
         a.push(this);
 

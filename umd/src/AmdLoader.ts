@@ -74,7 +74,10 @@ class AmdLoader {
         const m: Module = this.get(name);
         m.package.url = "/";
         m.exports = { __esModule: true, ... moduleExports };
-        m.loader = Promise.resolve(m.exports);
+        m.loader = Promise.resolve();
+        m.resolver = Promise.resolve(m.exports);
+        m.isLoaded = true;
+        m.isResolved = true;
     }
 
     public setup(name: string): void {

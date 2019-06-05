@@ -373,10 +373,10 @@ class AmdLoader {
             this.tail = m.previous;
         }
         if (m.next) {
-            m.next.previous = m.next;
+            m.next.previous = m.previous;
         }
         if (m.previous) {
-            m.previous.next = m.previous;
+            m.previous.next = m.next;
         }
         this.queueResolveModules();
     }

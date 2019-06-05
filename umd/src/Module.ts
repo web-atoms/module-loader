@@ -121,40 +121,6 @@ class Module {
 
     }
 
-    // public dependenciesLoaded(list: Module[] = []): boolean {
-    //     if(list.indexOf(this) === -1) {
-    //         list.push(this);
-    //         for (const iterator of this.dependencies) {
-    //             if (!iterator.isLoaded) {
-    //                 return false;
-    //             }
-    //             if (iterator.isDependentOn(this, [])) {
-    //                 continue;
-    //             }
-    //             if (!iterator.dependenciesLoaded(list)) {
-    //                 return false;
-    //             }
-    //         }
-    //     }
-    //     return true;
-    // }
-
-    public isDependentOn(d: Module, r: Module[]): boolean {
-        for (const iterator of this.dependencies) {
-            if (r.find((x) => x === iterator)) {
-                return true;
-            }
-            r.push(iterator);
-            if (iterator === d) {
-                return true;
-            }
-            if (iterator.isDependentOn(d, r)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public addDependency(d: Module): void {
         // ignore module contains dependency resolution module
         if (d === this.ignoreModule) {

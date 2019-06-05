@@ -8,6 +8,10 @@ interface IPackage {
 
 class Module {
 
+    public previous: Module;
+
+    public next: Module;
+
     public package: IPackage;
 
     public emptyExports: any = {};
@@ -109,11 +113,7 @@ class Module {
             this.resolveHooks[0](this.getExports());
             this.resolveHooks = null;
 
-            const index = i.pendingModules.indexOf(this);
-            if (index !== -1) {
-                i.pendingModules.splice(index, 1);
-                i.queueResolveModules();
-            }
+            i.remove(this);
             return true;
         }
 

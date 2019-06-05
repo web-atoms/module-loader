@@ -28,7 +28,7 @@ class AmdLoader {
 
     public currentStack: Module[] = [];
 
-    public pendingModules: Module[] = [];
+    // public pendingModules: Module[] = [];
 
     // public resolverStack: Module[] = [];
 
@@ -46,6 +46,8 @@ class AmdLoader {
     private mockTypes: MockType[] = [];
 
     private lastTimeout: any = null;
+
+    private tail: Module;
 
     public register(
         packages: string[],
@@ -92,7 +94,8 @@ class AmdLoader {
         if (jsModule.exportVar) {
             jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
         }
-        this.pendingModules.push(jsModule);
+
+        this.push(jsModule);
 
         jsModule.isLoaded = true;
         setTimeout(() => {
@@ -307,7 +310,7 @@ class AmdLoader {
         if (module.loader) {
             return module.loader;
         }
-        this.pendingModules.push(module);
+        this.push(module);
         module.loader = new Promise((resolve, reject) => {
 
             AmdLoader.moduleLoader(module.name, module.url, () => {
@@ -365,23 +368,42 @@ class AmdLoader {
         }, 200);
     }
 
+    public remove(m: Module): void {
+        if (this.tail === m) {
+            this.tail = m.previous;
+        }
+        if (m.next) {
+            m.next.previous = m.next;
+        }
+        if (m.previous) {
+            m.previous.next = m.previous;
+        }
+        this.queueResolveModules();
+    }
+
     private resolvePendingModules(): void {
 
-        if (!this.pendingModules.length) {
+        if (!this.tail) {
             return;
         }
 
-        const modules = this.pendingModules.slice();
-
-        for (let i = modules.length - 1; i >= 0 ; i --) {
-            const peek = modules[i];
-            peek.resolve();
+        let m = this.tail;
+        while (m) {
+            m.resolve();
+            m = m.previous;
         }
 
-        // only queue if at lest one module was resolved
-        if (this.pendingModules.length) {
+        if (this.tail) {
             this.queueResolveModules();
         }
+    }
+
+    private push(m: Module): void {
+        if (this.tail) {
+            m.previous = this.tail;
+            this.tail.next = m;
+        }
+        this.tail = m;
     }
 
     private async _resolveModule(module: Module): Promise<any> {

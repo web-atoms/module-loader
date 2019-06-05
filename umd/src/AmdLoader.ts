@@ -376,6 +376,7 @@ class AmdLoader {
         for (let i = modules.length - 1; i >= 0 ; i --) {
             const peek = modules[i];
             peek.resolve();
+            break;
         }
 
         // only queue if at lest one module was resolved

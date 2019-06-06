@@ -408,6 +408,7 @@ class AmdLoader {
         }
 
         if (this.dirty) {
+            this.dirty = false;
             return;
         }
 

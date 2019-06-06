@@ -49,6 +49,8 @@ class AmdLoader {
 
     private tail: Module;
 
+    private dirty: boolean = false;
+
     public register(
         packages: string[],
         modules: string[]): void {
@@ -380,6 +382,7 @@ class AmdLoader {
         }
         m.next = null;
         m.previous = null;
+        this.dirty = true;
         this.queueResolveModules();
     }
 
@@ -389,10 +392,24 @@ class AmdLoader {
             return;
         }
 
+        this.dirty = false;
+
+        // first resolve modules without any
+        // dependencies
         let m = this.tail;
         while (m) {
-            m.resolve();
+            if (!m.dependencies.length) {
+                m.resolve();
+            }
             m = m.previous;
+        }
+
+        if (!this.dirty) {
+            m = this.tail;
+            while (m) {
+                m.resolve();
+                m = m.previous;
+            }
         }
 
         if (this.tail) {

@@ -121,7 +121,7 @@ class AmdLoader {
         } else {
             m.resolve();
         }
-        this.queueResolveModules();
+        this.queueResolveModules(1);
     }
 
     public replace(type: any, name: string, mock: boolean): void {
@@ -360,14 +360,14 @@ class AmdLoader {
         return module.resolver;
     }
 
-    public queueResolveModules(): void {
+    public queueResolveModules(n: number = 100): void {
         if (this.lastTimeout) {
             clearTimeout(this.lastTimeout);
             this.lastTimeout = null;
         }
         this.lastTimeout = setTimeout(() => {
             this.resolvePendingModules();
-        }, 200);
+        }, n);
     }
 
     public remove(m: Module): void {

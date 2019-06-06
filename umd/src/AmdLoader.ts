@@ -396,19 +396,20 @@ class AmdLoader {
 
         // first resolve modules without any
         // dependencies
+        const pending: Module[] = [];
         let m = this.tail;
         while (m) {
             if (!m.dependencies.length) {
                 m.resolve();
+            } else {
+                pending.push(m);
             }
             m = m.previous;
         }
 
         if (!this.dirty) {
-            m = this.tail;
-            while (m) {
-                m.resolve();
-                m = m.previous;
+            for (const iterator of pending) {
+                iterator.resolve();
             }
         }
 

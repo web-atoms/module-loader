@@ -407,12 +407,13 @@ class AmdLoader {
             m = m.previous;
         }
 
-        if (!this.dirty) {
-            for (const iterator of pending) {
-                iterator.resolve();
-            }
+        if (this.dirty) {
+            return;
         }
 
+        for (const iterator of pending) {
+            iterator.resolve();
+        }
         if (this.tail) {
             this.queueResolveModules();
         }

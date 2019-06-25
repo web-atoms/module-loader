@@ -379,7 +379,7 @@ class AmdLoader {
         this.queueResolveModules();
     }
 
-    public queueResolveModules(n: number = 200): void {
+    public queueResolveModules(n: number = 5): void {
         if (this.lastTimeout) {
             // clearTimeout(this.lastTimeout);
             // this.lastTimeout = null;

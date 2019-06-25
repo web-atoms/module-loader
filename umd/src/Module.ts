@@ -71,10 +71,17 @@ class Module {
             return true;
         }
 
-        if (id && this.rID === id) {
+        if (!id) {
+            id = (new Date()).getTime();
+        }
+
+        if (this.rID === id) {
             // circular dependency found...
             let childrenResolved = true;
             for (const iterator of this.dependencies) {
+                if (iterator.rID === id) {
+                    continue;
+                }
                 if (!iterator.resolve(id)) {
                     childrenResolved = false;
                     break;
@@ -83,13 +90,9 @@ class Module {
             return childrenResolved;
         }
 
+        this.rID = id;
+
         try {
-
-            if (!id) {
-                id = (new Date()).getTime();
-            }
-
-            this.rID = id;
 
             let allResolved = true;
 

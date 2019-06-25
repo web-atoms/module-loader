@@ -121,10 +121,10 @@ class AmdLoader {
             }).then(() => {
                 m.resolve();
             });
-            this.queueResolveModules(1);
         } else {
             m.resolve();
         }
+        this.queueResolveModules(1);
     }
 
     public replace(type: any, name: string, mock: boolean): void {
@@ -381,10 +381,12 @@ class AmdLoader {
 
     public queueResolveModules(n: number = 200): void {
         if (this.lastTimeout) {
-            clearTimeout(this.lastTimeout);
-            this.lastTimeout = null;
+            // clearTimeout(this.lastTimeout);
+            // this.lastTimeout = null;
+            return;
         }
         this.lastTimeout = setTimeout(() => {
+            this.lastTimeout = 0;
             this.resolvePendingModules();
         }, n);
     }

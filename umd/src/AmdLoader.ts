@@ -418,9 +418,9 @@ class AmdLoader {
         for (const iterator of pending) {
             iterator.resolve();
         }
-        // if (this.tail) {
-        //     this.queueResolveModules();
-        // }
+        if (this.tail) {
+            this.queueResolveModules();
+        }
     }
 
     private push(m: Module): void {

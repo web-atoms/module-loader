@@ -61,7 +61,27 @@ class Module {
         }
     }
 
-    public resolve(id?: number, onlyChild: boolean = false): boolean {
+    public resolve(id?: number): boolean {
+
+        if (!this.isLoaded) {
+            return false;
+        }
+
+        if (this.isResolved) {
+            return true;
+        }
+
+        if (id && this.rID === id) {
+            // circular dependency found...
+            let childrenResolved = true;
+            for (const iterator of this.dependencies) {
+                if (!iterator.resolve(id)) {
+                    childrenResolved = false;
+                    break;
+                }
+            }
+            return childrenResolved;
+        }
 
         try {
 
@@ -71,37 +91,9 @@ class Module {
 
             this.rID = id;
 
-            if (this.isResolved) {
-                return true;
-            }
-
-            if (!this.isLoaded) {
-                return false;
-            }
-
-            if (onlyChild === true) {
-                let ad = true;
-                for (const iterator of this.dependencies) {
-                    if (iterator.rID === id) {
-                        continue;
-                    }
-                    if (!iterator.resolve(id)) {
-                        ad = false;
-                        break;
-                    }
-                }
-                return ad;
-            }
-
             let allResolved = true;
 
             for (const iterator of this.dependencies) {
-                if (iterator.rID === id) {
-                    if (!iterator.resolve(id, true)) {
-                        allResolved = false;
-                    }
-                    continue;
-                }
                 if (!iterator.resolve(id)) {
                     allResolved = false;
                     break;

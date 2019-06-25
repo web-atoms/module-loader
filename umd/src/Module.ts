@@ -8,6 +8,8 @@ interface IPackage {
 
 class Module {
 
+    private static nextID: number = 1;
+
     public previous: Module;
 
     public next: Module;
@@ -72,7 +74,7 @@ class Module {
         }
 
         if (!id) {
-            id = (new Date()).getTime();
+            id = Module.nextID++;
         }
 
         if (this.rID === id) {
@@ -92,38 +94,36 @@ class Module {
 
         this.rID = id;
 
-        try {
+        let allResolved = true;
 
-            let allResolved = true;
-
-            for (const iterator of this.dependencies) {
-                if (!iterator.resolve(id)) {
-                    allResolved = false;
-                    break;
-                }
+        for (const iterator of this.dependencies) {
+            if (!iterator.resolve(id)) {
+                allResolved = false;
+                break;
             }
-
-            if (!allResolved) {
-                return false;
-            }
-            const i = AmdLoader.instance;
-
-            if (this.dependencyHooks) {
-                this.dependencyHooks[0]();
-                this.dependencyHooks = null;
-            }
-
-            if (this.resolveHooks) {
-                this.resolveHooks[0](this.getExports());
-                this.resolveHooks = null;
-
-                i.remove(this);
-                return true;
-            }
-        } finally {
-            this.rID = 0;
         }
 
+        if (!allResolved) {
+            this.rID = 0;
+            return false;
+        }
+        const i = AmdLoader.instance;
+
+        if (this.dependencyHooks) {
+            this.dependencyHooks[0]();
+            this.dependencyHooks = null;
+        }
+
+        if (this.resolveHooks) {
+            this.resolveHooks[0](this.getExports());
+            this.resolveHooks = null;
+
+            i.remove(this);
+            this.rID = 0;
+            return true;
+        }
+
+        this.rID = 0;
         return false;
 
     }

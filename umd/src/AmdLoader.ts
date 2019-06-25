@@ -111,17 +111,20 @@ class AmdLoader {
             console.error(e);
         });
         if (m.dependencies.length) {
-            const all = m.dependencies.map((m1) => this.import(m1));
+            const all = m.dependencies.map(async (m1) => {
+                if (m1.isResolved) { return; }
+                await this.import(m1);
+            });
             Promise.all(all).catch((e) => {
                 // tslint:disable-next-line:no-console
                 console.error(e);
             }).then(() => {
                 m.resolve();
             });
+            this.queueResolveModules(1);
         } else {
             m.resolve();
         }
-        this.queueResolveModules(1);
     }
 
     public replace(type: any, name: string, mock: boolean): void {
@@ -360,16 +363,6 @@ class AmdLoader {
         return module.resolver;
     }
 
-    public queueResolveModules(n: number = 200): void {
-        if (this.lastTimeout) {
-            clearTimeout(this.lastTimeout);
-            this.lastTimeout = null;
-        }
-        this.lastTimeout = setTimeout(() => {
-            this.resolvePendingModules();
-        }, n);
-    }
-
     public remove(m: Module): void {
         if (this.tail === m) {
             this.tail = m.previous;
@@ -384,6 +377,16 @@ class AmdLoader {
         m.previous = null;
         this.dirty = true;
         this.queueResolveModules();
+    }
+
+    public queueResolveModules(n: number = 200): void {
+        if (this.lastTimeout) {
+            clearTimeout(this.lastTimeout);
+            this.lastTimeout = null;
+        }
+        this.lastTimeout = setTimeout(() => {
+            this.resolvePendingModules();
+        }, n);
     }
 
     private resolvePendingModules(): void {
@@ -415,9 +418,9 @@ class AmdLoader {
         for (const iterator of pending) {
             iterator.resolve();
         }
-        if (this.tail) {
-            this.queueResolveModules();
-        }
+        // if (this.tail) {
+        //     this.queueResolveModules();
+        // }
     }
 
     private push(m: Module): void {

@@ -47,6 +47,8 @@ class Module {
      */
     public resolver: Promise<any>;
 
+    private rID: number = null;
+
     constructor(
         public readonly name: string,
         public readonly folder?: string
@@ -59,62 +61,72 @@ class Module {
         }
     }
 
-    public resolve(tree?: Module[], resolveChild: boolean = false): boolean {
+    public resolve(id?: number, onlyChild: boolean = false): boolean {
 
-        if (this.isResolved) {
-            return true;
-        }
+        try {
 
-        if (!this.isLoaded) {
-            return false;
-        }
+            if (!id) {
+                id = (new Date()).getTime();
+            }
 
-        if (resolveChild === true) {
-            let ad = true;
+            this.rID = id;
+
+            if (this.isResolved) {
+                return true;
+            }
+
+            if (!this.isLoaded) {
+                return false;
+            }
+
+            if (onlyChild === true) {
+                let ad = true;
+                for (const iterator of this.dependencies) {
+                    if (iterator.rID === id) {
+                        continue;
+                    }
+                    if (!iterator.resolve(id)) {
+                        ad = false;
+                        break;
+                    }
+                }
+                return ad;
+            }
+
+            let allResolved = true;
+
             for (const iterator of this.dependencies) {
-                if (tree && tree.indexOf(iterator) !== -1) {
+                if (iterator.rID === id) {
+                    if (!iterator.resolve(id, true)) {
+                        allResolved = false;
+                    }
                     continue;
                 }
-                if (!iterator.resolve(tree)) {
-                    ad = false;
-                }
-            }
-            return ad;
-        }
-
-        const a = tree ? tree : [];
-        a.push(this);
-
-        let allResolved = true;
-
-        for (const iterator of this.dependencies) {
-            if (a.indexOf(iterator) !== -1) {
-                if (!iterator.resolve(a, true)) {
+                if (!iterator.resolve(id)) {
                     allResolved = false;
+                    break;
                 }
-                continue;
             }
-            if (!iterator.resolve(a)) {
-                allResolved = false;
+
+            if (!allResolved) {
+                return false;
             }
-        }
+            const i = AmdLoader.instance;
 
-        if (!allResolved) {
-            return false;
-        }
-        const i = AmdLoader.instance;
+            if (this.dependencyHooks) {
+                this.dependencyHooks[0]();
+                this.dependencyHooks = null;
+            }
 
-        if (this.dependencyHooks) {
-            this.dependencyHooks[0]();
-            this.dependencyHooks = null;
-        }
+            if (this.resolveHooks) {
+                this.resolveHooks[0](this.getExports());
+                this.resolveHooks = null;
 
-        if (this.resolveHooks) {
-            this.resolveHooks[0](this.getExports());
-            this.resolveHooks = null;
-
-            i.remove(this);
-            return true;
+                i.remove(this);
+                return true;
+            }
+        } finally {
+            this.rID = 0;
         }
 
         return false;

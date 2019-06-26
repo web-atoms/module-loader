@@ -81,6 +81,9 @@ class Module {
             // circular dependency found...
             let childrenResolved = true;
             for (const iterator of this.dependencies) {
+                if (iterator === this.ignoreModule) {
+                    continue;
+                }
                 if (iterator.rID === id) {
                     continue;
                 }
@@ -97,6 +100,9 @@ class Module {
         let allResolved = true;
 
         for (const iterator of this.dependencies) {
+            if (iterator === this.ignoreModule) {
+                continue;
+            }
             if (!iterator.resolve(id)) {
                 allResolved = false;
                 break;

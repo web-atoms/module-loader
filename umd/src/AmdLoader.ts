@@ -411,18 +411,10 @@ class AmdLoader {
             }
             m = m.previous;
         }
-
-        if (this.dirty) {
-            this.dirty = false;
-            return;
-        }
-
-        for (const iterator of pending) {
-            iterator.resolve();
-        }
-        if (this.dirty) {
-            this.dirty = false;
-            return;
+        if (!this.dirty) {
+            for (const iterator of pending) {
+                iterator.resolve();
+            }
         }
         if (this.tail) {
             this.queueResolveModules();

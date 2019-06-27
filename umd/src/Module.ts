@@ -6,6 +6,11 @@ interface IPackage {
     exportVar?: string;
 }
 
+interface IRequireFunction {
+    (path: string): any;
+    resolve?: (path: string) => string;
+}
+
 class Module {
 
     private static nextID: number = 1;
@@ -32,7 +37,7 @@ class Module {
 
     public isResolved: boolean = false;
 
-    public require: (name: string) => any;
+    public require: IRequireFunction;
 
     public dependencies: Module[] = [];
 

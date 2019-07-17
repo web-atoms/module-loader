@@ -486,7 +486,7 @@ class AmdLoader {
 const a: AmdLoader = AmdLoader.instance;
 a.map("global", "/", "global");
 a.registerModule("global/document",  { default: document });
-a.registerModule("global/window", { default: window });
+a.registerModule("global/window", { default: typeof window !== "undefined" ? window : global });
 
 AmdLoader.moduleLoader = (name, url, success, error) => {
 

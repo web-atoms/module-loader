@@ -49,6 +49,10 @@ class Module {
 
     public loader: Promise<any>;
 
+    public get filename(): string {
+        return this.name;
+    }
+
     /**
      * This promise can be awaited by dependency resolver
      */

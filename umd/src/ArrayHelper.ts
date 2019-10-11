@@ -10,6 +10,19 @@ if (!Array.prototype.find) {
     };
 }
 
+if (!Array.prototype.findIndex) {
+    Array.prototype.findIndex = function(
+        predicate: (value: any, index: number, obj: any[]) => unknown, thisArg?: any): number {
+        for (let i: number = 0; i < this.length; i++) {
+            const item: any = this[i];
+            if (predicate(item, i, this)) {
+                return i;
+            }
+        }
+        return -1;
+    };
+}
+
 if (!Array.prototype.map) {
     Array.prototype.map = function(callbackfn: (value: any, index: number, array: any[]) => any, thisArg?: any): any[] {
         const a: any[] = [];

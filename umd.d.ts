@@ -6,39 +6,45 @@ interface IPackage {
     type: "amd" | "global";
     exportVar?: string;
 }
+interface IRequireFunction {
+    (path: string): any;
+    resolve?: (path: string) => string;
+}
 declare class Module {
     readonly name: string;
     readonly folder?: string;
+    private static nextID;
+    previous: Module;
+    next: Module;
     package: IPackage;
     emptyExports: any;
-    hooks: [Function, Function];
-    constructor(name: string, folder?: string);
+    dependencyHooks: [(...a: any) => void, () => void];
+    resolveHooks: [(...a: any) => void, () => void];
     url: string;
     exports: any;
     ignoreModule: Module;
     isLoaded: boolean;
     isResolved: boolean;
-    loadDependencies(tree?: Module[]): Promise<void>;
-    dependenciesLoaded(list?: Module[]): boolean;
-    isDependentOn(d: Module, r: Module[]): boolean;
-    addDependency(d: Module): void;
-    private isExporting;
-    getExports(): any;
-    require: (name: string) => any;
+    require: IRequireFunction;
     dependencies: Module[];
     type: "amd" | "global";
     exportVar: string;
     factory: (r: any, e: any) => void;
     loader: Promise<any>;
+    readonly filename: string;
     /**
      * This promise can be awaited by dependency resolver
      */
     resolver: Promise<any>;
+    private rID;
+    constructor(name: string, folder?: string);
+    resolve(id?: number): boolean;
+    addDependency(d: Module): void;
+    getExports(): any;
 }
 declare var require: any;
 declare var md: any;
 declare class AmdLoader {
-    private mockTypes;
     static globalVar: any;
     static moduleProgress: (name: string, modules: {
         [key: string]: Module;
@@ -49,7 +55,6 @@ declare class AmdLoader {
     root: Module;
     defaultUrl: string;
     currentStack: Module[];
-    pendingModules: Module[];
     nodeModules: Module[];
     modules: {
         [key: string]: Module;
@@ -58,12 +63,18 @@ declare class AmdLoader {
         [key: string]: IPackage;
     };
     enableMock: boolean;
+    define: any;
+    private mockTypes;
+    private lastTimeout;
+    private tail;
+    private dirty;
     register(packages: string[], modules: string[]): void;
     setupRoot(root: string, url: string): void;
     registerModule(name: string, moduleExports: {
         [key: string]: any;
     }): void;
     setup(name: string): void;
+    loadDependencies(m: Module): void;
     replace(type: any, name: string, mock: boolean): void;
     resolveType(type: any): any;
     map(packageName: string, packageUrl: string, type?: ("amd" | "global"), exportVar?: string): IPackage;
@@ -75,12 +86,13 @@ declare class AmdLoader {
         name: string;
     });
     get(name1: string): Module;
-    import(name: string): Promise<any>;
+    import(name: string | Module): Promise<any>;
     load(module: Module): Promise<any>;
-    define: any;
-    private lastTimeout;
-    private resolvePendingModules;
     resolveModule(module: Module): Promise<any>;
+    remove(m: Module): void;
+    queueResolveModules(n?: number): void;
+    private resolvePendingModules;
+    private push;
     private _resolveModule;
 }
 declare const a: AmdLoader;

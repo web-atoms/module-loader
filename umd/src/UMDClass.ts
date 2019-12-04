@@ -4,7 +4,7 @@ class UMDClass {
 
     public viewPrefix = "web";
 
-    public defaultApp = "web-atoms-core/dist/web/WebApp";
+    public defaultApp = "@web-atoms/core/dist/web/WebApp";
 
     public lang = "en-US";
 
@@ -60,9 +60,9 @@ class UMDClass {
 
     public async load(path: string, designMode?: boolean): Promise<any> {
         this.mock = designMode;
-        const a: any = await AmdLoader.instance.import("web-atoms-core/dist/Atom");
+        const a: any = await AmdLoader.instance.import("@web-atoms/core/dist/Atom");
         a.Atom.designMode = designMode;
-        const al: any = await AmdLoader.instance.import("web-atoms-core/dist/core/AtomList");
+        const al: any = await AmdLoader.instance.import("@web-atoms/core/dist/core/AtomList");
         return await AmdLoader.instance.import(path);
     }
 

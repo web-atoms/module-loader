@@ -9,13 +9,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/neurospeech/web-atoms-amd-loader.git"
+    "url": "git+https://github.com/web-atoms/module-loader.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/neurospeech/web-atoms-amd-loader/issues"
+    "url": "https://github.com/web-atoms/module-loader/issues"
   },
-  "homepage": "https://github.com/neurospeech/web-atoms-amd-loader#readme",
+  "homepage": "https://github.com/web-atoms/module-loader#readme",
   "dependencies": {}
 }

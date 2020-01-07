@@ -176,6 +176,10 @@ class Module {
             }
             AmdLoader.instance.currentStack.pop();
             delete this.factory;
+
+            if (this.exports.default) {
+                this.exports.default[UMD.nameSymbol] = this.name;
+            }
         }
         return this.exports;
     }

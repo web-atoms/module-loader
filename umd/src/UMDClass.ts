@@ -8,6 +8,8 @@ class UMDClass {
 
     public lang = "en-US";
 
+    public nameSymbol = typeof Symbol !== "undefined" ?  Symbol() : "_$_nameSymbol";
+
     public get mock(): boolean {
         return AmdLoader.instance.enableMock;
     }

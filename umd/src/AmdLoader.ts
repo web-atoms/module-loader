@@ -11,7 +11,7 @@ if (typeof require !== "undefined") {
 
 class AmdLoader {
 
-    public static isMedia = /\.(jpg|jpeg|gif|png|mp4|mp3|css|html)$/;
+    public static isMedia = /\.(jpg|jpeg|gif|png|mp4|mp3|css|html|svg|json)$/;
 
     public static globalVar: any = {};
 

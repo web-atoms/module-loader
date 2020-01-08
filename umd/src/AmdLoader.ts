@@ -295,7 +295,7 @@ class AmdLoader {
             module.require = (n: string) => {
 
                 const an: string = this.resolveRelativePath(n, module.name);
-                if (n[0] !== "." && AmdLoader.isMedia.test(n)) {
+                if (AmdLoader.isMedia.test(n)) {
                     return { default: this.resolveSource(an, "") };
                 }
 

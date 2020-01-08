@@ -11,7 +11,7 @@ if (typeof require !== "undefined") {
 
 class AmdLoader {
 
-    // public static isMedia = /\.(jpg|jpeg|gif|png|mp4|mp3|css|html|svg|json)$/i;
+    public static isMedia = /\.(jpg|jpeg|gif|png|mp4|mp3|css|html|svg|json)$/i;
 
     public static globalVar: any = {};
 
@@ -295,7 +295,7 @@ class AmdLoader {
             module.require = (n: string) => {
 
                 const an: string = this.resolveRelativePath(n, module.name);
-                if (n.lastIndexOf(".") !== -1 && n.lastIndexOf(".js") === -1) {
+                if (n[0] !== "." && AmdLoader.isMedia.test(n)) {
                     return { default: this.resolveSource(an, "") };
                 }
 

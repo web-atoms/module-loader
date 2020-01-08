@@ -296,7 +296,7 @@ class AmdLoader {
 
                 const an: string = this.resolveRelativePath(n, module.name);
                 if (AmdLoader.isMedia.test(n)) {
-                    return this.resolveSource(an);
+                    return { default: this.resolveSource(an) };
                 }
 
                 const resolvedModule: Module = this.get(an);

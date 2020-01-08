@@ -198,9 +198,14 @@ class AmdLoader {
                             path = path.substr(0, path.length - 1);
                         }
                         path = path + "/" + name;
-                        if (defExt && !path.endsWith(defExt)) {
+                        const i = path.lastIndexOf("/");
+                        const fname = path.substr(i + 1);
+                        if (fname.indexOf(".") === -1) {
                             path = path + defExt;
                         }
+                        // if (defExt && !path.endsWith(defExt)) {
+                        //     path = path + defExt;
+                        // }
                         return path;
                     }
                 }

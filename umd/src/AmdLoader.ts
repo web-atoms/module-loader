@@ -309,16 +309,6 @@ class AmdLoader {
             return Promise.resolve(require(name));
         }
         const module: Module = typeof name === "object" ? name as Module : this.get(name);
-
-        if (AmdLoader.isMedia.test(module.url)) {
-            module.loader = Promise.resolve();
-            const m = {
-                url: module.url,
-                toString: () => module.url
-            };
-            module.resolver = Promise.resolve(m);
-            return m;
-        }
         await this.load(module);
         const e = await this.resolveModule(module);
         return e;
@@ -327,6 +317,15 @@ class AmdLoader {
     public load(module: Module): Promise<any> {
 
         if (module.loader) {
+            return module.loader;
+        }
+        if (AmdLoader.isMedia.test(module.url)) {
+            module.loader = Promise.resolve();
+            const m = {
+                url: module.url,
+                toString: () => module.url
+            };
+            module.resolver = Promise.resolve(m);
             return module.loader;
         }
         this.push(module);

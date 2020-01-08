@@ -331,6 +331,7 @@ class AmdLoader {
                 toString: () => module.url
             };
             module.resolver = Promise.resolve(m);
+            module.exports = m;
             return module.loader;
         }
         this.push(module);

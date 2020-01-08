@@ -11,6 +11,8 @@ if (typeof require !== "undefined") {
 
 class AmdLoader {
 
+    public static isMedia = /\.(jpg|jpeg|gif|png|mp4|mp3|css|html)$/;
+
     public static globalVar: any = {};
 
     public static moduleProgress: (name: string, modules: {[key: string]: Module}, status: "done" | "loading") => void;
@@ -291,9 +293,15 @@ class AmdLoader {
                 }
             }
             module.require = (n: string) => {
+
                 const an: string = this.resolveRelativePath(n, module.name);
+                if (AmdLoader.isMedia.test(n)) {
+                    return this.resolveSource(an);
+                }
+
                 const resolvedModule: Module = this.get(an);
-                return resolvedModule.getExports();
+                const m = resolvedModule.getExports();
+                return m;
             };
             module.require.resolve = (n: string) => this.resolveRelativePath(n, module.name);
             this.modules[name] = module;

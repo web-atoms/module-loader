@@ -332,9 +332,7 @@ class AmdLoader {
             };
             module.exports = { __esModule: true, default: m };
             module.loader = Promise.resolve();
-            module.resolver = Promise.resolve(module.exports);
             module.isLoaded = true;
-            module.isResolved = true;
             return module.loader;
         }
         module.loader = new Promise((resolve, reject) => {

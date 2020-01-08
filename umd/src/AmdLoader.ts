@@ -325,13 +325,11 @@ class AmdLoader {
             return module.loader;
         }
         if (AmdLoader.isMedia.test(module.url)) {
-            module.loader = Promise.resolve();
             const m = {
                 url: module.url,
                 toString: () => module.url
             };
-            module.resolver = Promise.resolve(m);
-            module.exports = m;
+            this.registerModule(module.name, { default: m });
             return module.loader;
         }
         this.push(module);

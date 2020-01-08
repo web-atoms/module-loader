@@ -330,6 +330,7 @@ class AmdLoader {
                 toString: () => module.url
             };
             this.registerModule(module.name, { default: m });
+            this.queueResolveModules();
             return module.loader;
         }
         this.push(module);

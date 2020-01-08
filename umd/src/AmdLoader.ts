@@ -292,13 +292,6 @@ class AmdLoader {
                     throw new Error(`No url mapped for ${name}`);
                 }
             }
-            if (AmdLoader.isMedia.test(module.url)) {
-                module.loader = Promise.resolve();
-                module.resolver = Promise.resolve({
-                    url: module.url,
-                    toString: () => module.url
-                });
-            }
             module.require = (n: string) => {
                 const an: string = this.resolveRelativePath(n, module.name);
                 const resolvedModule: Module = this.get(an);
@@ -316,6 +309,16 @@ class AmdLoader {
             return Promise.resolve(require(name));
         }
         const module: Module = typeof name === "object" ? name as Module : this.get(name);
+
+        if (AmdLoader.isMedia.test(module.url)) {
+            module.loader = Promise.resolve();
+            const m = {
+                url: module.url,
+                toString: () => module.url
+            };
+            module.resolver = Promise.resolve(m);
+            return m;
+        }
         await this.load(module);
         const e = await this.resolveModule(module);
         return e;

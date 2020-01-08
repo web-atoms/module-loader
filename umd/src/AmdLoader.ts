@@ -330,7 +330,9 @@ class AmdLoader {
                 url: module.url,
                 toString: () => module.url
             };
-            module.exports = { __esModule: true, default: m };
+            const e = { __esModule: true, default: m };
+            module.exports = e;
+            module.emptyExports = e;
             module.loader = Promise.resolve();
             module.isLoaded = true;
             return module.loader;

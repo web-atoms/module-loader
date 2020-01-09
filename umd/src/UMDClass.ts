@@ -1,5 +1,7 @@
 /// <reference path="./AmdLoader.ts"/>
 
+declare var Symbol: any;
+
 class UMDClass {
 
     public viewPrefix = "web";

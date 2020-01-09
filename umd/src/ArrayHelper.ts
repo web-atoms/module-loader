@@ -1,3 +1,22 @@
+
+// tslint:disable-next-line: interface-name
+interface Array<T> {
+    find: any;
+    findIndex: any;
+}
+
+// tslint:disable-next-line: interface-name
+interface String {
+    startsWith: any;
+    endsWith: any;
+}
+
+// tslint:disable-next-line: interface-name
+interface NumberConstructor {
+    parseInt: any;
+    parseFloat: any;
+}
+
 if (!Array.prototype.find) {
     Array.prototype.find = function(
         predicate: (value: any, index: number, obj: any[]) => boolean, thisArg?: any): any | undefined {

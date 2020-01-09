@@ -504,6 +504,8 @@ class AmdLoader {
 
 }
 
+declare var global: any;
+
 const a: AmdLoader = AmdLoader.instance;
 a.map("global", "/", "global");
 a.registerModule("global/document",  { default: document });

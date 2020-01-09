@@ -1,4 +1,16 @@
 declare var Reflect: any;
+interface Array<T> {
+    find: any;
+    findIndex: any;
+}
+interface String {
+    startsWith: any;
+    endsWith: any;
+}
+interface NumberConstructor {
+    parseInt: any;
+    parseFloat: any;
+}
 interface IPackage {
     name: string;
     version: string;
@@ -96,6 +108,7 @@ declare class AmdLoader {
     private push;
     private _resolveModule;
 }
+declare var global: any;
 declare const a: AmdLoader;
 interface IDefine {
     (requiresOrFactory: string[] | (() => void), factory?: (r: any, e: any) => void): void;
@@ -113,6 +126,7 @@ declare class MockType {
     replaced: any;
     constructor(module: Module, type: any, name: string, mock: boolean, moduleName?: string, exportName?: string);
 }
+declare var Symbol: any;
 declare class UMDClass {
     viewPrefix: string;
     defaultApp: string;

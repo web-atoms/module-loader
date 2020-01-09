@@ -1150,6 +1150,7 @@ var a = AmdLoader.instance;
 a.map("global", "/", "global");
 a.registerModule("global/document", { default: document });
 a.registerModule("global/window", { default: typeof window !== "undefined" ? window : global });
+a.map("reflect-metadata", "/", "global");
 a.registerModule("reflect-metadata", Reflect);
 AmdLoader.moduleLoader = function (name, url, success, error) {
     var script = document.createElement("script");

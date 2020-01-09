@@ -1,4 +1,5 @@
 /// <reference path="./Promise.ts"/>
+/// <reference path="./ReflectMetadata.ts"/>
 /// <reference path="./ArrayHelper.ts"/>
 /// <reference path="./Module.ts"/>
 declare var require: any;
@@ -507,6 +508,7 @@ const a: AmdLoader = AmdLoader.instance;
 a.map("global", "/", "global");
 a.registerModule("global/document",  { default: document });
 a.registerModule("global/window", { default: typeof window !== "undefined" ? window : global });
+a.registerModule("reflect-metadata", Reflect);
 
 AmdLoader.moduleLoader = (name, url, success, error) => {
 

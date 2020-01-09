@@ -10,10 +10,11 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -44,275 +45,171 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+// tslint:disable
 // @ts-ignore
-(function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory() :
-        typeof define === 'function' && define.amd ? define(factory) :
-            (factory());
-}(this, (function () {
-    'use strict';
-    /**
-     * @this {Promise}
-     */
-    function finallyConstructor(callback) {
-        var constructor = this.constructor;
-        return this.then(function (value) {
-            return constructor.resolve(callback()).then(function () {
-                return value;
-            });
-        }, function (reason) {
-            return constructor.resolve(callback()).then(function () {
-                return constructor.reject(reason);
-            });
-        });
+var Reflect;
+!function (o) { !function (t) { var e = "object" == typeof global ? global : "object" == typeof self ? self : "object" == typeof this ? this : Function("return this;")(), r = n(o); function n(r, n) { return function (t, e) { "function" != typeof r[t] && Object.defineProperty(r, t, { configurable: !0, writable: !0, value: e }), n && n(t, e); }; } void 0 === e.Reflect ? e.Reflect = o : r = n(e.Reflect, r), function (t) { var f = Object.prototype.hasOwnProperty, e = "function" == typeof Symbol, i = e && void 0 !== Symbol.toPrimitive ? Symbol.toPrimitive : "@@toPrimitive", s = e && void 0 !== Symbol.iterator ? Symbol.iterator : "@@iterator", r = "function" == typeof Object.create, n = { __proto__: [] } instanceof Array, o = !r && !n, c = { create: r ? function () { return S(Object.create(null)); } : n ? function () { return S({ __proto__: null }); } : function () { return S({}); }, has: o ? function (t, e) { return f.call(t, e); } : function (t, e) { return e in t; }, get: o ? function (t, e) { return f.call(t, e) ? t[e] : void 0; } : function (t, e) { return t[e]; } }, u = Object.getPrototypeOf(Function), a = "object" == typeof process && process.env && "true" === process.env.REFLECT_METADATA_USE_MAP_POLYFILL, h = a || "function" != typeof Map || "function" != typeof Map.prototype.entries ? function () { var o = {}, r = [], e = function () { function t(t, e, r) { this._index = 0, this._keys = t, this._values = e, this._selector = r; } return t.prototype["@@iterator"] = function () { return this; }, t.prototype[s] = function () { return this; }, t.prototype.next = function () { var t = this._index; if (0 <= t && t < this._keys.length) {
+    var e = this._selector(this._keys[t], this._values[t]);
+    return t + 1 >= this._keys.length ? (this._index = -1, this._keys = r, this._values = r) : this._index++, { value: e, done: !1 };
+} return { value: void 0, done: !0 }; }, t.prototype.throw = function (t) { throw 0 <= this._index && (this._index = -1, this._keys = r, this._values = r), t; }, t.prototype.return = function (t) { return 0 <= this._index && (this._index = -1, this._keys = r, this._values = r), { value: t, done: !0 }; }, t; }(); return function () { function t() { this._keys = [], this._values = [], this._cacheKey = o, this._cacheIndex = -2; } return Object.defineProperty(t.prototype, "size", { get: function () { return this._keys.length; }, enumerable: !0, configurable: !0 }), t.prototype.has = function (t) { return 0 <= this._find(t, !1); }, t.prototype.get = function (t) { var e = this._find(t, !1); return 0 <= e ? this._values[e] : void 0; }, t.prototype.set = function (t, e) { var r = this._find(t, !0); return this._values[r] = e, this; }, t.prototype.delete = function (t) { var e = this._find(t, !1); if (0 <= e) {
+    for (var r = this._keys.length, n = e + 1; n < r; n++)
+        this._keys[n - 1] = this._keys[n], this._values[n - 1] = this._values[n];
+    return this._keys.length--, this._values.length--, t === this._cacheKey && (this._cacheKey = o, this._cacheIndex = -2), !0;
+} return !1; }, t.prototype.clear = function () { this._keys.length = 0, this._values.length = 0, this._cacheKey = o, this._cacheIndex = -2; }, t.prototype.keys = function () { return new e(this._keys, this._values, n); }, t.prototype.values = function () { return new e(this._keys, this._values, i); }, t.prototype.entries = function () { return new e(this._keys, this._values, u); }, t.prototype["@@iterator"] = function () { return this.entries(); }, t.prototype[s] = function () { return this.entries(); }, t.prototype._find = function (t, e) { return this._cacheKey !== t && (this._cacheIndex = this._keys.indexOf(this._cacheKey = t)), this._cacheIndex < 0 && e && (this._cacheIndex = this._keys.length, this._keys.push(t), this._values.push(void 0)), this._cacheIndex; }, t; }(); function n(t, e) { return t; } function i(t, e) { return e; } function u(t, e) { return [t, e]; } }() : Map, l = a || "function" != typeof Set || "function" != typeof Set.prototype.entries ? function () { function t() { this._map = new h; } return Object.defineProperty(t.prototype, "size", { get: function () { return this._map.size; }, enumerable: !0, configurable: !0 }), t.prototype.has = function (t) { return this._map.has(t); }, t.prototype.add = function (t) { return this._map.set(t, t), this; }, t.prototype.delete = function (t) { return this._map.delete(t); }, t.prototype.clear = function () { this._map.clear(); }, t.prototype.keys = function () { return this._map.keys(); }, t.prototype.values = function () { return this._map.values(); }, t.prototype.entries = function () { return this._map.entries(); }, t.prototype["@@iterator"] = function () { return this.keys(); }, t.prototype[s] = function () { return this.keys(); }, t; }() : Set, p = new (a || "function" != typeof WeakMap ? function () { var o = 16, e = c.create(), r = n(); return function () { function t() { this._key = n(); } return t.prototype.has = function (t) { var e = i(t, !1); return void 0 !== e && c.has(e, this._key); }, t.prototype.get = function (t) { var e = i(t, !1); return void 0 !== e ? c.get(e, this._key) : void 0; }, t.prototype.set = function (t, e) { var r = i(t, !0); return r[this._key] = e, this; }, t.prototype.delete = function (t) { var e = i(t, !1); return void 0 !== e && delete e[this._key]; }, t.prototype.clear = function () { this._key = n(); }, t; }(); function n() { for (var t; t = "@@WeakMap@@" + a(), c.has(e, t);)
+    ; return e[t] = !0, t; } function i(t, e) { if (!f.call(t, r)) {
+    if (!e)
+        return;
+    Object.defineProperty(t, r, { value: c.create() });
+} return t[r]; } function u(t, e) { for (var r = 0; r < e; ++r)
+    t[r] = 255 * Math.random() | 0; return t; } function a() { var t = function (t) { if ("function" == typeof Uint8Array)
+    return "undefined" != typeof crypto ? crypto.getRandomValues(new Uint8Array(t)) : "undefined" != typeof msCrypto ? msCrypto.getRandomValues(new Uint8Array(t)) : u(new Uint8Array(t), t); return u(new Array(t), t); }(o); t[6] = 79 & t[6] | 64, t[8] = 191 & t[8] | 128; for (var e = "", r = 0; r < o; ++r) {
+    var n = t[r];
+    4 !== r && 6 !== r && 8 !== r || (e += "-"), n < 16 && (e += "0"), e += n.toString(16).toLowerCase();
+} return e; } }() : WeakMap); function y(t, e, r) { var n = p.get(t); if (b(n)) {
+    if (!r)
+        return;
+    n = new h, p.set(t, n);
+} var o = n.get(e); if (b(o)) {
+    if (!r)
+        return;
+    o = new h, n.set(e, o);
+} return o; } function v(t, e, r) { var n = y(e, r, !1); return !b(n) && !!n.has(t); } function _(t, e, r) { var n = y(e, r, !1); if (!b(n))
+    return n.get(t); } function d(t, e, r, n) { var o = y(r, n, !0); o.set(t, e); } function w(t, e) { var r = [], n = y(t, e, !1); if (b(n))
+    return r; for (var o, i = n.keys(), u = function (t) { var e = M(t, s); if (!j(e))
+    throw new TypeError; var r = e.call(t); if (!m(r))
+    throw new TypeError; return r; }(i), a = 0;;) {
+    var f = (void 0, !(o = u.next()).done && o);
+    if (!f)
+        return r.length = a, r;
+    var c = f.value;
+    try {
+        r[a] = c;
     }
-    // Store setTimeout reference so promise-polyfill will be unaffected by
-    // other code modifying setTimeout (like sinon.useFakeTimers())
-    var setTimeoutFunc = setTimeout;
-    function noop() { }
-    // Polyfill for Function.prototype.bind
-    function bind(fn, thisArg) {
-        return function () {
-            fn.apply(thisArg, arguments);
-        };
-    }
-    /**
-     * @constructor
-     * @param {Function} fn
-     */
-    function Promise(fn) {
-        if (!(this instanceof Promise))
-            throw new TypeError('Promises must be constructed via new');
-        if (typeof fn !== 'function')
-            throw new TypeError('not a function');
-        /** @type {!number} */
-        this._state = 0;
-        /** @type {!boolean} */
-        this._handled = false;
-        /** @type {Promise|undefined} */
-        this._value = undefined;
-        /** @type {!Array<!Function>} */
-        this._deferreds = [];
-        doResolve(fn, this);
-    }
-    function handle(self, deferred) {
-        while (self._state === 3) {
-            self = self._value;
-        }
-        if (self._state === 0) {
-            self._deferreds.push(deferred);
-            return;
-        }
-        self._handled = true;
-        // @ts-ignore
-        Promise._immediateFn(function () {
-            var cb = self._state === 1 ? deferred.onFulfilled : deferred.onRejected;
-            if (cb === null) {
-                (self._state === 1 ? resolve : reject)(deferred.promise, self._value);
-                return;
-            }
-            var ret;
-            try {
-                ret = cb(self._value);
-            }
-            catch (e) {
-                reject(deferred.promise, e);
-                return;
-            }
-            resolve(deferred.promise, ret);
-        });
-    }
-    function resolve(self, newValue) {
+    catch (t) {
         try {
-            // Promise Resolution Procedure: https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
-            if (newValue === self)
-                throw new TypeError('A promise cannot be resolved with itself.');
-            if (newValue &&
-                (typeof newValue === 'object' || typeof newValue === 'function')) {
-                var then = newValue.then;
-                if (newValue instanceof Promise) {
-                    self._state = 3;
-                    self._value = newValue;
-                    finale(self);
-                    return;
-                }
-                else if (typeof then === 'function') {
-                    doResolve(bind(then, newValue), self);
-                    return;
-                }
+            A(u);
+        }
+        finally {
+            throw t;
+        }
+    }
+    a++;
+} } function g(t) { if (null === t)
+    return 1; switch (typeof t) {
+    case "undefined": return 0;
+    case "boolean": return 2;
+    case "string": return 3;
+    case "symbol": return 4;
+    case "number": return 5;
+    case "object": return null === t ? 1 : 6;
+    default: return 6;
+} } function b(t) { return void 0 === t; } function k(t) { return null === t; } function m(t) { return "object" == typeof t ? null !== t : "function" == typeof t; } function E(t, e) { switch (g(t)) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5: return t;
+} var r = 3 === e ? "string" : 5 === e ? "number" : "default", n = M(t, i); if (void 0 !== n) {
+    var o = n.call(t, r);
+    if (m(o))
+        throw new TypeError;
+    return o;
+} return function (t, e) { if ("string" === e) {
+    var r = t.toString;
+    if (j(r)) {
+        var n = r.call(t);
+        if (!m(n))
+            return n;
+    }
+    var o = t.valueOf;
+    if (j(o)) {
+        var n = o.call(t);
+        if (!m(n))
+            return n;
+    }
+}
+else {
+    var o = t.valueOf;
+    if (j(o)) {
+        var n = o.call(t);
+        if (!m(n))
+            return n;
+    }
+    var i = t.toString;
+    if (j(i)) {
+        var n = i.call(t);
+        if (!m(n))
+            return n;
+    }
+} throw new TypeError; }(t, "default" === r ? "number" : r); } function T(t) { var e = E(t, 3); return "symbol" == typeof e ? e : "" + e; } function O(t) { return Array.isArray ? Array.isArray(t) : t instanceof Object ? t instanceof Array : "[object Array]" === Object.prototype.toString.call(t); } function j(t) { return "function" == typeof t; } function x(t) { return "function" == typeof t; } function M(t, e) { var r = t[e]; if (null != r) {
+    if (!j(r))
+        throw new TypeError;
+    return r;
+} } function A(t) { var e = t.return; e && e.call(t); } function P(t) { var e = Object.getPrototypeOf(t); if ("function" != typeof t || t === u)
+    return e; if (e !== u)
+    return e; var r = t.prototype, n = r && Object.getPrototypeOf(r); if (null == n || n === Object.prototype)
+    return e; var o = n.constructor; return "function" != typeof o ? e : o === t ? e : o; } function S(t) { return t.__ = void 0, delete t.__, t; } t("decorate", function (t, e, r, n) { {
+    if (b(r)) {
+        if (!O(t))
+            throw new TypeError;
+        if (!x(e))
+            throw new TypeError;
+        return function (t, e) { for (var r = t.length - 1; 0 <= r; --r) {
+            var n = t[r], o = n(e);
+            if (!b(o) && !k(o)) {
+                if (!x(o))
+                    throw new TypeError;
+                e = o;
             }
-            self._state = 1;
-            self._value = newValue;
-            finale(self);
-        }
-        catch (e) {
-            reject(self, e);
-        }
+        } return e; }(t, e);
     }
-    function reject(self, newValue) {
-        self._state = 2;
-        self._value = newValue;
-        finale(self);
-    }
-    function finale(self) {
-        if (self._state === 2 && self._deferreds.length === 0) {
-            // @ts-ignore
-            Promise._immediateFn(function () {
-                if (!self._handled) {
-                    // @ts-ignore
-                    Promise._unhandledRejectionFn(self._value);
-                }
-            });
+    if (!O(t))
+        throw new TypeError;
+    if (!m(e))
+        throw new TypeError;
+    if (!m(n) && !b(n) && !k(n))
+        throw new TypeError;
+    return k(n) && (n = void 0), r = T(r), function (t, e, r, n) { for (var o = t.length - 1; 0 <= o; --o) {
+        var i = t[o], u = i(e, r, n);
+        if (!b(u) && !k(u)) {
+            if (!m(u))
+                throw new TypeError;
+            n = u;
         }
-        for (var i = 0, len = self._deferreds.length; i < len; i++) {
-            handle(self, self._deferreds[i]);
-        }
-        self._deferreds = null;
-    }
-    /**
-     * @constructor
-     */
-    function Handler(onFulfilled, onRejected, promise) {
-        this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null;
-        this.onRejected = typeof onRejected === 'function' ? onRejected : null;
-        this.promise = promise;
-    }
-    /**
-     * Take a potentially misbehaving resolver function and make sure
-     * onFulfilled and onRejected are only called once.
-     *
-     * Makes no guarantees about asynchrony.
-     */
-    function doResolve(fn, self) {
-        var done = false;
-        try {
-            fn(function (value) {
-                if (done)
-                    return;
-                done = true;
-                resolve(self, value);
-            }, function (reason) {
-                if (done)
-                    return;
-                done = true;
-                reject(self, reason);
-            });
-        }
-        catch (ex) {
-            if (done)
-                return;
-            done = true;
-            reject(self, ex);
-        }
-    }
-    Promise.prototype['catch'] = function (onRejected) {
-        return this.then(null, onRejected);
-    };
-    Promise.prototype.then = function (onFulfilled, onRejected) {
-        // @ts-ignore
-        var prom = new this.constructor(noop);
-        handle(this, new Handler(onFulfilled, onRejected, prom));
-        return prom;
-    };
-    Promise.prototype['finally'] = finallyConstructor;
-    // @ts-ignore
-    Promise.all = function (arr) {
-        return new Promise(function (resolve, reject) {
-            if (!arr || typeof arr.length === 'undefined')
-                throw new TypeError('Promise.all accepts an array');
-            var args = Array.prototype.slice.call(arr);
-            if (args.length === 0)
-                return resolve([]);
-            var remaining = args.length;
-            function res(i, val) {
-                try {
-                    if (val && (typeof val === 'object' || typeof val === 'function')) {
-                        var then = val.then;
-                        if (typeof then === 'function') {
-                            then.call(val, function (val) {
-                                res(i, val);
-                            }, reject);
-                            return;
-                        }
-                    }
-                    args[i] = val;
-                    if (--remaining === 0) {
-                        resolve(args);
-                    }
-                }
-                catch (ex) {
-                    reject(ex);
-                }
-            }
-            for (var i = 0; i < args.length; i++) {
-                res(i, args[i]);
-            }
-        });
-    };
-    // @ts-ignore
-    Promise.resolve = function (value) {
-        if (value && typeof value === 'object' && value.constructor === Promise) {
-            return value;
-        }
-        return new Promise(function (resolve) {
-            resolve(value);
-        });
-    };
-    // @ts-ignore
-    Promise.reject = function (value) {
-        return new Promise(function (resolve, reject) {
-            reject(value);
-        });
-    };
-    // @ts-ignore
-    Promise.race = function (values) {
-        return new Promise(function (resolve, reject) {
-            for (var i = 0, len = values.length; i < len; i++) {
-                values[i].then(resolve, reject);
-            }
-        });
-    };
-    // Use polyfill for setImmediate for performance gains
-    // @ts-ignore
-    Promise._immediateFn =
-        // @ts-ignore
-        (typeof setImmediate === 'function' &&
-            function (fn) {
-                // @ts-ignore
-                setImmediate(fn);
-            }) ||
-            function (fn) {
-                setTimeoutFunc(fn, 0);
-            };
-    // @ts-ignore
-    Promise._unhandledRejectionFn = function _unhandledRejectionFn(err) {
-        if (typeof console !== 'undefined' && console) {
-            console.warn('Possible Unhandled Promise Rejection:', err); // eslint-disable-line no-console
-        }
-    };
-    /** @suppress {undefinedVars} */
-    var globalNS = (function () {
-        // the only reliable means to get the global object is
-        // `Function('return this')()`
-        // However, this causes CSP violations in Chrome apps.
-        if (typeof self !== 'undefined') {
-            return self;
-        }
-        if (typeof window !== 'undefined') {
-            return window;
-        }
-        if (typeof global !== 'undefined') {
-            return global;
-        }
-        throw new Error('unable to locate global object');
-    })();
-    if (!('Promise' in globalNS)) {
-        globalNS['Promise'] = Promise;
-    }
-    else if (!globalNS.Promise.prototype['finally']) {
-        globalNS.Promise.prototype['finally'] = finallyConstructor;
-    }
-})));
+    } return n; }(t, e, r, n);
+} }), t("metadata", function (r, n) { return function (t, e) { if (!m(t))
+    throw new TypeError; if (!b(e) && !function (t) { switch (g(t)) {
+    case 3:
+    case 4: return !0;
+    default: return !1;
+} }(e))
+    throw new TypeError; d(r, n, t, e); }; }), t("defineMetadata", function (t, e, r, n) { if (!m(r))
+    throw new TypeError; b(n) || (n = T(n)); return d(t, e, r, n); }), t("hasMetadata", function (t, e, r) { if (!m(e))
+    throw new TypeError; b(r) || (r = T(r)); return function t(e, r, n) { var o = v(e, r, n); if (o)
+    return !0; var i = P(r); if (!k(i))
+    return t(e, i, n); return !1; }(t, e, r); }), t("hasOwnMetadata", function (t, e, r) { if (!m(e))
+    throw new TypeError; b(r) || (r = T(r)); return v(t, e, r); }), t("getMetadata", function (t, e, r) { if (!m(e))
+    throw new TypeError; b(r) || (r = T(r)); return function t(e, r, n) { var o = v(e, r, n); if (o)
+    return _(e, r, n); var i = P(r); if (!k(i))
+    return t(e, i, n); return; }(t, e, r); }), t("getOwnMetadata", function (t, e, r) { if (!m(e))
+    throw new TypeError; b(r) || (r = T(r)); return _(t, e, r); }), t("getMetadataKeys", function (t, e) { if (!m(t))
+    throw new TypeError; b(e) || (e = T(e)); return function t(e, r) { var n = w(e, r); var o = P(e); if (null === o)
+    return n; var i = t(o, r); if (i.length <= 0)
+    return n; if (n.length <= 0)
+    return i; var u = new l; var a = []; for (var f = 0, c = n; f < c.length; f++) {
+    var s = c[f], h = u.has(s);
+    h || (u.add(s), a.push(s));
+} for (var p = 0, y = i; p < y.length; p++) {
+    var s = y[p], h = u.has(s);
+    h || (u.add(s), a.push(s));
+} return a; }(t, e); }), t("getOwnMetadataKeys", function (t, e) { if (!m(t))
+    throw new TypeError; b(e) || (e = T(e)); return w(t, e); }), t("deleteMetadata", function (t, e, r) { if (!m(e))
+    throw new TypeError; b(r) || (r = T(r)); var n = y(e, r, !1); if (b(n))
+    return !1; if (!n.delete(t))
+    return !1; if (0 < n.size)
+    return !0; var o = p.get(e); return o.delete(r), 0 < o.size || p.delete(e), !0; }); }(r); }(); }(Reflect || (Reflect = {}));
+//# sourceMappingURL=/sm/d3ba45b98814b993d6aab5ce31c491c459ff57773960f74725c98a635912413a.map
 if (!Array.prototype.find) {
     Array.prototype.find = function (predicate, thisArg) {
         for (var i = 0; i < this.length; i++) {
@@ -501,13 +398,17 @@ var Module = /** @class */ (function () {
             }
             AmdLoader.instance.currentStack.pop();
             delete this.factory;
+            if (this.exports.default) {
+                this.exports.default[UMD.nameSymbol] = this.name;
+            }
         }
         return this.exports;
     };
     Module.nextID = 1;
     return Module;
 }());
-/// <reference path="./Promise.ts"/>
+/// <reference path="./Promise.js"/>
+/// <reference path="./ReflectMetadata.ts"/>
 /// <reference path="./ArrayHelper.ts"/>
 /// <reference path="./Module.ts"/>
 if (typeof require !== "undefined") {
@@ -671,9 +572,14 @@ var AmdLoader = /** @class */ (function () {
                             path = path.substr(0, path.length - 1);
                         }
                         path = path + "/" + name;
-                        if (defExt && !path.endsWith(defExt)) {
+                        var i = path.lastIndexOf("/");
+                        var fname = path.substr(i + 1);
+                        if (fname.indexOf(".") === -1) {
                             path = path + defExt;
                         }
+                        // if (defExt && !path.endsWith(defExt)) {
+                        //     path = path + defExt;
+                        // }
                         return path;
                     }
                 }
@@ -752,7 +658,8 @@ var AmdLoader = /** @class */ (function () {
             module.require = function (n) {
                 var an = _this.resolveRelativePath(n, module.name);
                 var resolvedModule = _this.get(an);
-                return resolvedModule.getExports();
+                var m = resolvedModule.getExports();
+                return m;
             };
             module.require.resolve = function (n) { return _this.resolveRelativePath(n, module.name); };
             this.modules[name_1] = module;
@@ -786,6 +693,18 @@ var AmdLoader = /** @class */ (function () {
             return module.loader;
         }
         this.push(module);
+        if (AmdLoader.isMedia.test(module.url)) {
+            var m = {
+                url: module.url,
+                toString: function () { return module.url; }
+            };
+            var e = { __esModule: true, default: m };
+            module.exports = e;
+            module.emptyExports = e;
+            module.loader = Promise.resolve();
+            module.isLoaded = true;
+            return module.loader;
+        }
         module.loader = new Promise(function (resolve, reject) {
             AmdLoader.moduleLoader(module.name, module.url, function () {
                 try {
@@ -952,6 +871,7 @@ var AmdLoader = /** @class */ (function () {
             });
         });
     };
+    AmdLoader.isMedia = /\.(jpg|jpeg|gif|png|mp4|mp3|css|html|svg|json)$/i;
     AmdLoader.globalVar = {};
     AmdLoader.instance = new AmdLoader();
     AmdLoader.current = null;
@@ -961,6 +881,7 @@ var a = AmdLoader.instance;
 a.map("global", "/", "global");
 a.registerModule("global/document", { default: document });
 a.registerModule("global/window", { default: typeof window !== "undefined" ? window : global });
+a.registerModule("reflect-metadata", Reflect);
 AmdLoader.moduleLoader = function (name, url, success, error) {
     var script = document.createElement("script");
     script.type = "text/javascript";
@@ -1108,8 +1029,9 @@ var MockType = /** @class */ (function () {
 var UMDClass = /** @class */ (function () {
     function UMDClass() {
         this.viewPrefix = "web";
-        this.defaultApp = "web-atoms-core/dist/web/WebApp";
+        this.defaultApp = "@web-atoms/core/dist/web/WebApp";
         this.lang = "en-US";
+        this.nameSymbol = typeof Symbol !== "undefined" ? Symbol() : "_$_nameSymbol";
     }
     Object.defineProperty(UMDClass.prototype, "mock", {
         get: function () {
@@ -1168,11 +1090,11 @@ var UMDClass = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         this.mock = designMode;
-                        return [4 /*yield*/, AmdLoader.instance.import("web-atoms-core/dist/Atom")];
+                        return [4 /*yield*/, AmdLoader.instance.import("@web-atoms/core/dist/Atom")];
                     case 1:
                         a = _a.sent();
                         a.Atom.designMode = designMode;
-                        return [4 /*yield*/, AmdLoader.instance.import("web-atoms-core/dist/core/AtomList")];
+                        return [4 /*yield*/, AmdLoader.instance.import("@web-atoms/core/dist/core/AtomList")];
                     case 2:
                         al = _a.sent();
                         return [4 /*yield*/, AmdLoader.instance.import(path)];

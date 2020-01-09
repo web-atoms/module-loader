@@ -1,4 +1,4 @@
-declare var module: any, exports: any, amd: any, global: any;
+declare var Reflect: any;
 interface IPackage {
     name: string;
     version: string;
@@ -31,7 +31,7 @@ declare class Module {
     exportVar: string;
     factory: (r: any, e: any) => void;
     loader: Promise<any>;
-    readonly filename: string;
+    get filename(): string;
     /**
      * This promise can be awaited by dependency resolver
      */
@@ -45,6 +45,7 @@ declare class Module {
 declare var require: any;
 declare var md: any;
 declare class AmdLoader {
+    static isMedia: RegExp;
     static globalVar: any;
     static moduleProgress: (name: string, modules: {
         [key: string]: Module;
@@ -116,7 +117,9 @@ declare class UMDClass {
     viewPrefix: string;
     defaultApp: string;
     lang: string;
-    mock: boolean;
+    nameSymbol: any;
+    get mock(): boolean;
+    set mock(v: boolean);
     resolvePath(n: string): string;
     resolveViewPath(path: string): string;
     resolveType(type: any): any;

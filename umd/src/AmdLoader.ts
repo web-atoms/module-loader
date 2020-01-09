@@ -1,4 +1,4 @@
-/// <reference path="./Promise.js"/>
+/// <reference path="./Promise.ts"/>
 /// <reference path="./ReflectMetadata.ts"/>
 /// <reference path="./ArrayHelper.ts"/>
 /// <reference path="./Module.ts"/>

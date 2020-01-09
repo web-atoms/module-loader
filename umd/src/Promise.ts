@@ -1,8 +1,6 @@
-// declare var TypeError: any;
-
-// // tslint:disable
-// // @ts-ignore
-// declare var module: any, exports: any, amd: any, global: any;
+// tslint:disable
+// @ts-ignore
+declare var module: any, exports: any, amd: any, global: any;
 // @ts-ignore
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory() :

@@ -1,3 +1,4 @@
+declare var module: any, exports: any, amd: any, global: any;
 declare var Reflect: any;
 interface Array<T> {
     find: any;

@@ -68,6 +68,9 @@ class AmdLoader {
     }
 
     public setupRoot(root: string, url: string): void {
+        if (url.endsWith("/")) {
+            url = url.substr(0, url.length - 1);
+        }
         for (const key in this.pathMap) {
             if (this.pathMap.hasOwnProperty(key)) {
                 const moduleUrl: string = key === root ? url : `${url}/node_modules/${key}`;

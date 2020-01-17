@@ -202,8 +202,8 @@ class AmdLoader {
                             path = path.substr(0, path.length - 1);
                         }
                         path = path + "/" + name;
-                        const i = path.lastIndexOf("/");
-                        const fname = path.substr(i + 1);
+                        const i = name.lastIndexOf("/");
+                        const fname = name.substr(i + 1);
                         if (fname.indexOf(".") === -1) {
                             path = path + defExt;
                         }

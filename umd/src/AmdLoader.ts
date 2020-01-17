@@ -330,9 +330,10 @@ class AmdLoader {
         }
         this.push(module);
         if (AmdLoader.isMedia.test(module.url)) {
+            const mUrl = module.package.url + module.url;
             const m = {
-                url: module.url,
-                toString: () => module.url
+                url: mUrl,
+                toString: () => mUrl
             };
             const e = { __esModule: true, default: m };
             module.exports = e;

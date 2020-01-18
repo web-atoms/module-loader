@@ -64,6 +64,7 @@ class UMDClass {
 
     public async load(path: string, designMode?: boolean): Promise<any> {
         this.mock = designMode;
+        const t: any = await AmdLoader.instance.import("@web-atoms/core/dist/core/types");
         const a: any = await AmdLoader.instance.import("@web-atoms/core/dist/Atom");
         a.Atom.designMode = designMode;
         const al: any = await AmdLoader.instance.import("@web-atoms/core/dist/core/AtomList");

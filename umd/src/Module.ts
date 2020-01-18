@@ -157,28 +157,34 @@ class Module {
     public getExports(): any {
         this.exports = this.emptyExports;
         if (this.factory) {
-            const factory = this.factory;
-            this.factory = null;
-            delete this.factory;
-            AmdLoader.instance.currentStack.push(this);
-            const result: any = factory(this.require, this.exports);
-            if (result) {
-                if (typeof result === "object") {
-                    for (const key in result) {
-                        if (result.hasOwnProperty(key)) {
-                            const element: any = result[key];
-                            this.exports[key] = element;
+            try {
+                const factory = this.factory;
+                this.factory = null;
+                delete this.factory;
+                AmdLoader.instance.currentStack.push(this);
+                const result: any = factory(this.require, this.exports);
+                if (result) {
+                    if (typeof result === "object") {
+                        for (const key in result) {
+                            if (result.hasOwnProperty(key)) {
+                                const element: any = result[key];
+                                this.exports[key] = element;
+                            }
                         }
+                    } else if (!this.exports.default) {
+                        this.exports.default = result;
                     }
-                } else if (!this.exports.default) {
-                    this.exports.default = result;
                 }
-            }
-            AmdLoader.instance.currentStack.pop();
-            delete this.factory;
+                AmdLoader.instance.currentStack.pop();
+                delete this.factory;
 
-            if (this.exports.default) {
-                this.exports.default[UMD.nameSymbol] = this.name;
+                if (this.exports.default) {
+                    this.exports.default[UMD.nameSymbol] = this.name;
+                }
+            } catch (e) {
+                // tslint:disable-next-line: no-console
+                console.error(e);
+                throw e;
             }
         }
         return this.exports;

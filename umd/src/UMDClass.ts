@@ -132,3 +132,8 @@ class UMDClass {
 }
 
 const UMD: UMDClass = new UMDClass();
+
+((u) => {
+    const globalNS = (typeof window !== "undefined" ? window : global);
+    globalNS.UMD = u;
+})(UMD);

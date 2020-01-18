@@ -417,6 +417,31 @@ class AmdLoader {
         }, n);
     }
 
+    public watch() {
+        const id = setInterval(() => {
+            if (this.tail) {
+                const list = [];
+                for (const key in this.modules) {
+                    if (this.modules.hasOwnProperty(key)) {
+                        const element = this.modules[key];
+                        if (!element.isResolved) {
+                            list.push({
+                                name: element.name,
+                                dependencies: element.dependencies.map((x) => x.name)
+                            });
+                        }
+                    }
+                }
+                // tslint:disable-next-line: no-console
+                console.log("Pending modules");
+                // tslint:disable-next-line: no-console
+                console.log(JSON.stringify(list));
+                return;
+            }
+            clearInterval(id);
+        }, 10000);
+    }
+
     private resolvePendingModules(): void {
 
         if (!this.tail) {
@@ -516,6 +541,8 @@ a.registerModule("global/document",  { default: document });
 a.registerModule("global/window", { default: typeof window !== "undefined" ? window : global });
 a.map("reflect-metadata", "/", "global");
 a.registerModule("reflect-metadata", Reflect);
+
+a.watch();
 
 AmdLoader.moduleLoader = (name, url, success, error) => {
 

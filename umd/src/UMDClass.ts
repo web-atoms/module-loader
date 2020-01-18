@@ -107,8 +107,6 @@ class UMDClass {
             AmdLoader.instance.get(path);
             const m: any = await this.load(appPath, designMode);
             const app: any = new (m.default)();
-            // tslint:disable-next-line: no-console
-            console.log(`Application ${appPath} is now created`);
             await new Promise((resolve, reject) => {
                 app.onReady(async () => {
                     try {

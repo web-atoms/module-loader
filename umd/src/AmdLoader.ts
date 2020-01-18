@@ -544,7 +544,7 @@ a.registerModule("global/window", { default: typeof window !== "undefined" ? win
 a.map("reflect-metadata", "/", "global");
 a.registerModule("reflect-metadata", Reflect);
 
-a.watch();
+// a.watch();
 
 AmdLoader.moduleLoader = (name, url, success, error) => {
 

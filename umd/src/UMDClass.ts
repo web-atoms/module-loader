@@ -101,27 +101,33 @@ class UMDClass {
     }
 
     public async loadView(path: string, designMode?: boolean, appPath?: string): Promise<any> {
-        this.mock = designMode;
-        appPath = appPath || this.defaultApp;
-        AmdLoader.instance.get(path);
-        const m: any = await this.load(appPath, designMode);
-        const app: any = new (m.default)();
-        // tslint:disable-next-line: no-console
-        console.log(`Application ${appPath} is now created`);
-        await new Promise((resolve, reject) => {
-            app.onReady(async () => {
-                try {
-                    const viewClass: any = await AmdLoader.instance.import(path);
-                    const view: any = new (viewClass.default)(app);
-                    app.root = view;
-                    resolve(view);
-                } catch (e) {
-                    // tslint:disable-next-line:no-console
-                    console.error(e);
-                    reject(e);
-                }
+        try {
+            this.mock = designMode;
+            appPath = appPath || this.defaultApp;
+            AmdLoader.instance.get(path);
+            const m: any = await this.load(appPath, designMode);
+            const app: any = new (m.default)();
+            // tslint:disable-next-line: no-console
+            console.log(`Application ${appPath} is now created`);
+            await new Promise((resolve, reject) => {
+                app.onReady(async () => {
+                    try {
+                        const viewClass: any = await AmdLoader.instance.import(path);
+                        const view: any = new (viewClass.default)(app);
+                        app.root = view;
+                        resolve(view);
+                    } catch (e) {
+                        // tslint:disable-next-line:no-console
+                        console.error(e);
+                        reject(e);
+                    }
+                });
             });
-        });
+        } catch (er) {
+            // tslint:disable-next-line: no-console
+            console.error(er);
+            throw er;
+        }
     }
 
 }

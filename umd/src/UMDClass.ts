@@ -106,15 +106,19 @@ class UMDClass {
         AmdLoader.instance.get(path);
         const m: any = await this.load(appPath, designMode);
         const app: any = new (m.default)();
-        app.onReady(async () => {
-            try {
-                const viewClass: any = await AmdLoader.instance.import(path);
-                const view: any = new (viewClass.default)(app);
-                app.root = view;
-            } catch (e) {
-                // tslint:disable-next-line:no-console
-                console.error(e);
-            }
+        await new Promise((resolve, reject) => {
+            app.onReady(async () => {
+                try {
+                    const viewClass: any = await AmdLoader.instance.import(path);
+                    const view: any = new (viewClass.default)(app);
+                    app.root = view;
+                    resolve(view);
+                } catch (e) {
+                    // tslint:disable-next-line:no-console
+                    console.error(e);
+                    reject(e);
+                }
+            });
         });
     }
 

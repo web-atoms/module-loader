@@ -12,7 +12,9 @@ if (typeof require !== "undefined") {
 
 class AmdLoader {
 
-    public static isMedia = /\.(jpg|jpeg|gif|png|mp4|mp3|css|html|svg|json)$/i;
+    public static isMedia = /\.(jpg|jpeg|gif|png|mp4|mp3|css|html|svg)$/i;
+
+    public static isJson = /\.json$/i;
 
     public static globalVar: any = {};
 
@@ -20,6 +22,9 @@ class AmdLoader {
 
     public static moduleLoader:
         (packageName: string, url: string, success: () => void, failed: (error: any) => void) => void;
+
+    public static httpTextLoader:
+        (url: string, resolve: (r: any) => void, failed: (error: any) => void) => void;
 
     public static instance: AmdLoader = new AmdLoader();
 
@@ -203,8 +208,8 @@ class AmdLoader {
                         }
                         path = path + "/" + name;
                         const i = name.lastIndexOf("/");
-                        const fname = name.substr(i + 1);
-                        if (fname.indexOf(".") === -1) {
+                        const fileName = name.substr(i + 1);
+                        if (fileName.indexOf(".") === -1) {
                             path = path + defExt;
                         }
                         // if (defExt && !path.endsWith(defExt)) {
@@ -329,6 +334,27 @@ class AmdLoader {
             return module.loader;
         }
         this.push(module);
+
+        if (AmdLoader.isJson.test(module.url)) {
+            const mUrl = module.package.url + module.url;
+            module.loader = new Promise((resolve, reject) => {
+                try {
+                    AmdLoader.httpTextLoader(mUrl, (r) => {
+                        try {
+                            module.exports = JSON.parse(r);
+                            module.isLoaded = true;
+                            setTimeout(() => this.loadDependencies(module), 1);
+                            resolve();
+                        } catch (e) {
+                            reject(e);
+                        }
+                    }, reject);
+                } catch (e1) {
+                    reject(e1);
+                }
+            });
+        }
+
         if (AmdLoader.isMedia.test(module.url)) {
             const mUrl = module.package.url + module.url;
             const m = {
@@ -561,6 +587,21 @@ AmdLoader.moduleLoader = (name, url, success, error) => {
     };
     script.onerror = (e) => { error(e); };
     document.body.appendChild(script);
+};
+
+AmdLoader.httpTextLoader = (url, success, error) => {
+    const xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = (e) => {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+                success(xhr.responseText);
+            } else {
+                error(xhr.responseText);
+            }
+        }
+    };
+    xhr.open("GET", url);
+    xhr.send();
 };
 
 AmdLoader.moduleProgress = (() => {

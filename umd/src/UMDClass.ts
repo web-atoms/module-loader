@@ -108,7 +108,7 @@ class UMDClass {
             AmdLoader.instance.get(path);
             const m: any = await this.load(appPath, designMode);
             const app: any = new (m.default)();
-            await new Promise((resolve, reject) => {
+            return await new Promise((resolve, reject) => {
                 app.onReady(async () => {
                     try {
                         const viewClass: any = await AmdLoader.instance.import(path);

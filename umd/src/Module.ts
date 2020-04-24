@@ -54,6 +54,23 @@ class Module {
     }
 
     /**
+     * Displays list of direct dependents
+     */
+    public get dependents() {
+        const modules = AmdLoader.instance.modules;
+        const dependents = [];
+        for (const m in modules){
+            if (modules.hasOwnProperty(m)) {
+                const element = modules[m];
+                if (element.dependencies.find((mi) => mi === this)) {
+                    dependents.push(element);
+                }
+            }
+        }
+        return dependents;
+    }
+
+    /**
      * This promise can be awaited by dependency resolver
      */
     public resolver: Promise<any>;
@@ -70,6 +87,7 @@ class Module {
         } else {
             this.folder = name.substr(0, index);
         }
+
     }
 
     public resolve(id?: number): boolean {

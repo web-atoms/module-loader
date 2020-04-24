@@ -215,7 +215,10 @@ class Module {
         for (const m in modules) {
             if (modules.hasOwnProperty(m)) {
                 const element = modules[m];
-                if (!element.dependencies.find((mi) => mi === this)) {
+                if (dependents.find((mid) => mid === element)) {
+                    continue;
+                }
+                if (element.dependencies.find((mi) => mi === this)) {
                     if (!dependents.find((mi) => mi === element)) {
                         dependents.push(element);
 

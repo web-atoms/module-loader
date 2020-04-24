@@ -54,16 +54,25 @@ class Module {
     }
 
     /**
-     * Displays list of direct dependents
+     * Displays list of all dependents (including nested)
      */
     public get dependents() {
         const modules = AmdLoader.instance.modules;
         const dependents = [];
-        for (const m in modules){
+        for (const m in modules) {
             if (modules.hasOwnProperty(m)) {
                 const element = modules[m];
                 if (element.dependencies.find((mi) => mi === this)) {
-                    dependents.push(element);
+                    if (dependents.findIndex(element) === -1) {
+                        dependents.push(element);
+
+                        // add its own dependents
+                        for (const iterator of element.dependents) {
+                            if (dependents.findIndex(iterator) === -1) {
+                                dependents.push(iterator);
+                            }
+                        }
+                    }
                 }
             }
         }

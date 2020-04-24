@@ -55,7 +55,7 @@ class Module {
 
     public get dependents() {
         const d = [];
-        this.findDependents(d);
+        this.findDependents(d, this);
         return d;
     }
 
@@ -210,20 +210,17 @@ class Module {
     /**
      * Displays list of all dependents (including nested)
      */
-    private findDependents(dependents: Module[]) {
+    private findDependents(dependents: Module[], c: Module) {
         const modules = AmdLoader.instance.modules;
         for (const m in modules) {
             if (modules.hasOwnProperty(m)) {
                 const element = modules[m];
-                if (dependents.find((mid) => mid === element)) {
+                if (dependents.find((d) => d === element)) {
                     continue;
                 }
-                if (element.dependencies.find((mi) => mi === this)) {
-                    if (!dependents.find((mi) => mi === element)) {
-                        dependents.push(element);
-
-                        element.findDependents(dependents);
-                    }
+                if (element.dependencies.find((e) => e === c)) {
+                    dependents.push(element);
+                    element.findDependents(dependents, c);
                 }
             }
         }

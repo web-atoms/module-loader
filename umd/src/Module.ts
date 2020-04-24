@@ -223,7 +223,9 @@ class Module {
             if (iterator.name === m.name) {
                 return true;
             }
-            return iterator.isDependentOn(m);
+            if (iterator.isDependentOn(m)) {
+                return true;
+            }
         }
         return false;
     }

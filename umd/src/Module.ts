@@ -63,12 +63,12 @@ class Module {
             if (modules.hasOwnProperty(m)) {
                 const element = modules[m];
                 if (element.dependencies.find((mi) => mi === this)) {
-                    if (dependents.findIndex(element) === -1) {
+                    if (!dependents.find((mi) => mi === element)) {
                         dependents.push(element);
 
                         // add its own dependents
                         for (const iterator of element.dependents) {
-                            if (dependents.findIndex(iterator) === -1) {
+                            if (!dependents.find((mid) => mid === iterator)) {
                                 dependents.push(iterator);
                             }
                         }

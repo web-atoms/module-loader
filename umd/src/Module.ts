@@ -55,7 +55,15 @@ class Module {
 
     public get dependents() {
         const d = [];
-        this.findDependents(d, this, [this]);
+        const modules = AmdLoader.instance.modules;
+        for (const key in modules) {
+            if (modules.hasOwnProperty(key)) {
+                const element = modules[key];
+                if (element.isDependentOn(this)) {
+                    d.push(element);
+                }
+            }
+        }
         return d;
     }
 
@@ -210,20 +218,18 @@ class Module {
     /**
      * Displays list of all dependents (including nested)
      */
-    private findDependents(dependents: Module[], c: Module, visited: Module[]) {
-        const modules = AmdLoader.instance.modules;
-        for (const m in modules) {
-            if (modules.hasOwnProperty(m)) {
-                const element = modules[m];
-                if (dependents.find((d) => d === element)) {
-                    continue;
-                }
-                if (element.dependencies.find((e) => e === c)) {
-                    dependents.push(element);
-                }
-                element.findDependents(dependents, c, visited);
-            }
+    private isDependentOn(m: Module, visited: any = {}): boolean {
+        if (visited [this.name]) {
+            return false;
         }
+        visited[this.name] = true;
+        for (const iterator of this.dependencies) {
+            if (iterator === m ) {
+                return true;
+            }
+            return iterator.isDependentOn(m);
+        }
+        return false;
     }
 
 }

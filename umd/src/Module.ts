@@ -220,13 +220,13 @@ class Module {
      * Displays list of all dependents (including nested)
      */
     private isDependentOn(m: Module, visited: any): boolean {
-        if (visited[this.name]) {
-            return false;
-        }
         visited[this.name] = true;
         for (const iterator of this.dependencies) {
             if (iterator.name === m.name) {
                 return true;
+            }
+            if (visited[iterator.name]) {
+                continue;
             }
             if (iterator.isDependentOn(m, visited)) {
                 return true;

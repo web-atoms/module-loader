@@ -54,7 +54,9 @@ class Module {
     }
 
     public get dependents() {
-        return this.findDependents([]);
+        const d = [];
+        this.findDependents(d);
+        return d;
     }
 
     /**

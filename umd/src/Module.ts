@@ -209,9 +209,11 @@ class Module {
                     this.exports.default[UMD.nameSymbol] = this.name;
                 }
             } catch (e) {
+                const em = e.stack ? (`${e}\n${e.stack}`) : e;
+                const ne = new Error(`Failed loading module ${this.name} with error ${em}`);
                 // tslint:disable-next-line: no-console
-                console.error(e);
-                throw e;
+                console.error(ne);
+                throw ne;
             }
         }
         return this.exports;

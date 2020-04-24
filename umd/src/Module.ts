@@ -53,30 +53,8 @@ class Module {
         return this.name;
     }
 
-    /**
-     * Displays list of all dependents (including nested)
-     */
     public get dependents() {
-        const modules = AmdLoader.instance.modules;
-        const dependents = [];
-        for (const m in modules) {
-            if (modules.hasOwnProperty(m)) {
-                const element = modules[m];
-                if (element.dependencies.find((mi) => mi === this)) {
-                    if (!dependents.find((mi) => mi === element)) {
-                        dependents.push(element);
-
-                        // add its own dependents
-                        for (const iterator of element.dependents) {
-                            if (!dependents.find((mid) => mid === iterator)) {
-                                dependents.push(iterator);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return dependents;
+        return this.findDependents([]);
     }
 
     /**
@@ -225,6 +203,25 @@ class Module {
             }
         }
         return this.exports;
+    }
+
+    /**
+     * Displays list of all dependents (including nested)
+     */
+    private findDependents(dependents: Module[]) {
+        const modules = AmdLoader.instance.modules;
+        for (const m in modules) {
+            if (modules.hasOwnProperty(m)) {
+                const element = modules[m];
+                if (element.dependencies.find((mi) => mi === this)) {
+                    if (!dependents.find((mi) => mi === element)) {
+                        dependents.push(element);
+
+                        element.findDependents(dependents);
+                    }
+                }
+            }
+        }
     }
 
 }

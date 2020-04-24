@@ -55,11 +55,12 @@ class Module {
 
     public get dependents() {
         const d = [];
+        const v = {};
         const modules = AmdLoader.instance.modules;
         for (const key in modules) {
             if (modules.hasOwnProperty(key)) {
                 const element = modules[key];
-                if (element.isDependentOn(this)) {
+                if (element.isDependentOn(this, v)) {
                     d.push(element);
                 }
             }
@@ -218,12 +219,16 @@ class Module {
     /**
      * Displays list of all dependents (including nested)
      */
-    private isDependentOn(m: Module): boolean {
+    private isDependentOn(m: Module, visited: any): boolean {
+        if (visited[this.name]) {
+            return false;
+        }
+        visited[this.name] = true;
         for (const iterator of this.dependencies) {
             if (iterator.name === m.name) {
                 return true;
             }
-            if (iterator.isDependentOn(m)) {
+            if (iterator.isDependentOn(m, visited)) {
                 return true;
             }
         }

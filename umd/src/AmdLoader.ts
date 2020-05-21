@@ -357,7 +357,9 @@ class AmdLoader {
         }
 
         if (AmdLoader.isMedia.test(module.url)) {
-            const mUrl = module.package.url + module.url;
+            const mUrl = !module.url.startsWith(module.package.url)
+                ? (module.package.url + module.url)
+                : module.url;
             const m = {
                 url: mUrl,
                 toString: () => mUrl

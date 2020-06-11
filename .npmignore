@@ -1,0 +1,8 @@
+.github
+.vscode
+polyfills
+package-lock.json
+promise.js
+test.js
+tslint.json
+tsconfig.json

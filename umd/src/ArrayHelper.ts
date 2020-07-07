@@ -58,7 +58,7 @@ if (!Array.prototype.map) {
 if (!String.prototype.startsWith) {
     String.prototype.startsWith = function(searchString: string, endPosition?: number): boolean {
         const index: number = (this as string).indexOf(searchString, endPosition);
-        return index !== -1;
+        return index === 0;
     };
 }
 

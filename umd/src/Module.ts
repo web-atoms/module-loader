@@ -53,6 +53,21 @@ class Module {
         return this.name;
     }
 
+    public get dependents() {
+        const d = [];
+        const v = {};
+        const modules = AmdLoader.instance.modules;
+        for (const key in modules) {
+            if (modules.hasOwnProperty(key)) {
+                const element = modules[key];
+                if (element.isDependentOn(this, v)) {
+                    d.push(element);
+                }
+            }
+        }
+        return d;
+    }
+
     /**
      * This promise can be awaited by dependency resolver
      */
@@ -70,6 +85,7 @@ class Module {
         } else {
             this.folder = name.substr(0, index);
         }
+
     }
 
     public resolve(id?: number): boolean {
@@ -182,12 +198,41 @@ class Module {
                     this.exports.default[UMD.nameSymbol] = this.name;
                 }
             } catch (e) {
+                const em = e.stack ? (`${e}\n${e.stack}`) : e;
+                const s = [];
+                // modules in the stack...
+                for (const iterator of AmdLoader.instance.currentStack) {
+                    s.push(iterator.name);
+                }
+
+                const ne = new Error(`Failed loading module ${this.name
+                } with error ${em}\nDependents: ${s.join("\n\t")}`);
+
                 // tslint:disable-next-line: no-console
-                console.error(e);
-                throw e;
+                console.error(ne);
+                throw ne;
             }
         }
         return this.exports;
+    }
+
+    /**
+     * Displays list of all dependents (including nested)
+     */
+    private isDependentOn(m: Module, visited: any): boolean {
+        visited[this.name] = true;
+        for (const iterator of this.dependencies) {
+            if (iterator.name === m.name) {
+                return true;
+            }
+            if (visited[iterator.name]) {
+                continue;
+            }
+            if (iterator.isDependentOn(m, visited)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

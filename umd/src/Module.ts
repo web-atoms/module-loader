@@ -194,8 +194,9 @@ class Module {
                 AmdLoader.instance.currentStack.pop();
                 delete this.factory;
 
-                if (this.exports.default) {
-                    this.exports.default[UMD.nameSymbol] = this.name;
+                const def = this.exports.default;
+                if (def && typeof def === "object") {
+                    def[UMD.nameSymbol] = this.name;
                 }
             } catch (e) {
                 const em = e.stack ? (`${e}\n${e.stack}`) : e;

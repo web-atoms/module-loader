@@ -337,7 +337,7 @@ class AmdLoader {
 
         if (AmdLoader.isJson.test(module.url)) {
             const mUrl = module.package.url + module.url;
-            module.loader = new Promise((resolve, reject) => {
+            module.loader = new Promise<void>((resolve, reject) => {
                 try {
                     AmdLoader.httpTextLoader(mUrl, (r) => {
                         try {
@@ -371,7 +371,7 @@ class AmdLoader {
             module.isLoaded = true;
             return module.loader;
         }
-        module.loader = new Promise((resolve, reject) => {
+        module.loader = new Promise<void>((resolve, reject) => {
 
             AmdLoader.moduleLoader(module.name, module.url, () => {
 

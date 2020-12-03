@@ -1,17 +1,4 @@
 declare var module: any, exports: any, amd: any, global: any;
-declare var Reflect: any;
-interface Array<T> {
-    find: any;
-    findIndex: any;
-}
-interface String {
-    startsWith: any;
-    endsWith: any;
-}
-interface NumberConstructor {
-    parseInt: any;
-    parseFloat: any;
-}
 interface IPackage {
     name: string;
     version: string;
@@ -45,25 +32,26 @@ declare class Module {
     factory: (r: any, e: any) => void;
     loader: Promise<any>;
     get filename(): string;
-    /**
-     * This promise can be awaited by dependency resolver
-     */
+    get dependents(): any[];
     resolver: Promise<any>;
     private rID;
     constructor(name: string, folder?: string);
     resolve(id?: number): boolean;
     addDependency(d: Module): void;
     getExports(): any;
+    private isDependentOn;
 }
 declare var require: any;
 declare var md: any;
 declare class AmdLoader {
     static isMedia: RegExp;
+    static isJson: RegExp;
     static globalVar: any;
     static moduleProgress: (name: string, modules: {
         [key: string]: Module;
     }, status: "done" | "loading") => void;
     static moduleLoader: (packageName: string, url: string, success: () => void, failed: (error: any) => void) => void;
+    static httpTextLoader: (url: string, resolve: (r: any) => void, failed: (error: any) => void) => void;
     static instance: AmdLoader;
     static current: Module;
     root: Module;
@@ -105,14 +93,16 @@ declare class AmdLoader {
     resolveModule(module: Module): Promise<any>;
     remove(m: Module): void;
     queueResolveModules(n?: number): void;
+    watch(): void;
     private resolvePendingModules;
     private push;
     private _resolveModule;
 }
 declare var global: any;
 declare const a: AmdLoader;
+declare type IAnyFunction = (...a: any[]) => any;
 interface IDefine {
-    (requiresOrFactory: string[] | (() => void), factory?: (r: any, e: any) => void): void;
+    (requiresOrFactory: string[] | IAnyFunction, factory?: IAnyFunction): any;
     amd?: object;
 }
 declare var define: IDefine;
@@ -127,12 +117,11 @@ declare class MockType {
     replaced: any;
     constructor(module: Module, type: any, name: string, mock: boolean, moduleName?: string, exportName?: string);
 }
-declare var Symbol: any;
 declare class UMDClass {
     viewPrefix: string;
     defaultApp: string;
     lang: string;
-    nameSymbol: any;
+    nameSymbol: string | symbol;
     get mock(): boolean;
     set mock(v: boolean);
     resolvePath(n: string): string;
@@ -145,12 +134,6 @@ declare class UMDClass {
     resolveViewClassAsync(path: string): Promise<any>;
     import(path: string): Promise<any>;
     load(path: string, designMode?: boolean): Promise<any>;
-    /**
-     * Host the view inside given element with given id
-     * @param id id of element to host view in
-     * @param path path of module
-     * @param designMode true/false (default false)
-     */
     hostView(id: string, path: string, designMode?: boolean): Promise<any>;
     loadView(path: string, designMode?: boolean, appPath?: string): Promise<any>;
 }

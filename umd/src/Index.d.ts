@@ -1,1 +1,1 @@
-declare var Promise: any;
+// declare var Promise: any;

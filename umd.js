@@ -1,14 +1,3 @@
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -18,43 +7,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-// @ts-ignore
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory() :
         typeof define === 'function' && define.amd ? define(factory) :
             (factory());
 }(this, (function () {
     'use strict';
-    /**
-     * @this {Promise}
-     */
     function finallyConstructor(callback) {
         var constructor = this.constructor;
         return this.then(function (value) {
@@ -67,32 +25,24 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             });
         });
     }
-    // Store setTimeout reference so promise-polyfill will be unaffected by
-    // other code modifying setTimeout (like sinon.useFakeTimers())
     var setTimeoutFunc = setTimeout;
+    function isArray(x) {
+        return Boolean(x && typeof x.length !== 'undefined');
+    }
     function noop() { }
-    // Polyfill for Function.prototype.bind
     function bind(fn, thisArg) {
         return function () {
             fn.apply(thisArg, arguments);
         };
     }
-    /**
-     * @constructor
-     * @param {Function} fn
-     */
     function Promise(fn) {
         if (!(this instanceof Promise))
             throw new TypeError('Promises must be constructed via new');
         if (typeof fn !== 'function')
             throw new TypeError('not a function');
-        /** @type {!number} */
         this._state = 0;
-        /** @type {!boolean} */
         this._handled = false;
-        /** @type {Promise|undefined} */
         this._value = undefined;
-        /** @type {!Array<!Function>} */
         this._deferreds = [];
         doResolve(fn, this);
     }
@@ -105,7 +55,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             return;
         }
         self._handled = true;
-        // @ts-ignore
         Promise._immediateFn(function () {
             var cb = self._state === 1 ? deferred.onFulfilled : deferred.onRejected;
             if (cb === null) {
@@ -125,7 +74,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
     function resolve(self, newValue) {
         try {
-            // Promise Resolution Procedure: https://github.com/promises-aplus/promises-spec#the-promise-resolution-procedure
             if (newValue === self)
                 throw new TypeError('A promise cannot be resolved with itself.');
             if (newValue &&
@@ -157,10 +105,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
     function finale(self) {
         if (self._state === 2 && self._deferreds.length === 0) {
-            // @ts-ignore
             Promise._immediateFn(function () {
                 if (!self._handled) {
-                    // @ts-ignore
                     Promise._unhandledRejectionFn(self._value);
                 }
             });
@@ -170,20 +116,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         }
         self._deferreds = null;
     }
-    /**
-     * @constructor
-     */
     function Handler(onFulfilled, onRejected, promise) {
         this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null;
         this.onRejected = typeof onRejected === 'function' ? onRejected : null;
         this.promise = promise;
     }
-    /**
-     * Take a potentially misbehaving resolver function and make sure
-     * onFulfilled and onRejected are only called once.
-     *
-     * Makes no guarantees about asynchrony.
-     */
     function doResolve(fn, self) {
         var done = false;
         try {
@@ -210,17 +147,16 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         return this.then(null, onRejected);
     };
     Promise.prototype.then = function (onFulfilled, onRejected) {
-        // @ts-ignore
         var prom = new this.constructor(noop);
         handle(this, new Handler(onFulfilled, onRejected, prom));
         return prom;
     };
     Promise.prototype['finally'] = finallyConstructor;
-    // @ts-ignore
     Promise.all = function (arr) {
         return new Promise(function (resolve, reject) {
-            if (!arr || typeof arr.length === 'undefined')
-                throw new TypeError('Promise.all accepts an array');
+            if (!isArray(arr)) {
+                return reject(new TypeError('Promise.all accepts an array'));
+            }
             var args = Array.prototype.slice.call(arr);
             if (args.length === 0)
                 return resolve([]);
@@ -250,7 +186,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             }
         });
     };
-    // @ts-ignore
     Promise.resolve = function (value) {
         if (value && typeof value === 'object' && value.constructor === Promise) {
             return value;
@@ -259,43 +194,35 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
             resolve(value);
         });
     };
-    // @ts-ignore
     Promise.reject = function (value) {
         return new Promise(function (resolve, reject) {
             reject(value);
         });
     };
-    // @ts-ignore
-    Promise.race = function (values) {
+    Promise.race = function (arr) {
         return new Promise(function (resolve, reject) {
-            for (var i = 0, len = values.length; i < len; i++) {
-                values[i].then(resolve, reject);
+            if (!isArray(arr)) {
+                return reject(new TypeError('Promise.race accepts an array'));
+            }
+            for (var i = 0, len = arr.length; i < len; i++) {
+                Promise.resolve(arr[i]).then(resolve, reject);
             }
         });
     };
-    // Use polyfill for setImmediate for performance gains
-    // @ts-ignore
     Promise._immediateFn =
-        // @ts-ignore
         (typeof setImmediate === 'function' &&
             function (fn) {
-                // @ts-ignore
                 setImmediate(fn);
             }) ||
             function (fn) {
                 setTimeoutFunc(fn, 0);
             };
-    // @ts-ignore
     Promise._unhandledRejectionFn = function _unhandledRejectionFn(err) {
         if (typeof console !== 'undefined' && console) {
-            console.warn('Possible Unhandled Promise Rejection:', err); // eslint-disable-line no-console
+            console.warn('Possible Unhandled Promise Rejection:', err);
         }
     };
-    /** @suppress {undefinedVars} */
     var globalNS = (function () {
-        // the only reliable means to get the global object is
-        // `Function('return this')()`
-        // However, this causes CSP violations in Chrome apps.
         if (typeof self !== 'undefined') {
             return self;
         }
@@ -314,9 +241,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         globalNS.Promise.prototype['finally'] = finallyConstructor;
     }
 })));
-// tslint:disable
-// @ts-ignore
-var Reflect;
+;
 !function (o) { !function (t) { var e = "object" == typeof global ? global : "object" == typeof self ? self : "object" == typeof this ? this : Function("return this;")(), r = n(o); function n(r, n) { return function (t, e) { "function" != typeof r[t] && Object.defineProperty(r, t, { configurable: !0, writable: !0, value: e }), n && n(t, e); }; } void 0 === e.Reflect ? e.Reflect = o : r = n(e.Reflect, r), function (t) { var f = Object.prototype.hasOwnProperty, e = "function" == typeof Symbol, i = e && void 0 !== Symbol.toPrimitive ? Symbol.toPrimitive : "@@toPrimitive", s = e && void 0 !== Symbol.iterator ? Symbol.iterator : "@@iterator", r = "function" == typeof Object.create, n = { __proto__: [] } instanceof Array, o = !r && !n, c = { create: r ? function () { return S(Object.create(null)); } : n ? function () { return S({ __proto__: null }); } : function () { return S({}); }, has: o ? function (t, e) { return f.call(t, e); } : function (t, e) { return e in t; }, get: o ? function (t, e) { return f.call(t, e) ? t[e] : void 0; } : function (t, e) { return t[e]; } }, u = Object.getPrototypeOf(Function), a = "object" == typeof process && process.env && "true" === process.env.REFLECT_METADATA_USE_MAP_POLYFILL, h = a || "function" != typeof Map || "function" != typeof Map.prototype.entries ? function () { var o = {}, r = [], e = function () { function t(t, e, r) { this._index = 0, this._keys = t, this._values = e, this._selector = r; } return t.prototype["@@iterator"] = function () { return this; }, t.prototype[s] = function () { return this; }, t.prototype.next = function () { var t = this._index; if (0 <= t && t < this._keys.length) {
     var e = this._selector(this._keys[t], this._values[t]);
     return t + 1 >= this._keys.length ? (this._index = -1, this._keys = r, this._values = r) : this._index++, { value: e, done: !1 };
@@ -478,11 +403,10 @@ else {
     return !1; if (!n.delete(t))
     return !1; if (0 < n.size)
     return !0; var o = p.get(e); return o.delete(r), 0 < o.size || p.delete(e), !0; }); }(r); }(); }(Reflect || (Reflect = {}));
-//# sourceMappingURL=/sm/d3ba45b98814b993d6aab5ce31c491c459ff57773960f74725c98a635912413a.map
 if (!Array.prototype.find) {
     Array.prototype.find = function (predicate, thisArg) {
-        for (var i = 0; i < this.length; i++) {
-            var item = this[i];
+        for (let i = 0; i < this.length; i++) {
+            const item = this[i];
             if (predicate(item, i, this)) {
                 return item;
             }
@@ -491,8 +415,8 @@ if (!Array.prototype.find) {
 }
 if (!Array.prototype.findIndex) {
     Array.prototype.findIndex = function (predicate, thisArg) {
-        for (var i = 0; i < this.length; i++) {
-            var item = this[i];
+        for (let i = 0; i < this.length; i++) {
+            const item = this[i];
             if (predicate(item, i, this)) {
                 return i;
             }
@@ -502,9 +426,9 @@ if (!Array.prototype.findIndex) {
 }
 if (!Array.prototype.map) {
     Array.prototype.map = function (callbackfn, thisArg) {
-        var a = [];
-        for (var i = 0; i < this.length; i++) {
-            var r = callbackfn(this[i], i, this);
+        const a = [];
+        for (let i = 0; i < this.length; i++) {
+            const r = callbackfn(this[i], i, this);
             if (r !== undefined) {
                 a.push(r);
             }
@@ -514,35 +438,32 @@ if (!Array.prototype.map) {
 }
 if (!String.prototype.startsWith) {
     String.prototype.startsWith = function (searchString, endPosition) {
-        var index = this.indexOf(searchString, endPosition);
-        return index !== -1;
+        const index = this.indexOf(searchString, endPosition);
+        return index === 0;
     };
 }
 if (!String.prototype.endsWith) {
     String.prototype.endsWith = function (searchString, endPosition) {
-        var index = this.lastIndexOf(searchString, endPosition);
+        const index = this.lastIndexOf(searchString, endPosition);
         if (index === -1) {
             return false;
         }
-        var l = this.length - index;
+        const l = this.length - index;
         return l === searchString.length;
     };
 }
 if (!Number.parseInt) {
-    // tslint:disable-next-line:only-arrow-functions
     Number.parseInt = function (n) {
         return Math.floor(parseFloat(n));
     };
 }
 if (!Number.parseFloat) {
-    // tslint:disable-next-line:only-arrow-functions
     Number.parseFloat = function (n) {
         return parseFloat(n);
     };
 }
 if (typeof Element !== "undefined") {
     if (!("remove" in Element.prototype)) {
-        // tslint:disable-next-line
         Element.prototype["remove"] = function () {
             if (this.parentNode) {
                 this.parentNode.removeChild(this);
@@ -550,8 +471,8 @@ if (typeof Element !== "undefined") {
         };
     }
 }
-var Module = /** @class */ (function () {
-    function Module(name, folder) {
+class Module {
+    constructor(name, folder) {
         this.name = name;
         this.folder = folder;
         this.emptyExports = {};
@@ -560,7 +481,7 @@ var Module = /** @class */ (function () {
         this.isResolved = false;
         this.dependencies = [];
         this.rID = null;
-        var index = name.lastIndexOf("/");
+        const index = name.lastIndexOf("/");
         if (index === -1) {
             this.folder = "";
         }
@@ -568,14 +489,24 @@ var Module = /** @class */ (function () {
             this.folder = name.substr(0, index);
         }
     }
-    Object.defineProperty(Module.prototype, "filename", {
-        get: function () {
-            return this.name;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Module.prototype.resolve = function (id) {
+    get filename() {
+        return this.name;
+    }
+    get dependents() {
+        const d = [];
+        const v = {};
+        const modules = AmdLoader.instance.modules;
+        for (const key in modules) {
+            if (modules.hasOwnProperty(key)) {
+                const element = modules[key];
+                if (element.isDependentOn(this, v)) {
+                    d.push(element);
+                }
+            }
+        }
+        return d;
+    }
+    resolve(id) {
         if (!this.isLoaded) {
             return false;
         }
@@ -586,10 +517,8 @@ var Module = /** @class */ (function () {
             id = Module.nextID++;
         }
         if (this.rID === id) {
-            // circular dependency found...
-            var childrenResolved = true;
-            for (var _i = 0, _a = this.dependencies; _i < _a.length; _i++) {
-                var iterator = _a[_i];
+            let childrenResolved = true;
+            for (const iterator of this.dependencies) {
                 if (iterator === this.ignoreModule) {
                     continue;
                 }
@@ -604,9 +533,8 @@ var Module = /** @class */ (function () {
             return childrenResolved;
         }
         this.rID = id;
-        var allResolved = true;
-        for (var _b = 0, _c = this.dependencies; _b < _c.length; _b++) {
-            var iterator = _c[_b];
+        let allResolved = true;
+        for (const iterator of this.dependencies) {
             if (iterator === this.ignoreModule) {
                 continue;
             }
@@ -619,7 +547,7 @@ var Module = /** @class */ (function () {
             this.rID = 0;
             return false;
         }
-        var i = AmdLoader.instance;
+        const i = AmdLoader.instance;
         if (this.dependencyHooks) {
             this.dependencyHooks[0]();
             this.dependencyHooks = null;
@@ -633,64 +561,79 @@ var Module = /** @class */ (function () {
         }
         this.rID = 0;
         return false;
-    };
-    Module.prototype.addDependency = function (d) {
-        // ignore module contains dependency resolution module
+    }
+    addDependency(d) {
         if (d === this.ignoreModule) {
             return;
         }
-        // if (d.isDependentOn(this)) {
-        //     return;
-        // }
         this.dependencies.push(d);
-    };
-    Module.prototype.getExports = function () {
+    }
+    getExports() {
         this.exports = this.emptyExports;
         if (this.factory) {
-            var factory = this.factory;
-            this.factory = null;
-            delete this.factory;
-            AmdLoader.instance.currentStack.push(this);
-            var result = factory(this.require, this.exports);
-            if (result) {
-                if (typeof result === "object") {
-                    for (var key in result) {
-                        if (result.hasOwnProperty(key)) {
-                            var element = result[key];
-                            this.exports[key] = element;
+            try {
+                const factory = this.factory;
+                this.factory = null;
+                delete this.factory;
+                AmdLoader.instance.currentStack.push(this);
+                const result = factory(this.require, this.exports);
+                if (result) {
+                    if (typeof result === "object") {
+                        for (const key in result) {
+                            if (result.hasOwnProperty(key)) {
+                                const element = result[key];
+                                this.exports[key] = element;
+                            }
                         }
                     }
+                    else if (!this.exports.default) {
+                        this.exports.default = result;
+                    }
                 }
-                else if (!this.exports.default) {
-                    this.exports.default = result;
+                AmdLoader.instance.currentStack.pop();
+                delete this.factory;
+                if (this.exports.default) {
+                    this.exports.default[UMD.nameSymbol] = this.name;
                 }
             }
-            AmdLoader.instance.currentStack.pop();
-            delete this.factory;
-            if (this.exports.default) {
-                this.exports.default[UMD.nameSymbol] = this.name;
+            catch (e) {
+                const em = e.stack ? (`${e}\n${e.stack}`) : e;
+                const s = [];
+                for (const iterator of AmdLoader.instance.currentStack) {
+                    s.push(iterator.name);
+                }
+                const ne = new Error(`Failed loading module ${this.name} with error ${em}\nDependents: ${s.join("\n\t")}`);
+                console.error(ne);
+                throw ne;
             }
         }
         return this.exports;
-    };
-    Module.nextID = 1;
-    return Module;
-}());
-/// <reference path="./Promise.ts"/>
-/// <reference path="./ReflectMetadata.ts"/>
-/// <reference path="./ArrayHelper.ts"/>
-/// <reference path="./Module.ts"/>
+    }
+    isDependentOn(m, visited) {
+        visited[this.name] = true;
+        for (const iterator of this.dependencies) {
+            if (iterator.name === m.name) {
+                return true;
+            }
+            if (visited[iterator.name]) {
+                continue;
+            }
+            if (iterator.isDependentOn(m, visited)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+Module.nextID = 1;
 if (typeof require !== "undefined") {
     md = require("module").Module;
 }
-var AmdLoader = /** @class */ (function () {
-    function AmdLoader() {
+class AmdLoader {
+    constructor() {
         this.root = null;
         this.defaultUrl = null;
         this.currentStack = [];
-        // public pendingModules: Module[] = [];
-        // public resolverStack: Module[] = [];
-        // only useful in node environment
         this.nodeModules = [];
         this.modules = {};
         this.pathMap = {};
@@ -698,41 +641,40 @@ var AmdLoader = /** @class */ (function () {
         this.lastTimeout = null;
         this.dirty = false;
     }
-    AmdLoader.prototype.register = function (packages, modules) {
-        for (var _i = 0, packages_1 = packages; _i < packages_1.length; _i++) {
-            var iterator = packages_1[_i];
+    register(packages, modules) {
+        for (const iterator of packages) {
             if (!this.pathMap[iterator]) {
                 this.map(iterator, "/");
             }
         }
-        for (var _a = 0, modules_1 = modules; _a < modules_1.length; _a++) {
-            var iterator = modules_1[_a];
+        for (const iterator of modules) {
             this.get(iterator);
         }
-    };
-    AmdLoader.prototype.setupRoot = function (root, url) {
-        for (var key in this.pathMap) {
+    }
+    setupRoot(root, url) {
+        if (url.endsWith("/")) {
+            url = url.substr(0, url.length - 1);
+        }
+        for (const key in this.pathMap) {
             if (this.pathMap.hasOwnProperty(key)) {
-                var moduleUrl = key === root ? url : url + "/node_modules/" + key;
+                const moduleUrl = key === root ? url : `${url}/node_modules/${key}`;
                 this.map(key, moduleUrl);
             }
         }
-        this.defaultUrl = url + "/node_modules/";
-    };
-    AmdLoader.prototype.registerModule = function (name, moduleExports) {
-        var m = this.get(name);
+        this.defaultUrl = `${url}/node_modules/`;
+    }
+    registerModule(name, moduleExports) {
+        const m = this.get(name);
         m.package.url = "/";
-        m.exports = __assign({ __esModule: true }, moduleExports);
+        m.exports = Object.assign({ __esModule: true }, moduleExports);
         m.loader = Promise.resolve();
         m.resolver = Promise.resolve(m.exports);
         m.isLoaded = true;
         m.isResolved = true;
-    };
-    AmdLoader.prototype.setup = function (name) {
-        var _this = this;
-        var jsModule = this.get(name);
-        // tslint:disable-next-line:ban-types
-        var define = this.define;
+    }
+    setup(name) {
+        const jsModule = this.get(name);
+        const define = this.define;
         jsModule.loader = Promise.resolve();
         AmdLoader.current = jsModule;
         if (define) {
@@ -743,35 +685,24 @@ var AmdLoader = /** @class */ (function () {
         }
         this.push(jsModule);
         jsModule.isLoaded = true;
-        setTimeout(function () {
-            _this.loadDependencies(jsModule);
+        setTimeout(() => {
+            this.loadDependencies(jsModule);
         }, 1);
-    };
-    AmdLoader.prototype.loadDependencies = function (m) {
-        var _this = this;
-        this.resolveModule(m).catch(function (e) {
-            // tslint:disable-next-line:no-console
+    }
+    loadDependencies(m) {
+        this.resolveModule(m).catch((e) => {
             console.error(e);
         });
         if (m.dependencies.length) {
-            var all = m.dependencies.map(function (m1) { return __awaiter(_this, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (m1.isResolved) {
-                                return [2 /*return*/];
-                            }
-                            return [4 /*yield*/, this.import(m1)];
-                        case 1:
-                            _a.sent();
-                            return [2 /*return*/];
-                    }
-                });
-            }); });
-            Promise.all(all).catch(function (e) {
-                // tslint:disable-next-line:no-console
+            const all = m.dependencies.map((m1) => __awaiter(this, void 0, void 0, function* () {
+                if (m1.isResolved) {
+                    return;
+                }
+                yield this.import(m1);
+            }));
+            Promise.all(all).catch((e) => {
                 console.error(e);
-            }).then(function () {
+            }).then(() => {
                 m.resolve();
             });
         }
@@ -779,23 +710,21 @@ var AmdLoader = /** @class */ (function () {
             m.resolve();
         }
         this.queueResolveModules(1);
-    };
-    AmdLoader.prototype.replace = function (type, name, mock) {
+    }
+    replace(type, name, mock) {
         if (mock && !this.enableMock) {
             return;
         }
-        var peek = this.currentStack.length ? this.currentStack[this.currentStack.length - 1] : undefined;
-        var rt = new MockType(peek, type, name, mock);
+        const peek = this.currentStack.length ? this.currentStack[this.currentStack.length - 1] : undefined;
+        const rt = new MockType(peek, type, name, mock);
         this.mockTypes.push(rt);
-    };
-    AmdLoader.prototype.resolveType = function (type) {
-        var t = this.mockTypes.find(function (tx) { return tx.type === type; });
+    }
+    resolveType(type) {
+        const t = this.mockTypes.find((tx) => tx.type === type);
         return t ? t.replaced : type;
-    };
-    AmdLoader.prototype.map = function (packageName, packageUrl, type, exportVar) {
-        if (type === void 0) { type = "amd"; }
-        // ignore map if it exists already...
-        var existing = this.pathMap[packageName];
+    }
+    map(packageName, packageUrl, type = "amd", exportVar) {
+        let existing = this.pathMap[packageName];
         if (existing) {
             existing.url = packageUrl;
             existing.exportVar = exportVar;
@@ -805,8 +734,8 @@ var AmdLoader = /** @class */ (function () {
         existing = {
             name: packageName,
             url: packageUrl,
-            type: type,
-            exportVar: exportVar,
+            type,
+            exportVar,
             version: ""
         };
         if (packageName === "reflect-metadata") {
@@ -814,18 +743,16 @@ var AmdLoader = /** @class */ (function () {
         }
         this.pathMap[packageName] = existing;
         return existing;
-    };
-    AmdLoader.prototype.resolveSource = function (name, defExt) {
-        if (defExt === void 0) { defExt = ".js"; }
+    }
+    resolveSource(name, defExt = ".js") {
         try {
             if (/^((\/)|((http|https)\:\/\/))/i.test(name)) {
-                // console.log(`ResolveSource fail: ${name}`);
                 return name;
             }
-            var path = null;
-            for (var key in this.pathMap) {
+            let path = null;
+            for (const key in this.pathMap) {
                 if (this.pathMap.hasOwnProperty(key)) {
-                    var packageName = key;
+                    const packageName = key;
                     if (name.startsWith(packageName)) {
                         path = this.pathMap[key].url;
                         if (name.length !== packageName.length) {
@@ -841,14 +768,11 @@ var AmdLoader = /** @class */ (function () {
                             path = path.substr(0, path.length - 1);
                         }
                         path = path + "/" + name;
-                        var i = path.lastIndexOf("/");
-                        var fname = path.substr(i + 1);
-                        if (fname.indexOf(".") === -1) {
+                        const i = name.lastIndexOf("/");
+                        const fileName = name.substr(i + 1);
+                        if (fileName.indexOf(".") === -1) {
                             path = path + defExt;
                         }
-                        // if (defExt && !path.endsWith(defExt)) {
-                        //     path = path + defExt;
-                        // }
                         return path;
                     }
                 }
@@ -856,21 +780,19 @@ var AmdLoader = /** @class */ (function () {
             return name;
         }
         catch (e) {
-            // tslint:disable-next-line:no-console
-            console.error("Failed to resolve " + name + " with error " + JSON.stringify(e));
-            // tslint:disable-next-line:no-console
+            console.error(`Failed to resolve ${name} with error ${JSON.stringify(e)}`);
             console.error(e);
         }
-    };
-    AmdLoader.prototype.resolveRelativePath = function (name, currentPackage) {
+    }
+    resolveRelativePath(name, currentPackage) {
         if (name.charAt(0) !== ".") {
             return name;
         }
-        var tokens = name.split("/");
-        var currentTokens = currentPackage.split("/");
+        const tokens = name.split("/");
+        const currentTokens = currentPackage.split("/");
         currentTokens.pop();
         while (tokens.length) {
-            var first = tokens[0];
+            const first = tokens[0];
             if (first === "..") {
                 currentTokens.pop();
                 tokens.splice(0, 1);
@@ -881,11 +803,11 @@ var AmdLoader = /** @class */ (function () {
             }
             break;
         }
-        return currentTokens.join("/") + "/" + tokens.join("/");
-    };
-    AmdLoader.prototype.getPackageVersion = function (name) {
-        var _a = name.split("/", 3), scope = _a[0], packageName = _a[1];
-        var version = "";
+        return `${currentTokens.join("/")}/${tokens.join("/")}`;
+    }
+    getPackageVersion(name) {
+        let [scope, packageName] = name.split("/", 3);
+        let version = "";
         if (scope[0] !== "@") {
             packageName = scope;
             scope = "";
@@ -893,89 +815,100 @@ var AmdLoader = /** @class */ (function () {
         else {
             scope += "/";
         }
-        var versionTokens = packageName.split("@");
+        const versionTokens = packageName.split("@");
         if (versionTokens.length > 1) {
-            // remove version and map it..
             version = versionTokens[1];
             name = name.replace("@" + version, "");
         }
         packageName = scope + packageName;
-        return { packageName: packageName, version: version, name: name };
-    };
-    AmdLoader.prototype.get = function (name1) {
-        var _this = this;
-        var module = this.modules[name1];
+        return { packageName, version, name };
+    }
+    get(name1) {
+        let module = this.modules[name1];
         if (!module) {
-            // strip '@' version info
-            var _a = this.getPackageVersion(name1), packageName = _a.packageName, version = _a.version, name_1 = _a.name;
-            module = new Module(name_1);
+            const { packageName, version, name } = this.getPackageVersion(name1);
+            module = new Module(name);
             this.modules[name1] = module;
             module.package = this.pathMap[packageName] ||
                 (this.pathMap[packageName] = {
                     type: "amd",
                     name: packageName,
-                    version: version,
+                    version,
                     url: this.defaultUrl ?
                         (this.defaultUrl + packageName) : undefined
                 });
-            module.url = this.resolveSource(name_1);
+            module.url = this.resolveSource(name);
             if (!module.url) {
                 if (typeof require === "undefined") {
-                    throw new Error("No url mapped for " + name_1);
+                    throw new Error(`No url mapped for ${name}`);
                 }
             }
-            module.require = function (n) {
-                var an = _this.resolveRelativePath(n, module.name);
-                var resolvedModule = _this.get(an);
-                var m = resolvedModule.getExports();
+            module.require = (n) => {
+                const an = this.resolveRelativePath(n, module.name);
+                const resolvedModule = this.get(an);
+                const m = resolvedModule.getExports();
                 return m;
             };
-            module.require.resolve = function (n) { return _this.resolveRelativePath(n, module.name); };
-            this.modules[name_1] = module;
+            module.require.resolve = (n) => this.resolveRelativePath(n, module.name);
+            this.modules[name] = module;
         }
         return module;
-    };
-    AmdLoader.prototype.import = function (name) {
-        return __awaiter(this, void 0, void 0, function () {
-            var module, e;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (typeof require !== "undefined") {
-                            return [2 /*return*/, Promise.resolve(require(name))];
-                        }
-                        module = typeof name === "object" ? name : this.get(name);
-                        return [4 /*yield*/, this.load(module)];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.resolveModule(module)];
-                    case 2:
-                        e = _a.sent();
-                        return [2 /*return*/, e];
-                }
-            });
+    }
+    import(name) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (typeof require !== "undefined") {
+                return Promise.resolve(require(name));
+            }
+            const module = typeof name === "object" ? name : this.get(name);
+            yield this.load(module);
+            const e = yield this.resolveModule(module);
+            return e;
         });
-    };
-    AmdLoader.prototype.load = function (module) {
-        var _this = this;
+    }
+    load(module) {
         if (module.loader) {
             return module.loader;
         }
         this.push(module);
+        if (AmdLoader.isJson.test(module.url)) {
+            const mUrl = module.package.url + module.url;
+            module.loader = new Promise((resolve, reject) => {
+                try {
+                    AmdLoader.httpTextLoader(mUrl, (r) => {
+                        try {
+                            module.exports = JSON.parse(r);
+                            module.emptyExports = module.exports;
+                            module.isLoaded = true;
+                            setTimeout(() => this.loadDependencies(module), 1);
+                            resolve();
+                        }
+                        catch (e) {
+                            reject(e);
+                        }
+                    }, reject);
+                }
+                catch (e1) {
+                    reject(e1);
+                }
+            });
+        }
         if (AmdLoader.isMedia.test(module.url)) {
-            var m = {
-                url: module.url,
-                toString: function () { return module.url; }
+            const mUrl = !module.url.startsWith(module.package.url)
+                ? (module.package.url + module.url)
+                : module.url;
+            const m = {
+                url: mUrl,
+                toString: () => mUrl
             };
-            var e = { __esModule: true, default: m };
+            const e = { __esModule: true, default: m };
             module.exports = e;
             module.emptyExports = e;
             module.loader = Promise.resolve();
             module.isLoaded = true;
             return module.loader;
         }
-        module.loader = new Promise(function (resolve, reject) {
-            AmdLoader.moduleLoader(module.name, module.url, function () {
+        module.loader = new Promise((resolve, reject) => {
+            AmdLoader.moduleLoader(module.name, module.url, () => {
                 try {
                     AmdLoader.current = module;
                     if (AmdLoader.instance.define) {
@@ -986,31 +919,32 @@ var AmdLoader = /** @class */ (function () {
                         module.exports = AmdLoader.globalVar[module.exportVar];
                     }
                     if (AmdLoader.moduleProgress) {
-                        AmdLoader.moduleProgress(module.name, _this.modules, "loading");
+                        AmdLoader.moduleProgress(module.name, this.modules, "loading");
                     }
                     module.isLoaded = true;
-                    setTimeout(function () {
-                        _this.loadDependencies(module);
+                    setTimeout(() => {
+                        this.loadDependencies(module);
                     }, 1);
                     resolve();
                 }
                 catch (e) {
+                    console.error(e);
                     reject(e);
                 }
-            }, function (error) {
+            }, (error) => {
                 reject(error);
             });
         });
         return module.loader;
-    };
-    AmdLoader.prototype.resolveModule = function (module) {
+    }
+    resolveModule(module) {
         if (module.resolver) {
             return module.resolver;
         }
         module.resolver = this._resolveModule(module);
         return module.resolver;
-    };
-    AmdLoader.prototype.remove = function (m) {
+    }
+    remove(m) {
         if (this.tail === m) {
             this.tail = m.previous;
         }
@@ -1024,29 +958,45 @@ var AmdLoader = /** @class */ (function () {
         m.previous = null;
         this.dirty = true;
         this.queueResolveModules();
-    };
-    AmdLoader.prototype.queueResolveModules = function (n) {
-        var _this = this;
-        if (n === void 0) { n = 1; }
+    }
+    queueResolveModules(n = 1) {
         if (this.lastTimeout) {
-            // clearTimeout(this.lastTimeout);
-            // this.lastTimeout = null;
             return;
         }
-        this.lastTimeout = setTimeout(function () {
-            _this.lastTimeout = 0;
-            _this.resolvePendingModules();
+        this.lastTimeout = setTimeout(() => {
+            this.lastTimeout = 0;
+            this.resolvePendingModules();
         }, n);
-    };
-    AmdLoader.prototype.resolvePendingModules = function () {
+    }
+    watch() {
+        const id = setInterval(() => {
+            if (this.tail) {
+                const list = [];
+                for (const key in this.modules) {
+                    if (this.modules.hasOwnProperty(key)) {
+                        const element = this.modules[key];
+                        if (!element.isResolved) {
+                            list.push({
+                                name: element.name,
+                                dependencies: element.dependencies.map((x) => x.name)
+                            });
+                        }
+                    }
+                }
+                console.log("Pending modules");
+                console.log(JSON.stringify(list));
+                return;
+            }
+            clearInterval(id);
+        }, 10000);
+    }
+    resolvePendingModules() {
         if (!this.tail) {
             return;
         }
         this.dirty = false;
-        // first resolve modules without any
-        // dependencies
-        var pending = [];
-        var m = this.tail;
+        const pending = [];
+        let m = this.tail;
         while (m) {
             if (!m.dependencies.length) {
                 m.resolve();
@@ -1060,8 +1010,7 @@ var AmdLoader = /** @class */ (function () {
             this.dirty = false;
             return;
         }
-        for (var _i = 0, pending_1 = pending; _i < pending_1.length; _i++) {
-            var iterator = pending_1[_i];
+        for (const iterator of pending) {
             iterator.resolve();
         }
         if (this.dirty) {
@@ -1071,112 +1020,102 @@ var AmdLoader = /** @class */ (function () {
         if (this.tail) {
             this.queueResolveModules();
         }
-    };
-    AmdLoader.prototype.push = function (m) {
+    }
+    push(m) {
         if (this.tail) {
             m.previous = this.tail;
             this.tail.next = m;
         }
         this.tail = m;
-    };
-    AmdLoader.prototype._resolveModule = function (module) {
-        return __awaiter(this, void 0, void 0, function () {
-            var exports, pendingList, _i, pendingList_1, iterator, tasks, setHooks;
-            var _this = this;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!this.root) {
-                            this.root = module;
-                        }
-                        return [4 /*yield*/, new Promise(function (resolve, reject) {
-                                module.dependencyHooks = [resolve, reject];
-                            })];
-                    case 1:
-                        _a.sent();
-                        exports = module.getExports();
-                        pendingList = this.mockTypes.filter(function (t) { return !t.loaded; });
-                        if (!pendingList.length) return [3 /*break*/, 3];
-                        for (_i = 0, pendingList_1 = pendingList; _i < pendingList_1.length; _i++) {
-                            iterator = pendingList_1[_i];
-                            iterator.loaded = true;
-                        }
-                        tasks = pendingList.map(function (iterator) { return __awaiter(_this, void 0, void 0, function () {
-                            var containerModule, resolvedName, im, ex, type;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0:
-                                        containerModule = iterator.module;
-                                        resolvedName = this.resolveRelativePath(iterator.moduleName, containerModule.name);
-                                        im = this.get(resolvedName);
-                                        im.ignoreModule = module;
-                                        return [4 /*yield*/, this.import(im)];
-                                    case 1:
-                                        ex = _a.sent();
-                                        type = ex[iterator.exportName];
-                                        iterator.replaced = type;
-                                        return [2 /*return*/];
-                                }
-                            });
-                        }); });
-                        return [4 /*yield*/, Promise.all(tasks)];
-                    case 2:
-                        _a.sent();
-                        _a.label = 3;
-                    case 3:
-                        setHooks = new Promise(function (resolve, reject) {
-                            module.resolveHooks = [resolve, reject];
-                        });
-                        return [4 /*yield*/, setHooks];
-                    case 4:
-                        _a.sent();
-                        if (this.root === module) {
-                            this.root = null;
-                            AmdLoader.moduleProgress(null, this.modules, "done");
-                        }
-                        module.isResolved = true;
-                        return [2 /*return*/, exports];
-                }
+    }
+    _resolveModule(module) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.root) {
+                this.root = module;
+            }
+            yield new Promise((resolve, reject) => {
+                module.dependencyHooks = [resolve, reject];
             });
+            const exports = module.getExports();
+            const pendingList = this.mockTypes.filter((t) => !t.loaded);
+            if (pendingList.length) {
+                for (const iterator of pendingList) {
+                    iterator.loaded = true;
+                }
+                const tasks = pendingList.map((iterator) => __awaiter(this, void 0, void 0, function* () {
+                    const containerModule = iterator.module;
+                    const resolvedName = this.resolveRelativePath(iterator.moduleName, containerModule.name);
+                    const im = this.get(resolvedName);
+                    im.ignoreModule = module;
+                    const ex = yield this.import(im);
+                    const type = ex[iterator.exportName];
+                    iterator.replaced = type;
+                }));
+                yield Promise.all(tasks);
+            }
+            const setHooks = new Promise((resolve, reject) => {
+                module.resolveHooks = [resolve, reject];
+            });
+            yield setHooks;
+            if (this.root === module) {
+                this.root = null;
+                AmdLoader.moduleProgress(null, this.modules, "done");
+            }
+            module.isResolved = true;
+            return exports;
         });
-    };
-    AmdLoader.isMedia = /\.(jpg|jpeg|gif|png|mp4|mp3|css|html|svg|json)$/i;
-    AmdLoader.globalVar = {};
-    AmdLoader.instance = new AmdLoader();
-    AmdLoader.current = null;
-    return AmdLoader;
-}());
-var a = AmdLoader.instance;
+    }
+}
+AmdLoader.isMedia = /\.(jpg|jpeg|gif|png|mp4|mp3|css|html|svg)$/i;
+AmdLoader.isJson = /\.json$/i;
+AmdLoader.globalVar = {};
+AmdLoader.instance = new AmdLoader();
+AmdLoader.current = null;
+const a = AmdLoader.instance;
 a.map("global", "/", "global");
 a.registerModule("global/document", { default: document });
 a.registerModule("global/window", { default: typeof window !== "undefined" ? window : global });
 a.map("reflect-metadata", "/", "global");
 a.registerModule("reflect-metadata", Reflect);
-AmdLoader.moduleLoader = function (name, url, success, error) {
-    var script = document.createElement("script");
+AmdLoader.moduleLoader = (name, url, success, error) => {
+    const script = document.createElement("script");
     script.type = "text/javascript";
     script.src = url;
-    var s = script;
-    script.onload = s.onreadystatechange = function () {
+    const s = script;
+    script.onload = s.onreadystatechange = () => {
         if ((s.readyState && s.readyState !== "complete" && s.readyState !== "loaded")) {
             return;
         }
         script.onload = s.onreadystatechange = null;
         success();
     };
-    script.onerror = function (e) { error(e); };
+    script.onerror = (e) => { error(e); };
     document.body.appendChild(script);
 };
-AmdLoader.moduleProgress = (function () {
+AmdLoader.httpTextLoader = (url, success, error) => {
+    const xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = (e) => {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+                success(xhr.responseText);
+            }
+            else {
+                error(xhr.responseText);
+            }
+        }
+    };
+    xhr.open("GET", url);
+    xhr.send();
+};
+AmdLoader.moduleProgress = (() => {
     if (!document) {
-        return function (name, p) {
-            // tslint:disable-next-line:no-console
-            console.log(name + " " + p + "%");
+        return (name, p) => {
+            console.log(`${name} ${p}%`);
         };
     }
-    var progressDiv = document.createElement("div");
+    const progressDiv = document.createElement("div");
     progressDiv.className = "web-atoms-progress-div";
-    var style = progressDiv.style;
+    const style = progressDiv.style;
     style.position = "absolute";
     style.margin = "auto";
     style.width = "200px";
@@ -1189,10 +1128,10 @@ AmdLoader.moduleProgress = (function () {
     style.padding = "5px";
     style.textAlign = "left";
     style.verticalAlign = "bottom";
-    var progressLabel = document.createElement("pre");
+    const progressLabel = document.createElement("pre");
     progressDiv.appendChild(progressLabel);
     progressLabel.style.color = "#A0A0A0";
-    var ps = progressLabel.style;
+    const ps = progressLabel.style;
     ps.position = "absolute";
     ps.left = "5px";
     ps.bottom = "0";
@@ -1205,7 +1144,6 @@ AmdLoader.moduleProgress = (function () {
         ready();
     }
     if (document.readyState === "complete" ||
-        // tslint:disable-next-line:no-string-literal
         (document.readyState !== "loading" && !document.documentElement["doScroll"])) {
         window.setTimeout(ready);
     }
@@ -1213,7 +1151,7 @@ AmdLoader.moduleProgress = (function () {
         document.addEventListener("DOMContentLoaded", completed);
         window.addEventListener("load", completed);
     }
-    return function (name, n, status) {
+    return (name, n, status) => {
         if (status === "done") {
             progressDiv.style.display = "none";
             return;
@@ -1225,54 +1163,66 @@ AmdLoader.moduleProgress = (function () {
         progressLabel.textContent = name;
     };
 })();
-/// <reference path="./AmdLoader.ts"/>
-// tslint:disable-next-line:no-var-keyword
-var define = function (requiresOrFactory, factory) {
-    AmdLoader.instance.define = function () {
-        var current = AmdLoader.current;
+var define = (requiresOrFactory, factory, nested) => {
+    const loader = AmdLoader.instance;
+    function bindFactory(module, requireList, fx) {
+        if (module.factory) {
+            return;
+        }
+        module.dependencies = [];
+        let requires = requireList;
+        requires = requireList;
+        const args = [];
+        for (const s of requires) {
+            if (s === "require") {
+                args.push(module.require);
+                continue;
+            }
+            if (s === "exports") {
+                args.push(module.emptyExports);
+                continue;
+            }
+            if (/^global/.test(s)) {
+                args.push(loader.get(s).exports);
+            }
+            const name = loader.resolveRelativePath(s, module.name);
+            const child = loader.get(name);
+            module.addDependency(child);
+        }
+        module.factory = () => {
+            return fx.apply(module, args);
+        };
+    }
+    if (nested) {
+        const name = requiresOrFactory;
+        const rList = factory;
+        const f = nested;
+        const module = AmdLoader.instance.get(name);
+        bindFactory(module, rList, f);
+        setTimeout(() => {
+            loader.loadDependencies(module);
+        }, 1);
+        return;
+    }
+    AmdLoader.instance.define = () => {
+        const current = AmdLoader.current;
         if (!current) {
             return;
         }
         if (current.factory) {
             return;
         }
-        // console.log(`Define for ${current.name}`);
-        current.dependencies = [];
-        var loader = AmdLoader.instance;
-        var requires = [];
         if (typeof requiresOrFactory === "function") {
-            factory = requiresOrFactory;
+            bindFactory(current, [], requiresOrFactory);
         }
         else {
-            requires = requiresOrFactory;
+            bindFactory(current, requiresOrFactory, factory);
         }
-        var args = [];
-        for (var _i = 0, requires_1 = requires; _i < requires_1.length; _i++) {
-            var s = requires_1[_i];
-            if (s === "require") {
-                args.push(current.require);
-                continue;
-            }
-            if (s === "exports") {
-                args.push(current.emptyExports);
-                continue;
-            }
-            if (/^global/.test(s)) {
-                args.push(loader.get(s).exports);
-            }
-            var name_2 = loader.resolveRelativePath(s, current.name);
-            var child = loader.get(name_2);
-            current.addDependency(child);
-        }
-        // const fx = factory.bind(current, ... args);
-        current.factory = function () {
-            return factory.apply(current, args);
-        };
     };
 };
 define.amd = {};
-var MockType = /** @class */ (function () {
-    function MockType(module, type, name, mock, moduleName, exportName) {
+class MockType {
+    constructor(module, type, name, mock, moduleName, exportName) {
         this.module = module;
         this.type = type;
         this.name = name;
@@ -1284,7 +1234,7 @@ var MockType = /** @class */ (function () {
             .replace("{lang}", UMD.lang)
             .replace("{platform}", UMD.viewPrefix);
         if (name.indexOf("$") !== -1) {
-            var tokens = name.split("$");
+            const tokens = name.split("$");
             this.moduleName = tokens[0];
             this.exportName = tokens[1] || tokens[0].split("/").pop();
         }
@@ -1293,180 +1243,118 @@ var MockType = /** @class */ (function () {
             this.exportName = "default";
         }
     }
-    return MockType;
-}());
-/// <reference path="./AmdLoader.ts"/>
-var UMDClass = /** @class */ (function () {
-    function UMDClass() {
+}
+class UMDClass {
+    constructor() {
         this.viewPrefix = "web";
         this.defaultApp = "@web-atoms/core/dist/web/WebApp";
         this.lang = "en-US";
         this.nameSymbol = typeof Symbol !== "undefined" ? Symbol() : "_$_nameSymbol";
     }
-    Object.defineProperty(UMDClass.prototype, "mock", {
-        get: function () {
-            return AmdLoader.instance.enableMock;
-        },
-        set: function (v) {
-            AmdLoader.instance.enableMock = v;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    UMDClass.prototype.resolvePath = function (n) {
+    get mock() {
+        return AmdLoader.instance.enableMock;
+    }
+    set mock(v) {
+        AmdLoader.instance.enableMock = v;
+    }
+    resolvePath(n) {
         return AmdLoader.instance.resolveSource(n, null);
-    };
-    UMDClass.prototype.resolveViewPath = function (path) {
+    }
+    resolveViewPath(path) {
         return path.replace("{platform}", this.viewPrefix);
-    };
-    UMDClass.prototype.resolveType = function (type) {
+    }
+    resolveType(type) {
         return AmdLoader.instance.resolveType(type);
-    };
-    UMDClass.prototype.map = function (name, path, type, exportVar) {
-        if (type === void 0) { type = "amd"; }
+    }
+    map(name, path, type = "amd", exportVar) {
         AmdLoader.instance.map(name, path, type, exportVar);
-    };
-    UMDClass.prototype.setupRoot = function (name, url) {
+    }
+    setupRoot(name, url) {
         AmdLoader.instance.setupRoot(name, url);
-    };
-    UMDClass.prototype.mockType = function (type, name) {
+    }
+    mockType(type, name) {
         AmdLoader.instance.replace(type, name, true);
-    };
-    UMDClass.prototype.inject = function (type, name) {
+    }
+    inject(type, name) {
         AmdLoader.instance.replace(type, name, false);
-    };
-    UMDClass.prototype.resolveViewClassAsync = function (path) {
-        return __awaiter(this, void 0, void 0, function () {
-            var e;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        path = this.resolveViewPath(path);
-                        return [4 /*yield*/, AmdLoader.instance.import(path)];
-                    case 1:
-                        e = _a.sent();
-                        return [2 /*return*/, e.default];
-                }
-            });
+    }
+    resolveViewClassAsync(path) {
+        return __awaiter(this, void 0, void 0, function* () {
+            path = this.resolveViewPath(path);
+            const e = yield AmdLoader.instance.import(path);
+            return e.default;
         });
-    };
-    UMDClass.prototype.import = function (path) {
+    }
+    import(path) {
         return AmdLoader.instance.import(path);
-    };
-    UMDClass.prototype.load = function (path, designMode) {
-        return __awaiter(this, void 0, void 0, function () {
-            var a, al;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        this.mock = designMode;
-                        return [4 /*yield*/, AmdLoader.instance.import("@web-atoms/core/dist/Atom")];
-                    case 1:
-                        a = _a.sent();
-                        a.Atom.designMode = designMode;
-                        return [4 /*yield*/, AmdLoader.instance.import("@web-atoms/core/dist/core/AtomList")];
-                    case 2:
-                        al = _a.sent();
-                        return [4 /*yield*/, AmdLoader.instance.import(path)];
-                    case 3: return [2 /*return*/, _a.sent()];
-                }
-            });
+    }
+    load(path, designMode) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.mock = designMode;
+            const t = yield AmdLoader.instance.import("@web-atoms/core/dist/core/types");
+            const a = yield AmdLoader.instance.import("@web-atoms/core/dist/Atom");
+            a.Atom.designMode = designMode;
+            const al = yield AmdLoader.instance.import("@web-atoms/core/dist/core/AtomList");
+            return yield AmdLoader.instance.import(path);
         });
-    };
-    /**
-     * Host the view inside given element with given id
-     * @param id id of element to host view in
-     * @param path path of module
-     * @param designMode true/false (default false)
-     */
-    UMDClass.prototype.hostView = function (id, path, designMode) {
-        return __awaiter(this, void 0, void 0, function () {
-            var m, app_1, e_1;
-            var _this = this;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        this.mock = designMode;
-                        AmdLoader.instance.get(path);
-                        return [4 /*yield*/, this.load(this.defaultApp, designMode)];
-                    case 1:
-                        m = _a.sent();
-                        app_1 = new (m.default)();
-                        app_1.onReady(function () { return __awaiter(_this, void 0, void 0, function () {
-                            var viewClass, view, element, e_2;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0:
-                                        _a.trys.push([0, 2, , 3]);
-                                        return [4 /*yield*/, AmdLoader.instance.import(path)];
-                                    case 1:
-                                        viewClass = _a.sent();
-                                        view = new (viewClass.default)(app_1);
-                                        element = document.getElementById(id);
-                                        element.appendChild(view.element);
-                                        return [3 /*break*/, 3];
-                                    case 2:
-                                        e_2 = _a.sent();
-                                        // tslint:disable-next-line:no-console
-                                        console.error(e_2);
-                                        return [3 /*break*/, 3];
-                                    case 3: return [2 /*return*/];
-                                }
-                            });
-                        }); });
-                        return [3 /*break*/, 3];
-                    case 2:
-                        e_1 = _a.sent();
-                        // tslint:disable-next-line:no-console
-                        console.error(e_1);
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
-                }
-            });
+    }
+    hostView(id, path, designMode) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                this.mock = designMode;
+                AmdLoader.instance.get(path);
+                const m = yield this.load(this.defaultApp, designMode);
+                const app = new (m.default)();
+                app.onReady(() => __awaiter(this, void 0, void 0, function* () {
+                    try {
+                        const viewClass = yield AmdLoader.instance.import(path);
+                        const view = new (viewClass.default)(app);
+                        const element = document.getElementById(id);
+                        element.appendChild(view.element);
+                    }
+                    catch (e) {
+                        console.error(e);
+                    }
+                }));
+            }
+            catch (e) {
+                console.error(e);
+            }
         });
-    };
-    UMDClass.prototype.loadView = function (path, designMode, appPath) {
-        return __awaiter(this, void 0, void 0, function () {
-            var m, app;
-            var _this = this;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        this.mock = designMode;
-                        appPath = appPath || this.defaultApp;
-                        AmdLoader.instance.get(path);
-                        return [4 /*yield*/, this.load(appPath, designMode)];
-                    case 1:
-                        m = _a.sent();
-                        app = new (m.default)();
-                        app.onReady(function () { return __awaiter(_this, void 0, void 0, function () {
-                            var viewClass, view, e_3;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0:
-                                        _a.trys.push([0, 2, , 3]);
-                                        return [4 /*yield*/, AmdLoader.instance.import(path)];
-                                    case 1:
-                                        viewClass = _a.sent();
-                                        view = new (viewClass.default)(app);
-                                        app.root = view;
-                                        return [3 /*break*/, 3];
-                                    case 2:
-                                        e_3 = _a.sent();
-                                        // tslint:disable-next-line:no-console
-                                        console.error(e_3);
-                                        return [3 /*break*/, 3];
-                                    case 3: return [2 /*return*/];
-                                }
-                            });
-                        }); });
-                        return [2 /*return*/];
-                }
-            });
+    }
+    loadView(path, designMode, appPath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                this.mock = designMode;
+                appPath = appPath || this.defaultApp;
+                AmdLoader.instance.get(path);
+                const m = yield this.load(appPath, designMode);
+                const app = new (m.default)();
+                return yield new Promise((resolve, reject) => {
+                    app.onReady(() => __awaiter(this, void 0, void 0, function* () {
+                        try {
+                            const viewClass = yield AmdLoader.instance.import(path);
+                            const view = new (viewClass.default)(app);
+                            app.root = view;
+                            resolve(view);
+                        }
+                        catch (e) {
+                            console.error(e);
+                            reject(e);
+                        }
+                    }));
+                });
+            }
+            catch (er) {
+                console.error(er);
+                throw er;
+            }
         });
-    };
-    return UMDClass;
-}());
-var UMD = new UMDClass();
+    }
+}
+const UMD = new UMDClass();
+((u) => {
+    const globalNS = (typeof window !== "undefined" ? window : global);
+    globalNS.UMD = u;
+})(UMD);
 //# sourceMappingURL=umd.js.map

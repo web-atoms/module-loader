@@ -1,6 +1,6 @@
 /// <reference path="./AmdLoader.ts"/>
 
-declare var Symbol: any;
+// declare var Symbol: any;
 
 class UMDClass {
 

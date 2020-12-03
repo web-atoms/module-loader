@@ -1,8 +1,9 @@
 {
     "compilerOptions": {
-        "target": "es5",
+        "target": "es6",
         "sourceMap": true,
         "declaration": true,
+        "removeComments": true,
         "outFile": "umd.js",
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,

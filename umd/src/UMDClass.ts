@@ -136,4 +136,5 @@ const UMD: UMDClass = new UMDClass();
 ((u) => {
     const globalNS = (typeof window !== "undefined" ? window : global);
     globalNS.UMD = u;
+    globalNS.AmdLoader = AmdLoader;
 })(UMD);

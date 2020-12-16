@@ -336,6 +336,10 @@ class AmdLoader {
 
         if (typeof globalImport !== "undefined") {
             module.exports = await globalImport(module.url);
+            const def = module.exports.default;
+            if (def && typeof def === "object") {
+                def[UMD.nameSymbol] = module.name;
+            }
             return module.exports;
         }
 

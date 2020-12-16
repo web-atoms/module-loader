@@ -10,6 +10,8 @@ if (typeof require !== "undefined") {
     md = require("module").Module;
 }
 
+const promiseDone = Promise.resolve(0);
+
 class AmdLoader {
 
     public static isMedia = /\.(jpg|jpeg|gif|png|mp4|mp3|css|html|svg)$/i;
@@ -122,9 +124,9 @@ class AmdLoader {
             console.error(e);
         });
         if (m.dependencies.length) {
-            const all = m.dependencies.map(async (m1) => {
-                if (m1.isResolved) { return; }
-                await this.import(m1);
+            const all = m.dependencies.map((m1) => {
+                if (m1.isResolved) { return promiseDone; }
+                return this.import(m1);
             });
             Promise.all(all).catch((e) => {
                 // tslint:disable-next-line:no-console

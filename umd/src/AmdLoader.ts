@@ -10,6 +10,10 @@ if (typeof require !== "undefined") {
     md = require("module").Module;
 }
 
+const globalImport = typeof global !== "undefined"
+    ? global.import
+    : (window as any).import;
+
 const promiseDone = Promise.resolve(0);
 
 class AmdLoader {
@@ -325,6 +329,16 @@ class AmdLoader {
             return Promise.resolve(require(name));
         }
         const module: Module = typeof name === "object" ? name as Module : this.get(name);
+
+        if (module.isResolved) {
+            return module.getExports();
+        }
+
+        if (typeof globalImport !== "undefined") {
+            module.exports = await globalImport(module.url);
+            return module.exports;
+        }
+
         await this.load(module);
         const e = await this.resolveModule(module);
         return e;

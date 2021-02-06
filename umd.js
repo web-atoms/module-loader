@@ -241,168 +241,665 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         globalNS.Promise.prototype['finally'] = finallyConstructor;
     }
 })));
-;
-!function (o) { !function (t) { var e = "object" == typeof global ? global : "object" == typeof self ? self : "object" == typeof this ? this : Function("return this;")(), r = n(o); function n(r, n) { return function (t, e) { "function" != typeof r[t] && Object.defineProperty(r, t, { configurable: !0, writable: !0, value: e }), n && n(t, e); }; } void 0 === e.Reflect ? e.Reflect = o : r = n(e.Reflect, r), function (t) { var f = Object.prototype.hasOwnProperty, e = "function" == typeof Symbol, i = e && void 0 !== Symbol.toPrimitive ? Symbol.toPrimitive : "@@toPrimitive", s = e && void 0 !== Symbol.iterator ? Symbol.iterator : "@@iterator", r = "function" == typeof Object.create, n = { __proto__: [] } instanceof Array, o = !r && !n, c = { create: r ? function () { return S(Object.create(null)); } : n ? function () { return S({ __proto__: null }); } : function () { return S({}); }, has: o ? function (t, e) { return f.call(t, e); } : function (t, e) { return e in t; }, get: o ? function (t, e) { return f.call(t, e) ? t[e] : void 0; } : function (t, e) { return t[e]; } }, u = Object.getPrototypeOf(Function), a = "object" == typeof process && process.env && "true" === process.env.REFLECT_METADATA_USE_MAP_POLYFILL, h = a || "function" != typeof Map || "function" != typeof Map.prototype.entries ? function () { var o = {}, r = [], e = function () { function t(t, e, r) { this._index = 0, this._keys = t, this._values = e, this._selector = r; } return t.prototype["@@iterator"] = function () { return this; }, t.prototype[s] = function () { return this; }, t.prototype.next = function () { var t = this._index; if (0 <= t && t < this._keys.length) {
-    var e = this._selector(this._keys[t], this._values[t]);
-    return t + 1 >= this._keys.length ? (this._index = -1, this._keys = r, this._values = r) : this._index++, { value: e, done: !1 };
-} return { value: void 0, done: !0 }; }, t.prototype.throw = function (t) { throw 0 <= this._index && (this._index = -1, this._keys = r, this._values = r), t; }, t.prototype.return = function (t) { return 0 <= this._index && (this._index = -1, this._keys = r, this._values = r), { value: t, done: !0 }; }, t; }(); return function () { function t() { this._keys = [], this._values = [], this._cacheKey = o, this._cacheIndex = -2; } return Object.defineProperty(t.prototype, "size", { get: function () { return this._keys.length; }, enumerable: !0, configurable: !0 }), t.prototype.has = function (t) { return 0 <= this._find(t, !1); }, t.prototype.get = function (t) { var e = this._find(t, !1); return 0 <= e ? this._values[e] : void 0; }, t.prototype.set = function (t, e) { var r = this._find(t, !0); return this._values[r] = e, this; }, t.prototype.delete = function (t) { var e = this._find(t, !1); if (0 <= e) {
-    for (var r = this._keys.length, n = e + 1; n < r; n++)
-        this._keys[n - 1] = this._keys[n], this._values[n - 1] = this._values[n];
-    return this._keys.length--, this._values.length--, t === this._cacheKey && (this._cacheKey = o, this._cacheIndex = -2), !0;
-} return !1; }, t.prototype.clear = function () { this._keys.length = 0, this._values.length = 0, this._cacheKey = o, this._cacheIndex = -2; }, t.prototype.keys = function () { return new e(this._keys, this._values, n); }, t.prototype.values = function () { return new e(this._keys, this._values, i); }, t.prototype.entries = function () { return new e(this._keys, this._values, u); }, t.prototype["@@iterator"] = function () { return this.entries(); }, t.prototype[s] = function () { return this.entries(); }, t.prototype._find = function (t, e) { return this._cacheKey !== t && (this._cacheIndex = this._keys.indexOf(this._cacheKey = t)), this._cacheIndex < 0 && e && (this._cacheIndex = this._keys.length, this._keys.push(t), this._values.push(void 0)), this._cacheIndex; }, t; }(); function n(t, e) { return t; } function i(t, e) { return e; } function u(t, e) { return [t, e]; } }() : Map, l = a || "function" != typeof Set || "function" != typeof Set.prototype.entries ? function () { function t() { this._map = new h; } return Object.defineProperty(t.prototype, "size", { get: function () { return this._map.size; }, enumerable: !0, configurable: !0 }), t.prototype.has = function (t) { return this._map.has(t); }, t.prototype.add = function (t) { return this._map.set(t, t), this; }, t.prototype.delete = function (t) { return this._map.delete(t); }, t.prototype.clear = function () { this._map.clear(); }, t.prototype.keys = function () { return this._map.keys(); }, t.prototype.values = function () { return this._map.values(); }, t.prototype.entries = function () { return this._map.entries(); }, t.prototype["@@iterator"] = function () { return this.keys(); }, t.prototype[s] = function () { return this.keys(); }, t; }() : Set, p = new (a || "function" != typeof WeakMap ? function () { var o = 16, e = c.create(), r = n(); return function () { function t() { this._key = n(); } return t.prototype.has = function (t) { var e = i(t, !1); return void 0 !== e && c.has(e, this._key); }, t.prototype.get = function (t) { var e = i(t, !1); return void 0 !== e ? c.get(e, this._key) : void 0; }, t.prototype.set = function (t, e) { var r = i(t, !0); return r[this._key] = e, this; }, t.prototype.delete = function (t) { var e = i(t, !1); return void 0 !== e && delete e[this._key]; }, t.prototype.clear = function () { this._key = n(); }, t; }(); function n() { for (var t; t = "@@WeakMap@@" + a(), c.has(e, t);)
-    ; return e[t] = !0, t; } function i(t, e) { if (!f.call(t, r)) {
-    if (!e)
-        return;
-    Object.defineProperty(t, r, { value: c.create() });
-} return t[r]; } function u(t, e) { for (var r = 0; r < e; ++r)
-    t[r] = 255 * Math.random() | 0; return t; } function a() { var t = function (t) { if ("function" == typeof Uint8Array)
-    return "undefined" != typeof crypto ? crypto.getRandomValues(new Uint8Array(t)) : "undefined" != typeof msCrypto ? msCrypto.getRandomValues(new Uint8Array(t)) : u(new Uint8Array(t), t); return u(new Array(t), t); }(o); t[6] = 79 & t[6] | 64, t[8] = 191 & t[8] | 128; for (var e = "", r = 0; r < o; ++r) {
-    var n = t[r];
-    4 !== r && 6 !== r && 8 !== r || (e += "-"), n < 16 && (e += "0"), e += n.toString(16).toLowerCase();
-} return e; } }() : WeakMap); function y(t, e, r) { var n = p.get(t); if (b(n)) {
-    if (!r)
-        return;
-    n = new h, p.set(t, n);
-} var o = n.get(e); if (b(o)) {
-    if (!r)
-        return;
-    o = new h, n.set(e, o);
-} return o; } function v(t, e, r) { var n = y(e, r, !1); return !b(n) && !!n.has(t); } function _(t, e, r) { var n = y(e, r, !1); if (!b(n))
-    return n.get(t); } function d(t, e, r, n) { var o = y(r, n, !0); o.set(t, e); } function w(t, e) { var r = [], n = y(t, e, !1); if (b(n))
-    return r; for (var o, i = n.keys(), u = function (t) { var e = M(t, s); if (!j(e))
-    throw new TypeError; var r = e.call(t); if (!m(r))
-    throw new TypeError; return r; }(i), a = 0;;) {
-    var f = (void 0, !(o = u.next()).done && o);
-    if (!f)
-        return r.length = a, r;
-    var c = f.value;
-    try {
-        r[a] = c;
-    }
-    catch (t) {
-        try {
-            A(u);
+var Reflect;
+(function (Reflect) {
+    (function (factory) {
+        const root = typeof global === "object" ? global :
+            typeof self === "object" ? self :
+                typeof this === "object" ? this :
+                    Function("return this;")();
+        let exporter = makeExporter(Reflect);
+        if (typeof root.Reflect === "undefined") {
+            root.Reflect = Reflect;
         }
-        finally {
-            throw t;
+        else {
+            exporter = makeExporter(root.Reflect, exporter);
         }
-    }
-    a++;
-} } function g(t) { if (null === t)
-    return 1; switch (typeof t) {
-    case "undefined": return 0;
-    case "boolean": return 2;
-    case "string": return 3;
-    case "symbol": return 4;
-    case "number": return 5;
-    case "object": return null === t ? 1 : 6;
-    default: return 6;
-} } function b(t) { return void 0 === t; } function k(t) { return null === t; } function m(t) { return "object" == typeof t ? null !== t : "function" == typeof t; } function E(t, e) { switch (g(t)) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 5: return t;
-} var r = 3 === e ? "string" : 5 === e ? "number" : "default", n = M(t, i); if (void 0 !== n) {
-    var o = n.call(t, r);
-    if (m(o))
-        throw new TypeError;
-    return o;
-} return function (t, e) { if ("string" === e) {
-    var r = t.toString;
-    if (j(r)) {
-        var n = r.call(t);
-        if (!m(n))
-            return n;
-    }
-    var o = t.valueOf;
-    if (j(o)) {
-        var n = o.call(t);
-        if (!m(n))
-            return n;
-    }
-}
-else {
-    var o = t.valueOf;
-    if (j(o)) {
-        var n = o.call(t);
-        if (!m(n))
-            return n;
-    }
-    var i = t.toString;
-    if (j(i)) {
-        var n = i.call(t);
-        if (!m(n))
-            return n;
-    }
-} throw new TypeError; }(t, "default" === r ? "number" : r); } function T(t) { var e = E(t, 3); return "symbol" == typeof e ? e : "" + e; } function O(t) { return Array.isArray ? Array.isArray(t) : t instanceof Object ? t instanceof Array : "[object Array]" === Object.prototype.toString.call(t); } function j(t) { return "function" == typeof t; } function x(t) { return "function" == typeof t; } function M(t, e) { var r = t[e]; if (null != r) {
-    if (!j(r))
-        throw new TypeError;
-    return r;
-} } function A(t) { var e = t.return; e && e.call(t); } function P(t) { var e = Object.getPrototypeOf(t); if ("function" != typeof t || t === u)
-    return e; if (e !== u)
-    return e; var r = t.prototype, n = r && Object.getPrototypeOf(r); if (null == n || n === Object.prototype)
-    return e; var o = n.constructor; return "function" != typeof o ? e : o === t ? e : o; } function S(t) { return t.__ = void 0, delete t.__, t; } t("decorate", function (t, e, r, n) { {
-    if (b(r)) {
-        if (!O(t))
-            throw new TypeError;
-        if (!x(e))
-            throw new TypeError;
-        return function (t, e) { for (var r = t.length - 1; 0 <= r; --r) {
-            var n = t[r], o = n(e);
-            if (!b(o) && !k(o)) {
-                if (!x(o))
-                    throw new TypeError;
-                e = o;
+        factory(exporter);
+        function makeExporter(target, previous) {
+            return (key, value) => {
+                if (typeof target[key] !== "function") {
+                    Object.defineProperty(target, key, { configurable: true, writable: true, value });
+                }
+                if (previous)
+                    previous(key, value);
+            };
+        }
+    })(function (exporter) {
+        const hasOwn = Object.prototype.hasOwnProperty;
+        const supportsSymbol = typeof Symbol === "function";
+        const toPrimitiveSymbol = supportsSymbol && typeof Symbol.toPrimitive !== "undefined" ? Symbol.toPrimitive : "@@toPrimitive";
+        const iteratorSymbol = supportsSymbol && typeof Symbol.iterator !== "undefined" ? Symbol.iterator : "@@iterator";
+        const supportsCreate = typeof Object.create === "function";
+        const supportsProto = { __proto__: [] } instanceof Array;
+        const downLevel = !supportsCreate && !supportsProto;
+        const HashMap = {
+            create: supportsCreate
+                ? () => MakeDictionary(Object.create(null))
+                : supportsProto
+                    ? () => MakeDictionary({ __proto__: null })
+                    : () => MakeDictionary({}),
+            has: downLevel
+                ? (map, key) => hasOwn.call(map, key)
+                : (map, key) => key in map,
+            get: downLevel
+                ? (map, key) => hasOwn.call(map, key) ? map[key] : undefined
+                : (map, key) => map[key],
+        };
+        const functionPrototype = Object.getPrototypeOf(Function);
+        const usePolyfill = typeof process === "object" && process.env && process.env["REFLECT_METADATA_USE_MAP_POLYFILL"] === "true";
+        const _Map = !usePolyfill && typeof Map === "function" && typeof Map.prototype.entries === "function" ? Map : CreateMapPolyfill();
+        const _Set = !usePolyfill && typeof Set === "function" && typeof Set.prototype.entries === "function" ? Set : CreateSetPolyfill();
+        const _WeakMap = !usePolyfill && typeof WeakMap === "function" ? WeakMap : CreateWeakMapPolyfill();
+        const Metadata = new _WeakMap();
+        function decorate(decorators, target, propertyKey, attributes) {
+            if (!IsUndefined(propertyKey)) {
+                if (!IsArray(decorators))
+                    throw new TypeError();
+                if (!IsObject(target))
+                    throw new TypeError();
+                if (!IsObject(attributes) && !IsUndefined(attributes) && !IsNull(attributes))
+                    throw new TypeError();
+                if (IsNull(attributes))
+                    attributes = undefined;
+                propertyKey = ToPropertyKey(propertyKey);
+                return DecorateProperty(decorators, target, propertyKey, attributes);
             }
-        } return e; }(t, e);
-    }
-    if (!O(t))
-        throw new TypeError;
-    if (!m(e))
-        throw new TypeError;
-    if (!m(n) && !b(n) && !k(n))
-        throw new TypeError;
-    return k(n) && (n = void 0), r = T(r), function (t, e, r, n) { for (var o = t.length - 1; 0 <= o; --o) {
-        var i = t[o], u = i(e, r, n);
-        if (!b(u) && !k(u)) {
-            if (!m(u))
-                throw new TypeError;
-            n = u;
+            else {
+                if (!IsArray(decorators))
+                    throw new TypeError();
+                if (!IsConstructor(target))
+                    throw new TypeError();
+                return DecorateConstructor(decorators, target);
+            }
         }
-    } return n; }(t, e, r, n);
-} }), t("metadata", function (r, n) { return function (t, e) { if (!m(t))
-    throw new TypeError; if (!b(e) && !function (t) { switch (g(t)) {
-    case 3:
-    case 4: return !0;
-    default: return !1;
-} }(e))
-    throw new TypeError; d(r, n, t, e); }; }), t("defineMetadata", function (t, e, r, n) { if (!m(r))
-    throw new TypeError; b(n) || (n = T(n)); return d(t, e, r, n); }), t("hasMetadata", function (t, e, r) { if (!m(e))
-    throw new TypeError; b(r) || (r = T(r)); return function t(e, r, n) { var o = v(e, r, n); if (o)
-    return !0; var i = P(r); if (!k(i))
-    return t(e, i, n); return !1; }(t, e, r); }), t("hasOwnMetadata", function (t, e, r) { if (!m(e))
-    throw new TypeError; b(r) || (r = T(r)); return v(t, e, r); }), t("getMetadata", function (t, e, r) { if (!m(e))
-    throw new TypeError; b(r) || (r = T(r)); return function t(e, r, n) { var o = v(e, r, n); if (o)
-    return _(e, r, n); var i = P(r); if (!k(i))
-    return t(e, i, n); return; }(t, e, r); }), t("getOwnMetadata", function (t, e, r) { if (!m(e))
-    throw new TypeError; b(r) || (r = T(r)); return _(t, e, r); }), t("getMetadataKeys", function (t, e) { if (!m(t))
-    throw new TypeError; b(e) || (e = T(e)); return function t(e, r) { var n = w(e, r); var o = P(e); if (null === o)
-    return n; var i = t(o, r); if (i.length <= 0)
-    return n; if (n.length <= 0)
-    return i; var u = new l; var a = []; for (var f = 0, c = n; f < c.length; f++) {
-    var s = c[f], h = u.has(s);
-    h || (u.add(s), a.push(s));
-} for (var p = 0, y = i; p < y.length; p++) {
-    var s = y[p], h = u.has(s);
-    h || (u.add(s), a.push(s));
-} return a; }(t, e); }), t("getOwnMetadataKeys", function (t, e) { if (!m(t))
-    throw new TypeError; b(e) || (e = T(e)); return w(t, e); }), t("deleteMetadata", function (t, e, r) { if (!m(e))
-    throw new TypeError; b(r) || (r = T(r)); var n = y(e, r, !1); if (b(n))
-    return !1; if (!n.delete(t))
-    return !1; if (0 < n.size)
-    return !0; var o = p.get(e); return o.delete(r), 0 < o.size || p.delete(e), !0; }); }(r); }(); }(Reflect || (Reflect = {}));
+        exporter("decorate", decorate);
+        function metadata(metadataKey, metadataValue) {
+            function decorator(target, propertyKey) {
+                if (!IsObject(target))
+                    throw new TypeError();
+                if (!IsUndefined(propertyKey) && !IsPropertyKey(propertyKey))
+                    throw new TypeError();
+                OrdinaryDefineOwnMetadata(metadataKey, metadataValue, target, propertyKey);
+            }
+            return decorator;
+        }
+        exporter("metadata", metadata);
+        function defineMetadata(metadataKey, metadataValue, target, propertyKey) {
+            if (!IsObject(target))
+                throw new TypeError();
+            if (!IsUndefined(propertyKey))
+                propertyKey = ToPropertyKey(propertyKey);
+            return OrdinaryDefineOwnMetadata(metadataKey, metadataValue, target, propertyKey);
+        }
+        exporter("defineMetadata", defineMetadata);
+        function hasMetadata(metadataKey, target, propertyKey) {
+            if (!IsObject(target))
+                throw new TypeError();
+            if (!IsUndefined(propertyKey))
+                propertyKey = ToPropertyKey(propertyKey);
+            return OrdinaryHasMetadata(metadataKey, target, propertyKey);
+        }
+        exporter("hasMetadata", hasMetadata);
+        function hasOwnMetadata(metadataKey, target, propertyKey) {
+            if (!IsObject(target))
+                throw new TypeError();
+            if (!IsUndefined(propertyKey))
+                propertyKey = ToPropertyKey(propertyKey);
+            return OrdinaryHasOwnMetadata(metadataKey, target, propertyKey);
+        }
+        exporter("hasOwnMetadata", hasOwnMetadata);
+        function getMetadata(metadataKey, target, propertyKey) {
+            if (!IsObject(target))
+                throw new TypeError();
+            if (!IsUndefined(propertyKey))
+                propertyKey = ToPropertyKey(propertyKey);
+            return OrdinaryGetMetadata(metadataKey, target, propertyKey);
+        }
+        exporter("getMetadata", getMetadata);
+        function getOwnMetadata(metadataKey, target, propertyKey) {
+            if (!IsObject(target))
+                throw new TypeError();
+            if (!IsUndefined(propertyKey))
+                propertyKey = ToPropertyKey(propertyKey);
+            return OrdinaryGetOwnMetadata(metadataKey, target, propertyKey);
+        }
+        exporter("getOwnMetadata", getOwnMetadata);
+        function getMetadataKeys(target, propertyKey) {
+            if (!IsObject(target))
+                throw new TypeError();
+            if (!IsUndefined(propertyKey))
+                propertyKey = ToPropertyKey(propertyKey);
+            return OrdinaryMetadataKeys(target, propertyKey);
+        }
+        exporter("getMetadataKeys", getMetadataKeys);
+        function getOwnMetadataKeys(target, propertyKey) {
+            if (!IsObject(target))
+                throw new TypeError();
+            if (!IsUndefined(propertyKey))
+                propertyKey = ToPropertyKey(propertyKey);
+            return OrdinaryOwnMetadataKeys(target, propertyKey);
+        }
+        exporter("getOwnMetadataKeys", getOwnMetadataKeys);
+        function deleteMetadata(metadataKey, target, propertyKey) {
+            if (!IsObject(target))
+                throw new TypeError();
+            if (!IsUndefined(propertyKey))
+                propertyKey = ToPropertyKey(propertyKey);
+            const metadataMap = GetOrCreateMetadataMap(target, propertyKey, false);
+            if (IsUndefined(metadataMap))
+                return false;
+            if (!metadataMap.delete(metadataKey))
+                return false;
+            if (metadataMap.size > 0)
+                return true;
+            const targetMetadata = Metadata.get(target);
+            targetMetadata.delete(propertyKey);
+            if (targetMetadata.size > 0)
+                return true;
+            Metadata.delete(target);
+            return true;
+        }
+        exporter("deleteMetadata", deleteMetadata);
+        function DecorateConstructor(decorators, target) {
+            for (let i = decorators.length - 1; i >= 0; --i) {
+                const decorator = decorators[i];
+                const decorated = decorator(target);
+                if (!IsUndefined(decorated) && !IsNull(decorated)) {
+                    if (!IsConstructor(decorated))
+                        throw new TypeError();
+                    target = decorated;
+                }
+            }
+            return target;
+        }
+        function DecorateProperty(decorators, target, propertyKey, descriptor) {
+            for (let i = decorators.length - 1; i >= 0; --i) {
+                const decorator = decorators[i];
+                const decorated = decorator(target, propertyKey, descriptor);
+                if (!IsUndefined(decorated) && !IsNull(decorated)) {
+                    if (!IsObject(decorated))
+                        throw new TypeError();
+                    descriptor = decorated;
+                }
+            }
+            return descriptor;
+        }
+        function GetOrCreateMetadataMap(O, P, Create) {
+            let targetMetadata = Metadata.get(O);
+            if (IsUndefined(targetMetadata)) {
+                if (!Create)
+                    return undefined;
+                targetMetadata = new _Map();
+                Metadata.set(O, targetMetadata);
+            }
+            let metadataMap = targetMetadata.get(P);
+            if (IsUndefined(metadataMap)) {
+                if (!Create)
+                    return undefined;
+                metadataMap = new _Map();
+                targetMetadata.set(P, metadataMap);
+            }
+            return metadataMap;
+        }
+        function OrdinaryHasMetadata(MetadataKey, O, P) {
+            const hasOwn = OrdinaryHasOwnMetadata(MetadataKey, O, P);
+            if (hasOwn)
+                return true;
+            const parent = OrdinaryGetPrototypeOf(O);
+            if (!IsNull(parent))
+                return OrdinaryHasMetadata(MetadataKey, parent, P);
+            return false;
+        }
+        function OrdinaryHasOwnMetadata(MetadataKey, O, P) {
+            const metadataMap = GetOrCreateMetadataMap(O, P, false);
+            if (IsUndefined(metadataMap))
+                return false;
+            return ToBoolean(metadataMap.has(MetadataKey));
+        }
+        function OrdinaryGetMetadata(MetadataKey, O, P) {
+            const hasOwn = OrdinaryHasOwnMetadata(MetadataKey, O, P);
+            if (hasOwn)
+                return OrdinaryGetOwnMetadata(MetadataKey, O, P);
+            const parent = OrdinaryGetPrototypeOf(O);
+            if (!IsNull(parent))
+                return OrdinaryGetMetadata(MetadataKey, parent, P);
+            return undefined;
+        }
+        function OrdinaryGetOwnMetadata(MetadataKey, O, P) {
+            const metadataMap = GetOrCreateMetadataMap(O, P, false);
+            if (IsUndefined(metadataMap))
+                return undefined;
+            return metadataMap.get(MetadataKey);
+        }
+        function OrdinaryDefineOwnMetadata(MetadataKey, MetadataValue, O, P) {
+            const metadataMap = GetOrCreateMetadataMap(O, P, true);
+            metadataMap.set(MetadataKey, MetadataValue);
+        }
+        function OrdinaryMetadataKeys(O, P) {
+            const ownKeys = OrdinaryOwnMetadataKeys(O, P);
+            const parent = OrdinaryGetPrototypeOf(O);
+            if (parent === null)
+                return ownKeys;
+            const parentKeys = OrdinaryMetadataKeys(parent, P);
+            if (parentKeys.length <= 0)
+                return ownKeys;
+            if (ownKeys.length <= 0)
+                return parentKeys;
+            const set = new _Set();
+            const keys = [];
+            for (const key of ownKeys) {
+                const hasKey = set.has(key);
+                if (!hasKey) {
+                    set.add(key);
+                    keys.push(key);
+                }
+            }
+            for (const key of parentKeys) {
+                const hasKey = set.has(key);
+                if (!hasKey) {
+                    set.add(key);
+                    keys.push(key);
+                }
+            }
+            return keys;
+        }
+        function OrdinaryOwnMetadataKeys(O, P) {
+            const keys = [];
+            const metadataMap = GetOrCreateMetadataMap(O, P, false);
+            if (IsUndefined(metadataMap))
+                return keys;
+            const keysObj = metadataMap.keys();
+            const iterator = GetIterator(keysObj);
+            let k = 0;
+            while (true) {
+                const next = IteratorStep(iterator);
+                if (!next) {
+                    keys.length = k;
+                    return keys;
+                }
+                const nextValue = IteratorValue(next);
+                try {
+                    keys[k] = nextValue;
+                }
+                catch (e) {
+                    try {
+                        IteratorClose(iterator);
+                    }
+                    finally {
+                        throw e;
+                    }
+                }
+                k++;
+            }
+        }
+        function Type(x) {
+            if (x === null)
+                return 1;
+            switch (typeof x) {
+                case "undefined": return 0;
+                case "boolean": return 2;
+                case "string": return 3;
+                case "symbol": return 4;
+                case "number": return 5;
+                case "object": return x === null ? 1 : 6;
+                default: return 6;
+            }
+        }
+        function IsUndefined(x) {
+            return x === undefined;
+        }
+        function IsNull(x) {
+            return x === null;
+        }
+        function IsSymbol(x) {
+            return typeof x === "symbol";
+        }
+        function IsObject(x) {
+            return typeof x === "object" ? x !== null : typeof x === "function";
+        }
+        function ToPrimitive(input, PreferredType) {
+            switch (Type(input)) {
+                case 0: return input;
+                case 1: return input;
+                case 2: return input;
+                case 3: return input;
+                case 4: return input;
+                case 5: return input;
+            }
+            const hint = PreferredType === 3 ? "string" : PreferredType === 5 ? "number" : "default";
+            const exoticToPrim = GetMethod(input, toPrimitiveSymbol);
+            if (exoticToPrim !== undefined) {
+                const result = exoticToPrim.call(input, hint);
+                if (IsObject(result))
+                    throw new TypeError();
+                return result;
+            }
+            return OrdinaryToPrimitive(input, hint === "default" ? "number" : hint);
+        }
+        function OrdinaryToPrimitive(O, hint) {
+            if (hint === "string") {
+                const toString = O.toString;
+                if (IsCallable(toString)) {
+                    const result = toString.call(O);
+                    if (!IsObject(result))
+                        return result;
+                }
+                const valueOf = O.valueOf;
+                if (IsCallable(valueOf)) {
+                    const result = valueOf.call(O);
+                    if (!IsObject(result))
+                        return result;
+                }
+            }
+            else {
+                const valueOf = O.valueOf;
+                if (IsCallable(valueOf)) {
+                    const result = valueOf.call(O);
+                    if (!IsObject(result))
+                        return result;
+                }
+                const toString = O.toString;
+                if (IsCallable(toString)) {
+                    const result = toString.call(O);
+                    if (!IsObject(result))
+                        return result;
+                }
+            }
+            throw new TypeError();
+        }
+        function ToBoolean(argument) {
+            return !!argument;
+        }
+        function ToString(argument) {
+            return "" + argument;
+        }
+        function ToPropertyKey(argument) {
+            const key = ToPrimitive(argument, 3);
+            if (IsSymbol(key))
+                return key;
+            return ToString(key);
+        }
+        function IsArray(argument) {
+            return Array.isArray
+                ? Array.isArray(argument)
+                : argument instanceof Object
+                    ? argument instanceof Array
+                    : Object.prototype.toString.call(argument) === "[object Array]";
+        }
+        function IsCallable(argument) {
+            return typeof argument === "function";
+        }
+        function IsConstructor(argument) {
+            return typeof argument === "function";
+        }
+        function IsPropertyKey(argument) {
+            switch (Type(argument)) {
+                case 3: return true;
+                case 4: return true;
+                default: return false;
+            }
+        }
+        function GetMethod(V, P) {
+            const func = V[P];
+            if (func === undefined || func === null)
+                return undefined;
+            if (!IsCallable(func))
+                throw new TypeError();
+            return func;
+        }
+        function GetIterator(obj) {
+            const method = GetMethod(obj, iteratorSymbol);
+            if (!IsCallable(method))
+                throw new TypeError();
+            const iterator = method.call(obj);
+            if (!IsObject(iterator))
+                throw new TypeError();
+            return iterator;
+        }
+        function IteratorValue(iterResult) {
+            return iterResult.value;
+        }
+        function IteratorStep(iterator) {
+            const result = iterator.next();
+            return result.done ? false : result;
+        }
+        function IteratorClose(iterator) {
+            const f = iterator["return"];
+            if (f)
+                f.call(iterator);
+        }
+        function OrdinaryGetPrototypeOf(O) {
+            const proto = Object.getPrototypeOf(O);
+            if (typeof O !== "function" || O === functionPrototype)
+                return proto;
+            if (proto !== functionPrototype)
+                return proto;
+            const prototype = O.prototype;
+            const prototypeProto = prototype && Object.getPrototypeOf(prototype);
+            if (prototypeProto == null || prototypeProto === Object.prototype)
+                return proto;
+            const constructor = prototypeProto.constructor;
+            if (typeof constructor !== "function")
+                return proto;
+            if (constructor === O)
+                return proto;
+            return constructor;
+        }
+        function CreateMapPolyfill() {
+            const cacheSentinel = {};
+            const arraySentinel = [];
+            class MapIterator {
+                constructor(keys, values, selector) {
+                    this._index = 0;
+                    this._keys = keys;
+                    this._values = values;
+                    this._selector = selector;
+                }
+                "@@iterator"() { return this; }
+                [iteratorSymbol]() { return this; }
+                next() {
+                    const index = this._index;
+                    if (index >= 0 && index < this._keys.length) {
+                        const result = this._selector(this._keys[index], this._values[index]);
+                        if (index + 1 >= this._keys.length) {
+                            this._index = -1;
+                            this._keys = arraySentinel;
+                            this._values = arraySentinel;
+                        }
+                        else {
+                            this._index++;
+                        }
+                        return { value: result, done: false };
+                    }
+                    return { value: undefined, done: true };
+                }
+                throw(error) {
+                    if (this._index >= 0) {
+                        this._index = -1;
+                        this._keys = arraySentinel;
+                        this._values = arraySentinel;
+                    }
+                    throw error;
+                }
+                return(value) {
+                    if (this._index >= 0) {
+                        this._index = -1;
+                        this._keys = arraySentinel;
+                        this._values = arraySentinel;
+                    }
+                    return { value: value, done: true };
+                }
+            }
+            return class Map {
+                constructor() {
+                    this._keys = [];
+                    this._values = [];
+                    this._cacheKey = cacheSentinel;
+                    this._cacheIndex = -2;
+                }
+                get size() { return this._keys.length; }
+                has(key) { return this._find(key, false) >= 0; }
+                get(key) {
+                    const index = this._find(key, false);
+                    return index >= 0 ? this._values[index] : undefined;
+                }
+                set(key, value) {
+                    const index = this._find(key, true);
+                    this._values[index] = value;
+                    return this;
+                }
+                delete(key) {
+                    const index = this._find(key, false);
+                    if (index >= 0) {
+                        const size = this._keys.length;
+                        for (let i = index + 1; i < size; i++) {
+                            this._keys[i - 1] = this._keys[i];
+                            this._values[i - 1] = this._values[i];
+                        }
+                        this._keys.length--;
+                        this._values.length--;
+                        if (key === this._cacheKey) {
+                            this._cacheKey = cacheSentinel;
+                            this._cacheIndex = -2;
+                        }
+                        return true;
+                    }
+                    return false;
+                }
+                clear() {
+                    this._keys.length = 0;
+                    this._values.length = 0;
+                    this._cacheKey = cacheSentinel;
+                    this._cacheIndex = -2;
+                }
+                keys() { return new MapIterator(this._keys, this._values, getKey); }
+                values() { return new MapIterator(this._keys, this._values, getValue); }
+                entries() { return new MapIterator(this._keys, this._values, getEntry); }
+                "@@iterator"() { return this.entries(); }
+                [iteratorSymbol]() { return this.entries(); }
+                _find(key, insert) {
+                    if (this._cacheKey !== key) {
+                        this._cacheIndex = this._keys.indexOf(this._cacheKey = key);
+                    }
+                    if (this._cacheIndex < 0 && insert) {
+                        this._cacheIndex = this._keys.length;
+                        this._keys.push(key);
+                        this._values.push(undefined);
+                    }
+                    return this._cacheIndex;
+                }
+            };
+            function getKey(key, _) {
+                return key;
+            }
+            function getValue(_, value) {
+                return value;
+            }
+            function getEntry(key, value) {
+                return [key, value];
+            }
+        }
+        function CreateSetPolyfill() {
+            return class Set {
+                constructor() {
+                    this._map = new _Map();
+                }
+                get size() { return this._map.size; }
+                has(value) { return this._map.has(value); }
+                add(value) { return this._map.set(value, value), this; }
+                delete(value) { return this._map.delete(value); }
+                clear() { this._map.clear(); }
+                keys() { return this._map.keys(); }
+                values() { return this._map.values(); }
+                entries() { return this._map.entries(); }
+                "@@iterator"() { return this.keys(); }
+                [iteratorSymbol]() { return this.keys(); }
+            };
+        }
+        function CreateWeakMapPolyfill() {
+            const UUID_SIZE = 16;
+            const keys = HashMap.create();
+            const rootKey = CreateUniqueKey();
+            return class WeakMap {
+                constructor() {
+                    this._key = CreateUniqueKey();
+                }
+                has(target) {
+                    const table = GetOrCreateWeakMapTable(target, false);
+                    return table !== undefined ? HashMap.has(table, this._key) : false;
+                }
+                get(target) {
+                    const table = GetOrCreateWeakMapTable(target, false);
+                    return table !== undefined ? HashMap.get(table, this._key) : undefined;
+                }
+                set(target, value) {
+                    const table = GetOrCreateWeakMapTable(target, true);
+                    table[this._key] = value;
+                    return this;
+                }
+                delete(target) {
+                    const table = GetOrCreateWeakMapTable(target, false);
+                    return table !== undefined ? delete table[this._key] : false;
+                }
+                clear() {
+                    this._key = CreateUniqueKey();
+                }
+            };
+            function CreateUniqueKey() {
+                let key;
+                do
+                    key = "@@WeakMap@@" + CreateUUID();
+                while (HashMap.has(keys, key));
+                keys[key] = true;
+                return key;
+            }
+            function GetOrCreateWeakMapTable(target, create) {
+                if (!hasOwn.call(target, rootKey)) {
+                    if (!create)
+                        return undefined;
+                    Object.defineProperty(target, rootKey, { value: HashMap.create() });
+                }
+                return target[rootKey];
+            }
+            function FillRandomBytes(buffer, size) {
+                for (let i = 0; i < size; ++i)
+                    buffer[i] = Math.random() * 0xff | 0;
+                return buffer;
+            }
+            function GenRandomBytes(size) {
+                if (typeof Uint8Array === "function") {
+                    if (typeof crypto !== "undefined")
+                        return crypto.getRandomValues(new Uint8Array(size));
+                    if (typeof msCrypto !== "undefined")
+                        return msCrypto.getRandomValues(new Uint8Array(size));
+                    return FillRandomBytes(new Uint8Array(size), size);
+                }
+                return FillRandomBytes(new Array(size), size);
+            }
+            function CreateUUID() {
+                const data = GenRandomBytes(UUID_SIZE);
+                data[6] = data[6] & 0x4f | 0x40;
+                data[8] = data[8] & 0xbf | 0x80;
+                let result = "";
+                for (let offset = 0; offset < UUID_SIZE; ++offset) {
+                    const byte = data[offset];
+                    if (offset === 4 || offset === 6 || offset === 8)
+                        result += "-";
+                    if (byte < 16)
+                        result += "0";
+                    result += byte.toString(16).toLowerCase();
+                }
+                return result;
+            }
+        }
+        function MakeDictionary(obj) {
+            obj.__ = undefined;
+            delete obj.__;
+            return obj;
+        }
+    });
+})(Reflect || (Reflect = {}));
 if (!Array.prototype.find) {
     Array.prototype.find = function (predicate, thisArg) {
         for (let i = 0; i < this.length; i++) {
@@ -592,8 +1089,9 @@ class Module {
                 }
                 AmdLoader.instance.currentStack.pop();
                 delete this.factory;
-                if (this.exports.default) {
-                    this.exports.default[UMD.nameSymbol] = this.name;
+                const def = this.exports.default;
+                if (def && typeof def === "object") {
+                    def[UMD.nameSymbol] = this.name;
                 }
             }
             catch (e) {
@@ -629,6 +1127,7 @@ Module.nextID = 1;
 if (typeof require !== "undefined") {
     md = require("module").Module;
 }
+const promiseDone = Promise.resolve(0);
 class AmdLoader {
     constructor() {
         this.root = null;
@@ -694,12 +1193,12 @@ class AmdLoader {
             console.error(e);
         });
         if (m.dependencies.length) {
-            const all = m.dependencies.map((m1) => __awaiter(this, void 0, void 0, function* () {
+            const all = m.dependencies.map((m1) => {
                 if (m1.isResolved) {
-                    return;
+                    return promiseDone;
                 }
-                yield this.import(m1);
-            }));
+                return this.import(m1);
+            });
             Promise.all(all).catch((e) => {
                 console.error(e);
             }).then(() => {
@@ -860,6 +1359,9 @@ class AmdLoader {
                 return Promise.resolve(require(name));
             }
             const module = typeof name === "object" ? name : this.get(name);
+            if (module.isResolved) {
+                return module.getExports();
+            }
             yield this.load(module);
             const e = yield this.resolveModule(module);
             return e;
@@ -1356,5 +1858,6 @@ const UMD = new UMDClass();
 ((u) => {
     const globalNS = (typeof window !== "undefined" ? window : global);
     globalNS.UMD = u;
+    globalNS.AmdLoader = AmdLoader;
 })(UMD);
 //# sourceMappingURL=umd.js.map

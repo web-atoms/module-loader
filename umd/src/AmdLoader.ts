@@ -10,9 +10,14 @@ if (typeof require !== "undefined") {
     md = require("module").Module;
 }
 
-const globalImport = typeof global !== "undefined"
-    ? global.import
-    : (window as any).import;
+// we cannot use global import as global import do not support any event of dependent modules loaded,
+// there is no way to detect duplication of module
+// there is no way to inspect and set path of module
+
+
+// const globalImport = typeof global !== "undefined"
+//     ? global.import
+//     : (window as any).import;
 
 const promiseDone = Promise.resolve(0);
 
@@ -334,14 +339,14 @@ class AmdLoader {
             return module.getExports();
         }
 
-        if (typeof globalImport !== "undefined") {
-            module.exports = await globalImport(module.url);
-            const def = module.exports.default;
-            if (def && typeof def === "object") {
-                def[UMD.nameSymbol] = module.name;
-            }
-            return module.exports;
-        }
+        // if (typeof globalImport !== "undefined") {
+        //     module.exports = await globalImport(module.url);
+        //     const def = module.exports.default;
+        //     if (def && typeof def === "object") {
+        //         def[UMD.nameSymbol] = module.name;
+        //     }
+        //     return module.exports;
+        // }
 
         await this.load(module);
         const e = await this.resolveModule(module);

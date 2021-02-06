@@ -14,7 +14,6 @@ if (typeof require !== "undefined") {
 // there is no way to detect duplication of module
 // there is no way to inspect and set path of module
 
-
 // const globalImport = typeof global !== "undefined"
 //     ? global.import
 //     : (window as any).import;

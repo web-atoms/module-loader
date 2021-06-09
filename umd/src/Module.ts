@@ -49,6 +49,8 @@ class Module {
 
     public loader: Promise<any>;
 
+    public postExports: () => void;
+
     public get filename(): string {
         return this.name;
     }

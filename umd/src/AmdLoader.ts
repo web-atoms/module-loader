@@ -119,7 +119,10 @@ class AmdLoader {
         }
         const peek: Module = this.currentStack.length ? this.currentStack[this.currentStack.length - 1] : undefined;
         const rt: MockType = new MockType(peek, type, name, mock);
-        this.mockTypes.push(rt);
+        rt.replacedModule = this.get(rt.moduleName);
+        rt.replacedModule.postExports = () => {
+            rt.replaced = rt.replacedModule.getExports()[rt.exportName];
+        };
     }
 
     public resolveType(type: any): any {
@@ -330,21 +333,8 @@ class AmdLoader {
         await Promise.all(ds);
         const exports = module.getExports();
         module.isResolved = true;
-        const pendingList: MockType[] = this.mockTypes.filter((t) => !t.loaded );
-        if (pendingList.length) {
-            for (const iterator of pendingList) {
-                iterator.loaded = true;
-            }
-            const tasks = pendingList.map(async (iterator) => {
-                const containerModule: Module = iterator.module;
-                const resolvedName: string = this.resolveRelativePath(iterator.moduleName, containerModule.name);
-                const im: Module = this.get(resolvedName);
-                im.ignoreModule = module;
-                const ex: any = await this.import(im);
-                const type: any = ex[iterator.exportName];
-                iterator.replaced = type;
-            });
-            await Promise.all(tasks);
+        if (module.postExports) {
+            module.postExports();
         }
         return exports;
     }

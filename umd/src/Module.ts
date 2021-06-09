@@ -133,4 +133,16 @@ class Module {
         return this.exports;
     }
 
+    public isDependentOn(module: Module): boolean {
+        for (const iterator of this.dependencies) {
+            if (iterator === module) {
+                return true;
+            }
+            if (iterator.isDependentOn(module)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

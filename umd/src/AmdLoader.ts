@@ -329,6 +329,7 @@ class AmdLoader {
         }
         await Promise.all(ds);
         const exports = module.getExports();
+        module.isResolved = true;
         const pendingList: MockType[] = this.mockTypes.filter((t) => !t.loaded );
         if (pendingList.length) {
             for (const iterator of pendingList) {
@@ -345,7 +346,6 @@ class AmdLoader {
             });
             await Promise.all(tasks);
         }
-        module.isResolved = true;
         return exports;
     }
 

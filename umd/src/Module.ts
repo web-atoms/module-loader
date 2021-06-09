@@ -134,17 +134,17 @@ class Module {
     }
 
     public isDependentOn(m: Module, visited?: any): boolean {
+        if (this.ignoreModule === m) {
+            return false;
+        }
         visited = visited || {};
         visited[this.name] = true;
         for (const iterator of this.dependencies) {
-            if (iterator.name === m.name) {
+            if (iterator === m) {
                 return true;
             }
             if (visited[iterator.name]) {
                 continue;
-            }
-            if (iterator === this.ignoreModule) {
-                return false;
             }
             if (iterator.isDependentOn(m, visited)) {
                 return true;

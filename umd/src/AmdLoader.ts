@@ -316,6 +316,7 @@ class AmdLoader {
 
     public async resolve(module: Module): Promise<any> {
         const ds = [];
+        const waiting = (module as any).waiting = [];
         for (const iterator of module.dependencies) {
             if (iterator.isResolved
                 || iterator.ignoreModule === module
@@ -323,6 +324,7 @@ class AmdLoader {
                 || (iterator.importPromise && iterator.isDependentOn(module))) {
                 continue;
             }
+            waiting.push(iterator);
             ds.push(this.import(iterator));
         }
         await Promise.all(ds);

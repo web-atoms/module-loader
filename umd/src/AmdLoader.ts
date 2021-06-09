@@ -301,6 +301,10 @@ class AmdLoader {
         if (module.importPromise) {
             return module.importPromise;
         }
+        if (module.isResolved) {
+            module.importPromise = Promise.resolve(module.getExports());
+            return module.importPromise;
+        }
         module.importPromise = this.importAsync(module);
         return module.importPromise;
     }
@@ -337,6 +341,7 @@ class AmdLoader {
             });
             await Promise.all(tasks);
         }
+        module.isResolved = true;
         return exports;
     }
 

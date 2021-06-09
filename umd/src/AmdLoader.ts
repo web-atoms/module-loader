@@ -317,13 +317,9 @@ class AmdLoader {
     public async resolve(module: Module): Promise<any> {
         const ds = [];
         for (const iterator of module.dependencies) {
-            if (iterator.isResolved) {
-                continue;
-            }
-            if (iterator.importPromise && iterator.isDependentOn(module)) {
-                continue;
-            }
-            if (iterator === module.ignoreModule) {
+            if (iterator.isResolved
+                || iterator === module.ignoreModule ||
+                (iterator.importPromise && iterator.isDependentOn(module))) {
                 continue;
             }
             ds.push(this.import(iterator));

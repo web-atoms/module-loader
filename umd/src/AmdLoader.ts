@@ -318,8 +318,9 @@ class AmdLoader {
         const ds = [];
         for (const iterator of module.dependencies) {
             if (iterator.isResolved
-                || iterator.ignoreModule === module ||
-                (iterator.importPromise && iterator.isDependentOn(module))) {
+                || iterator.ignoreModule === module
+                || iterator === module.ignoreModule
+                || (iterator.importPromise && iterator.isDependentOn(module))) {
                 continue;
             }
             ds.push(this.import(iterator));

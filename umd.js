@@ -7,240 +7,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-(function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory() :
-        typeof define === 'function' && define.amd ? define(factory) :
-            (factory());
-}(this, (function () {
-    'use strict';
-    function finallyConstructor(callback) {
-        var constructor = this.constructor;
-        return this.then(function (value) {
-            return constructor.resolve(callback()).then(function () {
-                return value;
-            });
-        }, function (reason) {
-            return constructor.resolve(callback()).then(function () {
-                return constructor.reject(reason);
-            });
-        });
-    }
-    var setTimeoutFunc = setTimeout;
-    function isArray(x) {
-        return Boolean(x && typeof x.length !== 'undefined');
-    }
-    function noop() { }
-    function bind(fn, thisArg) {
-        return function () {
-            fn.apply(thisArg, arguments);
-        };
-    }
-    function Promise(fn) {
-        if (!(this instanceof Promise))
-            throw new TypeError('Promises must be constructed via new');
-        if (typeof fn !== 'function')
-            throw new TypeError('not a function');
-        this._state = 0;
-        this._handled = false;
-        this._value = undefined;
-        this._deferreds = [];
-        doResolve(fn, this);
-    }
-    function handle(self, deferred) {
-        while (self._state === 3) {
-            self = self._value;
-        }
-        if (self._state === 0) {
-            self._deferreds.push(deferred);
-            return;
-        }
-        self._handled = true;
-        Promise._immediateFn(function () {
-            var cb = self._state === 1 ? deferred.onFulfilled : deferred.onRejected;
-            if (cb === null) {
-                (self._state === 1 ? resolve : reject)(deferred.promise, self._value);
-                return;
-            }
-            var ret;
-            try {
-                ret = cb(self._value);
-            }
-            catch (e) {
-                reject(deferred.promise, e);
-                return;
-            }
-            resolve(deferred.promise, ret);
-        });
-    }
-    function resolve(self, newValue) {
-        try {
-            if (newValue === self)
-                throw new TypeError('A promise cannot be resolved with itself.');
-            if (newValue &&
-                (typeof newValue === 'object' || typeof newValue === 'function')) {
-                var then = newValue.then;
-                if (newValue instanceof Promise) {
-                    self._state = 3;
-                    self._value = newValue;
-                    finale(self);
-                    return;
-                }
-                else if (typeof then === 'function') {
-                    doResolve(bind(then, newValue), self);
-                    return;
-                }
-            }
-            self._state = 1;
-            self._value = newValue;
-            finale(self);
-        }
-        catch (e) {
-            reject(self, e);
-        }
-    }
-    function reject(self, newValue) {
-        self._state = 2;
-        self._value = newValue;
-        finale(self);
-    }
-    function finale(self) {
-        if (self._state === 2 && self._deferreds.length === 0) {
-            Promise._immediateFn(function () {
-                if (!self._handled) {
-                    Promise._unhandledRejectionFn(self._value);
-                }
-            });
-        }
-        for (var i = 0, len = self._deferreds.length; i < len; i++) {
-            handle(self, self._deferreds[i]);
-        }
-        self._deferreds = null;
-    }
-    function Handler(onFulfilled, onRejected, promise) {
-        this.onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : null;
-        this.onRejected = typeof onRejected === 'function' ? onRejected : null;
-        this.promise = promise;
-    }
-    function doResolve(fn, self) {
-        var done = false;
-        try {
-            fn(function (value) {
-                if (done)
-                    return;
-                done = true;
-                resolve(self, value);
-            }, function (reason) {
-                if (done)
-                    return;
-                done = true;
-                reject(self, reason);
-            });
-        }
-        catch (ex) {
-            if (done)
-                return;
-            done = true;
-            reject(self, ex);
-        }
-    }
-    Promise.prototype['catch'] = function (onRejected) {
-        return this.then(null, onRejected);
-    };
-    Promise.prototype.then = function (onFulfilled, onRejected) {
-        var prom = new this.constructor(noop);
-        handle(this, new Handler(onFulfilled, onRejected, prom));
-        return prom;
-    };
-    Promise.prototype['finally'] = finallyConstructor;
-    Promise.all = function (arr) {
-        return new Promise(function (resolve, reject) {
-            if (!isArray(arr)) {
-                return reject(new TypeError('Promise.all accepts an array'));
-            }
-            var args = Array.prototype.slice.call(arr);
-            if (args.length === 0)
-                return resolve([]);
-            var remaining = args.length;
-            function res(i, val) {
-                try {
-                    if (val && (typeof val === 'object' || typeof val === 'function')) {
-                        var then = val.then;
-                        if (typeof then === 'function') {
-                            then.call(val, function (val) {
-                                res(i, val);
-                            }, reject);
-                            return;
-                        }
-                    }
-                    args[i] = val;
-                    if (--remaining === 0) {
-                        resolve(args);
-                    }
-                }
-                catch (ex) {
-                    reject(ex);
-                }
-            }
-            for (var i = 0; i < args.length; i++) {
-                res(i, args[i]);
-            }
-        });
-    };
-    Promise.resolve = function (value) {
-        if (value && typeof value === 'object' && value.constructor === Promise) {
-            return value;
-        }
-        return new Promise(function (resolve) {
-            resolve(value);
-        });
-    };
-    Promise.reject = function (value) {
-        return new Promise(function (resolve, reject) {
-            reject(value);
-        });
-    };
-    Promise.race = function (arr) {
-        return new Promise(function (resolve, reject) {
-            if (!isArray(arr)) {
-                return reject(new TypeError('Promise.race accepts an array'));
-            }
-            for (var i = 0, len = arr.length; i < len; i++) {
-                Promise.resolve(arr[i]).then(resolve, reject);
-            }
-        });
-    };
-    Promise._immediateFn =
-        (typeof setImmediate === 'function' &&
-            function (fn) {
-                setImmediate(fn);
-            }) ||
-            function (fn) {
-                setTimeoutFunc(fn, 0);
-            };
-    Promise._unhandledRejectionFn = function _unhandledRejectionFn(err) {
-        if (typeof console !== 'undefined' && console) {
-            console.warn('Possible Unhandled Promise Rejection:', err);
-        }
-    };
-    var globalNS = (function () {
-        if (typeof self !== 'undefined') {
-            return self;
-        }
-        if (typeof window !== 'undefined') {
-            return window;
-        }
-        if (typeof global !== 'undefined') {
-            return global;
-        }
-        throw new Error('unable to locate global object');
-    })();
-    if (!('Promise' in globalNS)) {
-        globalNS['Promise'] = Promise;
-    }
-    else if (!globalNS.Promise.prototype['finally']) {
-        globalNS.Promise.prototype['finally'] = finallyConstructor;
-    }
-})));
 var Reflect;
 (function (Reflect) {
     (function (factory) {
@@ -989,76 +755,6 @@ class Module {
     get filename() {
         return this.name;
     }
-    get dependents() {
-        const d = [];
-        const v = {};
-        const modules = AmdLoader.instance.modules;
-        for (const key in modules) {
-            if (modules.hasOwnProperty(key)) {
-                const element = modules[key];
-                if (element.isDependentOn(this, v)) {
-                    d.push(element);
-                }
-            }
-        }
-        return d;
-    }
-    resolve(id) {
-        if (!this.isLoaded) {
-            return false;
-        }
-        if (this.isResolved) {
-            return true;
-        }
-        if (!id) {
-            id = Module.nextID++;
-        }
-        if (this.rID === id) {
-            let childrenResolved = true;
-            for (const iterator of this.dependencies) {
-                if (iterator === this.ignoreModule) {
-                    continue;
-                }
-                if (iterator.rID === id) {
-                    continue;
-                }
-                if (!iterator.resolve(id)) {
-                    childrenResolved = false;
-                    break;
-                }
-            }
-            return childrenResolved;
-        }
-        this.rID = id;
-        let allResolved = true;
-        for (const iterator of this.dependencies) {
-            if (iterator === this.ignoreModule) {
-                continue;
-            }
-            if (!iterator.resolve(id)) {
-                allResolved = false;
-                break;
-            }
-        }
-        if (!allResolved) {
-            this.rID = 0;
-            return false;
-        }
-        const i = AmdLoader.instance;
-        if (this.dependencyHooks) {
-            this.dependencyHooks[0]();
-            this.dependencyHooks = null;
-        }
-        if (this.resolveHooks) {
-            this.resolveHooks[0](this.getExports());
-            this.resolveHooks = null;
-            i.remove(this);
-            this.rID = 0;
-            return true;
-        }
-        this.rID = 0;
-        return false;
-    }
     addDependency(d) {
         if (d === this.ignoreModule) {
             return;
@@ -1107,21 +803,6 @@ class Module {
         }
         return this.exports;
     }
-    isDependentOn(m, visited) {
-        visited[this.name] = true;
-        for (const iterator of this.dependencies) {
-            if (iterator.name === m.name) {
-                return true;
-            }
-            if (visited[iterator.name]) {
-                continue;
-            }
-            if (iterator.isDependentOn(m, visited)) {
-                return true;
-            }
-        }
-        return false;
-    }
 }
 Module.nextID = 1;
 if (typeof require !== "undefined") {
@@ -1137,8 +818,6 @@ class AmdLoader {
         this.modules = {};
         this.pathMap = {};
         this.mockTypes = [];
-        this.lastTimeout = null;
-        this.dirty = false;
     }
     register(packages, modules) {
         for (const iterator of packages) {
@@ -1182,33 +861,7 @@ class AmdLoader {
         if (jsModule.exportVar) {
             jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
         }
-        this.push(jsModule);
         jsModule.isLoaded = true;
-        setTimeout(() => {
-            this.loadDependencies(jsModule);
-        }, 1);
-    }
-    loadDependencies(m) {
-        this.resolveModule(m).catch((e) => {
-            console.error(e);
-        });
-        if (m.dependencies.length) {
-            const all = m.dependencies.map((m1) => {
-                if (m1.isResolved) {
-                    return promiseDone;
-                }
-                return this.import(m1);
-            });
-            Promise.all(all).catch((e) => {
-                console.error(e);
-            }).then(() => {
-                m.resolve();
-            });
-        }
-        else {
-            m.resolve();
-        }
-        this.queueResolveModules(1);
     }
     replace(type, name, mock) {
         if (mock && !this.enableMock) {
@@ -1354,24 +1007,56 @@ class AmdLoader {
         return module;
     }
     import(name) {
+        if (typeof require !== "undefined") {
+            return Promise.resolve(require(name));
+        }
+        const module = typeof name === "object" ? name : this.get(name);
+        if (module.importPromise) {
+            return module.importPromise;
+        }
+        module.importPromise = this.importAsync(module);
+        return module.importPromise;
+    }
+    importAsync(module) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (typeof require !== "undefined") {
-                return Promise.resolve(require(name));
-            }
-            const module = typeof name === "object" ? name : this.get(name);
-            if (module.isResolved) {
-                return module.getExports();
-            }
             yield this.load(module);
-            const e = yield this.resolveModule(module);
-            return e;
+            return yield this.resolve(module);
+        });
+    }
+    resolve(module) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const ds = [];
+            for (const iterator of module.dependencies) {
+                if (iterator.importPromise) {
+                    continue;
+                }
+                ds.push(this.importAsync(iterator));
+            }
+            yield Promise.all(ds);
+            const exports = module.getExports();
+            const pendingList = this.mockTypes.filter((t) => !t.loaded);
+            if (pendingList.length) {
+                for (const iterator of pendingList) {
+                    iterator.loaded = true;
+                }
+                const tasks = pendingList.map((iterator) => __awaiter(this, void 0, void 0, function* () {
+                    const containerModule = iterator.module;
+                    const resolvedName = this.resolveRelativePath(iterator.moduleName, containerModule.name);
+                    const im = this.get(resolvedName);
+                    im.ignoreModule = module;
+                    const ex = yield this.import(im);
+                    const type = ex[iterator.exportName];
+                    iterator.replaced = type;
+                }));
+                yield Promise.all(tasks);
+            }
+            return exports;
         });
     }
     load(module) {
         if (module.loader) {
             return module.loader;
         }
-        this.push(module);
         if (AmdLoader.isJson.test(module.url)) {
             const mUrl = module.package.url + module.url;
             module.loader = new Promise((resolve, reject) => {
@@ -1381,7 +1066,6 @@ class AmdLoader {
                             module.exports = JSON.parse(r);
                             module.emptyExports = module.exports;
                             module.isLoaded = true;
-                            setTimeout(() => this.loadDependencies(module), 1);
                             resolve();
                         }
                         catch (e) {
@@ -1424,9 +1108,6 @@ class AmdLoader {
                         AmdLoader.moduleProgress(module.name, this.modules, "loading");
                     }
                     module.isLoaded = true;
-                    setTimeout(() => {
-                        this.loadDependencies(module);
-                    }, 1);
                     resolve();
                 }
                 catch (e) {
@@ -1438,134 +1119,6 @@ class AmdLoader {
             });
         });
         return module.loader;
-    }
-    resolveModule(module) {
-        if (module.resolver) {
-            return module.resolver;
-        }
-        module.resolver = this._resolveModule(module);
-        return module.resolver;
-    }
-    remove(m) {
-        if (this.tail === m) {
-            this.tail = m.previous;
-        }
-        if (m.next) {
-            m.next.previous = m.previous;
-        }
-        if (m.previous) {
-            m.previous.next = m.next;
-        }
-        m.next = null;
-        m.previous = null;
-        this.dirty = true;
-        this.queueResolveModules();
-    }
-    queueResolveModules(n = 1) {
-        if (this.lastTimeout) {
-            return;
-        }
-        this.lastTimeout = setTimeout(() => {
-            this.lastTimeout = 0;
-            this.resolvePendingModules();
-        }, n);
-    }
-    watch() {
-        const id = setInterval(() => {
-            if (this.tail) {
-                const list = [];
-                for (const key in this.modules) {
-                    if (this.modules.hasOwnProperty(key)) {
-                        const element = this.modules[key];
-                        if (!element.isResolved) {
-                            list.push({
-                                name: element.name,
-                                dependencies: element.dependencies.map((x) => x.name)
-                            });
-                        }
-                    }
-                }
-                console.log("Pending modules");
-                console.log(JSON.stringify(list));
-                return;
-            }
-            clearInterval(id);
-        }, 10000);
-    }
-    resolvePendingModules() {
-        if (!this.tail) {
-            return;
-        }
-        this.dirty = false;
-        const pending = [];
-        let m = this.tail;
-        while (m) {
-            if (!m.dependencies.length) {
-                m.resolve();
-            }
-            else {
-                pending.push(m);
-            }
-            m = m.previous;
-        }
-        if (this.dirty) {
-            this.dirty = false;
-            return;
-        }
-        for (const iterator of pending) {
-            iterator.resolve();
-        }
-        if (this.dirty) {
-            this.dirty = false;
-            return;
-        }
-        if (this.tail) {
-            this.queueResolveModules();
-        }
-    }
-    push(m) {
-        if (this.tail) {
-            m.previous = this.tail;
-            this.tail.next = m;
-        }
-        this.tail = m;
-    }
-    _resolveModule(module) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!this.root) {
-                this.root = module;
-            }
-            yield new Promise((resolve, reject) => {
-                module.dependencyHooks = [resolve, reject];
-            });
-            const exports = module.getExports();
-            const pendingList = this.mockTypes.filter((t) => !t.loaded);
-            if (pendingList.length) {
-                for (const iterator of pendingList) {
-                    iterator.loaded = true;
-                }
-                const tasks = pendingList.map((iterator) => __awaiter(this, void 0, void 0, function* () {
-                    const containerModule = iterator.module;
-                    const resolvedName = this.resolveRelativePath(iterator.moduleName, containerModule.name);
-                    const im = this.get(resolvedName);
-                    im.ignoreModule = module;
-                    const ex = yield this.import(im);
-                    const type = ex[iterator.exportName];
-                    iterator.replaced = type;
-                }));
-                yield Promise.all(tasks);
-            }
-            const setHooks = new Promise((resolve, reject) => {
-                module.resolveHooks = [resolve, reject];
-            });
-            yield setHooks;
-            if (this.root === module) {
-                this.root = null;
-                AmdLoader.moduleProgress(null, this.modules, "done");
-            }
-            module.isResolved = true;
-            return exports;
-        });
     }
 }
 AmdLoader.isMedia = /\.(jpg|jpeg|gif|png|mp4|mp3|css|html|svg)$/i;
@@ -1701,9 +1254,6 @@ var define = (requiresOrFactory, factory, nested) => {
         const f = nested;
         const module = AmdLoader.instance.get(name);
         bindFactory(module, rList, f);
-        setTimeout(() => {
-            loader.loadDependencies(module);
-        }, 1);
         return;
     }
     AmdLoader.instance.define = () => {

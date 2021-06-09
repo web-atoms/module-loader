@@ -58,12 +58,6 @@ var define: IDefine = (
         const module = AmdLoader.instance.get(name);
 
         bindFactory(module, rList, f);
-
-        // we must call load modules after this..
-        setTimeout(() => {
-            loader.loadDependencies(module);
-        }, 1);
-
         return;
     }
 

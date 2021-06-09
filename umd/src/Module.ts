@@ -53,20 +53,7 @@ class Module {
         return this.name;
     }
 
-    public get dependents() {
-        const d = [];
-        const v = {};
-        const modules = AmdLoader.instance.modules;
-        for (const key in modules) {
-            if (modules.hasOwnProperty(key)) {
-                const element = modules[key];
-                if (element.isDependentOn(this, v)) {
-                    d.push(element);
-                }
-            }
-        }
-        return d;
-    }
+    public importPromise: Promise<any>;
 
     /**
      * This promise can be awaited by dependency resolver
@@ -85,77 +72,6 @@ class Module {
         } else {
             this.folder = name.substr(0, index);
         }
-
-    }
-
-    public resolve(id?: number): boolean {
-
-        if (!this.isLoaded) {
-            return false;
-        }
-
-        if (this.isResolved) {
-            return true;
-        }
-
-        if (!id) {
-            id = Module.nextID++;
-        }
-
-        if (this.rID === id) {
-            // circular dependency found...
-            let childrenResolved = true;
-            for (const iterator of this.dependencies) {
-                if (iterator === this.ignoreModule) {
-                    continue;
-                }
-                if (iterator.rID === id) {
-                    continue;
-                }
-                if (!iterator.resolve(id)) {
-                    childrenResolved = false;
-                    break;
-                }
-            }
-            return childrenResolved;
-        }
-
-        this.rID = id;
-
-        let allResolved = true;
-
-        for (const iterator of this.dependencies) {
-            if (iterator === this.ignoreModule) {
-                continue;
-            }
-            if (!iterator.resolve(id)) {
-                allResolved = false;
-                break;
-            }
-        }
-
-        if (!allResolved) {
-            this.rID = 0;
-            return false;
-        }
-        const i = AmdLoader.instance;
-
-        if (this.dependencyHooks) {
-            this.dependencyHooks[0]();
-            this.dependencyHooks = null;
-        }
-
-        if (this.resolveHooks) {
-            this.resolveHooks[0](this.getExports());
-            this.resolveHooks = null;
-
-            i.remove(this);
-            this.rID = 0;
-            return true;
-        }
-
-        this.rID = 0;
-        return false;
 
     }
 
@@ -215,25 +131,6 @@ class Module {
             }
         }
         return this.exports;
-    }
-
-    /**
-     * Displays list of all dependents (including nested)
-     */
-    private isDependentOn(m: Module, visited: any): boolean {
-        visited[this.name] = true;
-        for (const iterator of this.dependencies) {
-            if (iterator.name === m.name) {
-                return true;
-            }
-            if (visited[iterator.name]) {
-                continue;
-            }
-            if (iterator.isDependentOn(m, visited)) {
-                return true;
-            }
-        }
-        return false;
     }
 
 }

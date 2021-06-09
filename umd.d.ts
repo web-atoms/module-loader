@@ -1,4 +1,3 @@
-declare var module: any, exports: any, amd: any, global: any;
 declare namespace Reflect {
     function decorate(decorators: ClassDecorator[], target: Function): Function;
     function decorate(decorators: (PropertyDecorator | MethodDecorator)[], target: any, propertyKey: string | symbol, attributes?: PropertyDescriptor | null): PropertyDescriptor | undefined;
@@ -57,14 +56,12 @@ declare class Module {
     factory: (r: any, e: any) => void;
     loader: Promise<any>;
     get filename(): string;
-    get dependents(): any[];
+    importPromise: Promise<any>;
     resolver: Promise<any>;
     private rID;
     constructor(name: string, folder?: string);
-    resolve(id?: number): boolean;
     addDependency(d: Module): void;
     getExports(): any;
-    private isDependentOn;
 }
 declare var require: any;
 declare var md: any;
@@ -93,16 +90,12 @@ declare class AmdLoader {
     enableMock: boolean;
     define: any;
     private mockTypes;
-    private lastTimeout;
-    private tail;
-    private dirty;
     register(packages: string[], modules: string[]): void;
     setupRoot(root: string, url: string): void;
     registerModule(name: string, moduleExports: {
         [key: string]: any;
     }): void;
     setup(name: string): void;
-    loadDependencies(m: Module): void;
     replace(type: any, name: string, mock: boolean): void;
     resolveType(type: any): any;
     map(packageName: string, packageUrl: string, type?: ("amd" | "global"), exportVar?: string): IPackage;
@@ -115,14 +108,9 @@ declare class AmdLoader {
     });
     get(name1: string): Module;
     import(name: string | Module): Promise<any>;
+    importAsync(module: Module): Promise<any>;
+    resolve(module: Module): Promise<any>;
     load(module: Module): Promise<any>;
-    resolveModule(module: Module): Promise<any>;
-    remove(m: Module): void;
-    queueResolveModules(n?: number): void;
-    watch(): void;
-    private resolvePendingModules;
-    private push;
-    private _resolveModule;
 }
 declare var global: any;
 declare const a: AmdLoader;

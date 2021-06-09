@@ -125,6 +125,7 @@ class AmdLoader {
             rt.replaced = rt.replacedModule.getExports()[rt.exportName];
         };
         (peek.dynamicImports = peek.dynamicImports || []).push(rt);
+        this.mockTypes.push(rt);
     }
 
     public resolveType(type: any): any {

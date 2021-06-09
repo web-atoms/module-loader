@@ -1031,7 +1031,7 @@ class AmdLoader {
         return __awaiter(this, void 0, void 0, function* () {
             const ds = [];
             for (const iterator of module.dependencies) {
-                if (iterator.importPromise) {
+                if (iterator.importPromise || iterator.isResolved) {
                     continue;
                 }
                 ds.push(this.importAsync(iterator));

@@ -143,6 +143,9 @@ class Module {
             if (visited[iterator.name]) {
                 continue;
             }
+            if (iterator === this.ignoreModule) {
+                return false;
+            }
             if (iterator.isDependentOn(m, visited)) {
                 return true;
             }

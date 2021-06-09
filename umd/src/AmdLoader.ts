@@ -118,6 +118,7 @@ class AmdLoader {
             return;
         }
         const peek: Module = this.currentStack.length ? this.currentStack[this.currentStack.length - 1] : undefined;
+        name = this.resolveRelativePath(name, peek.name);
         const rt: MockType = new MockType(peek, type, name, mock);
         rt.replacedModule = this.get(rt.moduleName);
         rt.replacedModule.postExports = () => {

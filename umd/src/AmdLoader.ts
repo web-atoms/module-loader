@@ -320,7 +320,7 @@ class AmdLoader {
             if (iterator.importPromise || iterator.isResolved) {
                 continue;
             }
-            ds.push(this.importAsync(iterator));
+            ds.push(this.import(iterator));
         }
         await Promise.all(ds);
         const exports = module.getExports();

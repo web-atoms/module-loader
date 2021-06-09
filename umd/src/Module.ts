@@ -27,6 +27,8 @@ class Module {
 
     public resolveHooks: [(... a: any) => void, () => void];
 
+    public dynamicImports: MockType[];
+
     public url: string;
 
     public exports: any;

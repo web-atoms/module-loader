@@ -123,6 +123,7 @@ class AmdLoader {
         rt.replacedModule.postExports = () => {
             rt.replaced = rt.replacedModule.getExports()[rt.exportName];
         };
+        (peek.dynamicImports = peek.dynamicImports || []).push(rt);
     }
 
     public resolveType(type: any): any {
@@ -336,6 +337,16 @@ class AmdLoader {
         if (module.postExports) {
             module.postExports();
         }
+
+        if (module.dynamicImports) {
+            for (const iterator of module.dynamicImports) {
+                if (iterator.replacedModule.importPromise) {
+                    continue;
+                }
+                await this.import(iterator.replacedModule);
+            }
+        }
+
         return exports;
     }
 

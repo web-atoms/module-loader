@@ -88,6 +88,10 @@ class Module {
         //     return;
         // }
         this.dependencies.push(d);
+        if (d.isDependentOn(this)) {
+            // tslint:disable-next-line: no-console
+            console.warn(`${d.name} already depends on ${this.name}`);
+        }
     }
 
     public getExports(): any {

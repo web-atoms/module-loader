@@ -92,7 +92,7 @@ class AmdLoader {
         const m: Module = this.get(name);
         m.package.url = "/";
         m.exports = { __esModule: true, ... moduleExports };
-        m.loader = Promise.resolve();
+        m.loader = promiseDone;
         m.resolver = Promise.resolve(m.exports);
         m.isLoaded = true;
         m.isResolved = true;
@@ -102,7 +102,7 @@ class AmdLoader {
         const jsModule: Module = this.get(name);
         // tslint:disable-next-line:ban-types
         const define: Function = this.define;
-        jsModule.loader = Promise.resolve();
+        jsModule.loader = promiseDone;
         AmdLoader.current = jsModule;
         if (define) {
             define();
@@ -318,7 +318,9 @@ class AmdLoader {
     }
 
     public async importAsync(module: Module): Promise<any> {
-        await this.load(module);
+        if (!module.isLoaded) {
+            await this.load(module);
+        }
         return await this.resolve(module);
     }
 

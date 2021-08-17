@@ -111,6 +111,8 @@ class AmdLoader {
             jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
         }
         jsModule.isLoaded = true;
+        jsModule.getExports();
+        jsModule.isResolved = true;
     }
 
     public replace(type: any, name: string, mock: boolean): void {

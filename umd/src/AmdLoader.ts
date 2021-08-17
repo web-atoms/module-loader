@@ -111,8 +111,10 @@ class AmdLoader {
             jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
         }
         jsModule.isLoaded = true;
-        jsModule.getExports();
-        jsModule.isResolved = true;
+        // this is not possible as
+        // dynamically injected module may be pending to be injected
+        // jsModule.getExports();
+        // jsModule.isResolved = true;
     }
 
     public replace(type: any, name: string, mock: boolean): void {
@@ -392,7 +394,7 @@ class AmdLoader {
             const e = { __esModule: true, default: m };
             module.exports = e;
             module.emptyExports = e;
-            module.loader = Promise.resolve();
+            module.loader = promiseDone;
             module.isLoaded = true;
             return module.loader;
         }

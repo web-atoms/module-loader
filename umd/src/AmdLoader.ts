@@ -320,9 +320,7 @@ class AmdLoader {
     }
 
     public async importAsync(module: Module): Promise<any> {
-        if (!module.isLoaded) {
-            await this.load(module);
-        }
+        await this.load(module);
         return await this.resolve(module);
     }
 

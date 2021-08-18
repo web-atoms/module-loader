@@ -125,9 +125,13 @@ class Module {
             } catch (e) {
                 const em = e.stack ? (`${e}\n${e.stack}`) : e;
                 const s = [];
+                // tslint:disable-next-line: no-console
+                console.error(e);
                 // modules in the stack...
                 for (const iterator of AmdLoader.instance.currentStack) {
                     s.push(iterator.name);
+                    // tslint:disable-next-line: no-console
+                    console.error(iterator.name);
                 }
 
                 const ne = new Error(`Failed loading module ${this.name

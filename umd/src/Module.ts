@@ -119,7 +119,7 @@ class Module {
                 delete this.factory;
 
                 const def = this.exports.default;
-                if (def && typeof def === "object") {
+                if (typeof def === "object") {
                     def[UMD.nameSymbol] = this.name;
                 }
             } catch (e) {

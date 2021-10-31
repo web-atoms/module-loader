@@ -104,7 +104,7 @@ class Module {
                 AmdLoader.instance.currentStack.push(this);
                 const result: any = factory(this.require, this.exports);
                 if (result) {
-                    if (typeof result === "object") {
+                    if (typeof result === "object" || typeof result === "function") {
                         for (const key in result) {
                             if (result.hasOwnProperty(key)) {
                                 const element: any = result[key];
@@ -119,7 +119,7 @@ class Module {
                 delete this.factory;
 
                 const def = this.exports.default;
-                if (typeof def === "object") {
+                if (typeof def === "function" || typeof def === "object") {
                     def[UMD.nameSymbol] = this.name;
                 }
             } catch (e) {

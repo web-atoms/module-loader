@@ -105,12 +105,13 @@ class Module {
                 const result: any = factory(this.require, this.exports);
                 if (result) {
                     if (typeof result === "object" || typeof result === "function") {
-                        for (const key in result) {
-                            if (result.hasOwnProperty(key)) {
-                                const element: any = result[key];
-                                this.exports[key] = element;
-                            }
-                        }
+                        // for (const key in result) {
+                        //     if (result.hasOwnProperty(key)) {
+                        //         const element: any = result[key];
+                        //         this.exports[key] = element;
+                        //     }
+                        // }
+                        this.exports = result;
                     } else if (!this.exports.default) {
                         this.exports.default = result;
                     }

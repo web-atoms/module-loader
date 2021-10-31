@@ -112,6 +112,9 @@ class Module {
                         //     }
                         // }
                         this.exports = result;
+                        if (typeof result.default === "undefined") {
+                            result.default = result;
+                        }
                     } else if (!this.exports.default) {
                         this.exports.default = result;
                     }

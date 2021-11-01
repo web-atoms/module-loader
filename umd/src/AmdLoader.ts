@@ -9,8 +9,6 @@ if (typeof require !== "undefined") {
     md = require("module").Module;
 }
 
-declare var define: any;
-
 // we cannot use global import as global import do not support any event of dependent modules loaded,
 // there is no way to detect duplication of module
 // there is no way to inspect and set path of module
@@ -399,8 +397,9 @@ class AmdLoader {
             return module.loader;
         }
         module.loader = new Promise<void>((resolve, reject) => {
-            define.amd = define;
+
             AmdLoader.moduleLoader(module.name, module.url, () => {
+
                 try {
                     AmdLoader.current = module;
                     if (AmdLoader.instance.define) {
@@ -417,17 +416,14 @@ class AmdLoader {
                     }
 
                     module.isLoaded = true;
-                    define.amd = null;
                     resolve();
                 } catch (e) {
                     // tslint:disable-next-line: no-console
                     console.error(e);
-                    define.amd = null;
                     reject(e);
                 }
 
             }, (error) => {
-                define.amd = null;
                 reject(error);
             });
 

@@ -76,7 +76,7 @@ class Module {
         } else {
             this.folder = name.substr(0, index);
         }
-
+        this.exports = this.emptyExports;
     }
 
     public addDependency(d: Module): void {
@@ -95,7 +95,6 @@ class Module {
     }
 
     public getExports(): any {
-        this.exports = this.emptyExports;
         if (this.factory) {
             try {
                 const factory = this.factory;

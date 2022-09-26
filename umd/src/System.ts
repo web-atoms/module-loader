@@ -48,7 +48,7 @@ class System {
                         || iterator.ignoreModule === module
                         || iterator === module.ignoreModule
                         || (iterator.importPromise && iterator.isDependentOn(module))) {
-                        all.push(iterator.exports);
+                        all.push(Promise.resolve(iterator.exports));
                         continue;
                     }
                     all.push(this.import(iterator));

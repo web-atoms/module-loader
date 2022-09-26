@@ -40,14 +40,20 @@ class System {
             }
 
             const module = AmdLoader.instance.get(name);
+            module.dependencies.push(... imports.map((x) => AmdLoader.instance.get(module.require.resolve(x))));
             const loader = async () => {
-                // load all modules...
-                const all = await Promise.all(
-                    imports.map(
-                        (x) => AmdLoader.instance.import(module.require.resolve(x))
-                    )
-                );
-
+                const all = [];
+                for (const iterator of module.dependencies) {
+                    if (iterator.isResolved
+                        || iterator.ignoreModule === module
+                        || iterator === module.ignoreModule
+                        || (iterator.importPromise && iterator.isDependentOn(module))) {
+                        all.push(iterator.exports);
+                        continue;
+                    }
+                    all.push(this.import(iterator));
+                }
+                await Promise.all(all);
                 const r = setup((name, value) => {
                     module.exports[name] = value;
                 }, AmdLoader.instance);

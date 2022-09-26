@@ -751,6 +751,7 @@ class Module {
         else {
             this.folder = name.substr(0, index);
         }
+        this.exports = this.emptyExports;
     }
     get filename() {
         return this.name;
@@ -760,9 +761,11 @@ class Module {
             return;
         }
         this.dependencies.push(d);
+        if (d.isDependentOn(this)) {
+            console.warn(`${d.name} already depends on ${this.name}`);
+        }
     }
     getExports() {
-        this.exports = this.emptyExports;
         if (this.factory) {
             try {
                 const factory = this.factory;
@@ -771,12 +774,10 @@ class Module {
                 AmdLoader.instance.currentStack.push(this);
                 const result = factory(this.require, this.exports);
                 if (result) {
-                    if (typeof result === "object") {
-                        for (const key in result) {
-                            if (result.hasOwnProperty(key)) {
-                                const element = result[key];
-                                this.exports[key] = element;
-                            }
+                    if (typeof result === "object" || typeof result === "function") {
+                        this.exports = result;
+                        if (typeof result.default === "undefined") {
+                            result.default = result;
                         }
                     }
                     else if (!this.exports.default) {
@@ -786,15 +787,17 @@ class Module {
                 AmdLoader.instance.currentStack.pop();
                 delete this.factory;
                 const def = this.exports.default;
-                if (def && typeof def === "object") {
+                if (typeof def === "function" || typeof def === "object") {
                     def[UMD.nameSymbol] = this.name;
                 }
             }
             catch (e) {
                 const em = e.stack ? (`${e}\n${e.stack}`) : e;
                 const s = [];
+                console.error(e);
                 for (const iterator of AmdLoader.instance.currentStack) {
                     s.push(iterator.name);
+                    console.error(iterator.name);
                 }
                 const ne = new Error(`Failed loading module ${this.name} with error ${em}\nDependents: ${s.join("\n\t")}`);
                 console.error(ne);
@@ -802,6 +805,25 @@ class Module {
             }
         }
         return this.exports;
+    }
+    isDependentOn(m, visited) {
+        if (this.ignoreModule === m) {
+            return false;
+        }
+        visited = visited || {};
+        visited[this.name] = true;
+        for (const iterator of this.dependencies) {
+            if (iterator === m) {
+                return true;
+            }
+            if (visited[iterator.name]) {
+                continue;
+            }
+            if (iterator.isDependentOn(m, visited)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 Module.nextID = 1;
@@ -845,7 +867,7 @@ class AmdLoader {
         const m = this.get(name);
         m.package.url = "/";
         m.exports = Object.assign({ __esModule: true }, moduleExports);
-        m.loader = Promise.resolve();
+        m.loader = promiseDone;
         m.resolver = Promise.resolve(m.exports);
         m.isLoaded = true;
         m.isResolved = true;
@@ -853,7 +875,7 @@ class AmdLoader {
     setup(name) {
         const jsModule = this.get(name);
         const define = this.define;
-        jsModule.loader = Promise.resolve();
+        jsModule.loader = promiseDone;
         AmdLoader.current = jsModule;
         if (define) {
             define();
@@ -868,7 +890,13 @@ class AmdLoader {
             return;
         }
         const peek = this.currentStack.length ? this.currentStack[this.currentStack.length - 1] : undefined;
+        name = this.resolveRelativePath(name, peek.name);
         const rt = new MockType(peek, type, name, mock);
+        rt.replacedModule = this.get(rt.moduleName);
+        rt.replacedModule.postExports = () => {
+            rt.replaced = rt.replacedModule.getExports()[rt.exportName];
+        };
+        (peek.dynamicImports = peek.dynamicImports || []).push(rt);
         this.mockTypes.push(rt);
     }
     resolveType(type) {
@@ -1030,31 +1058,31 @@ class AmdLoader {
     resolve(module) {
         return __awaiter(this, void 0, void 0, function* () {
             const ds = [];
+            const waiting = module.waiting = [];
             for (const iterator of module.dependencies) {
-                if (iterator.importPromise || iterator.isResolved) {
+                if (iterator.isResolved
+                    || iterator.ignoreModule === module
+                    || iterator === module.ignoreModule
+                    || (iterator.importPromise && iterator.isDependentOn(module))) {
                     continue;
                 }
+                waiting.push(iterator);
                 ds.push(this.import(iterator));
             }
             yield Promise.all(ds);
             const exports = module.getExports();
-            const pendingList = this.mockTypes.filter((t) => !t.loaded);
-            if (pendingList.length) {
-                for (const iterator of pendingList) {
-                    iterator.loaded = true;
-                }
-                const tasks = pendingList.map((iterator) => __awaiter(this, void 0, void 0, function* () {
-                    const containerModule = iterator.module;
-                    const resolvedName = this.resolveRelativePath(iterator.moduleName, containerModule.name);
-                    const im = this.get(resolvedName);
-                    im.ignoreModule = module;
-                    const ex = yield this.import(im);
-                    const type = ex[iterator.exportName];
-                    iterator.replaced = type;
-                }));
-                yield Promise.all(tasks);
-            }
             module.isResolved = true;
+            if (module.postExports) {
+                module.postExports();
+            }
+            if (module.dynamicImports) {
+                for (const iterator of module.dynamicImports) {
+                    if (iterator.replacedModule.importPromise) {
+                        continue;
+                    }
+                    yield this.import(iterator.replacedModule);
+                }
+            }
             return exports;
         });
     }
@@ -1094,7 +1122,7 @@ class AmdLoader {
             const e = { __esModule: true, default: m };
             module.exports = e;
             module.emptyExports = e;
-            module.loader = Promise.resolve();
+            module.loader = promiseDone;
             module.isLoaded = true;
             return module.loader;
         }
@@ -1286,7 +1314,6 @@ class MockType {
         this.mock = mock;
         this.moduleName = moduleName;
         this.exportName = exportName;
-        this.loaded = false;
         this.name = name = name
             .replace("{lang}", UMD.lang)
             .replace("{platform}", UMD.viewPrefix);
@@ -1300,7 +1327,43 @@ class MockType {
             this.exportName = "default";
         }
     }
+    get loaded() {
+        return this.replacedModule.ignoreModule;
+    }
 }
+;
+class System {
+    static register(nameOrImports, importsOrSetup, setup) {
+        const loader = () => __awaiter(this, arguments, void 0, function* () {
+            let name = Array.isArray(nameOrImports)
+                ? AmdLoader.current.name
+                : nameOrImports;
+            let imports = importsOrSetup;
+            if (arguments.length === 2) {
+                imports = nameOrImports;
+                setup = importsOrSetup;
+            }
+            const module = AmdLoader.instance.get(name);
+            const all = yield Promise.all(imports.map((x) => AmdLoader.instance.import(module.require.resolve(x))));
+            const r = setup((name, value) => {
+                module.exports[name] = value;
+            }, AmdLoader.instance);
+            const { setters } = r;
+            for (let index = 0; index < all.length; index++) {
+                const element = all[index];
+                setters[index](element);
+            }
+            const rp = r.execute();
+            if (rp && rp.then) {
+                yield rp;
+            }
+        });
+        AmdLoader.instance.define = () => {
+            loader().catch((error) => console.error(error));
+        };
+    }
+}
+;
 class UMDClass {
     constructor() {
         this.viewPrefix = "web";

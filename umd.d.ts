@@ -44,6 +44,7 @@ declare class Module {
     emptyExports: any;
     dependencyHooks: [(...a: any) => void, () => void];
     resolveHooks: [(...a: any) => void, () => void];
+    dynamicImports: MockType[];
     url: string;
     exports: any;
     ignoreModule: Module;
@@ -55,6 +56,7 @@ declare class Module {
     exportVar: string;
     factory: (r: any, e: any) => void;
     loader: Promise<any>;
+    postExports: () => void;
     get filename(): string;
     importPromise: Promise<any>;
     resolver: Promise<any>;
@@ -62,6 +64,7 @@ declare class Module {
     constructor(name: string, folder?: string);
     addDependency(d: Module): void;
     getExports(): any;
+    isDependentOn(m: Module, visited?: any): boolean;
 }
 declare var require: any;
 declare var md: any;
@@ -127,9 +130,25 @@ declare class MockType {
     mock: boolean;
     moduleName?: string;
     readonly exportName?: string;
-    loaded: boolean;
+    get loaded(): Module;
     replaced: any;
+    replacedModule: Module;
     constructor(module: Module, type: any, name: string, mock: boolean, moduleName?: string, exportName?: string);
+}
+interface IContext {
+    import(name: string): Promise<any>;
+}
+declare type IImportDef = (e: any) => void;
+declare type IExportDef = (name: any, value: any) => void;
+declare type ISetup = () => void | Promise<void>;
+declare type IModuleSetup = (exports: IExportDef, context: IContext) => IModule;
+interface IModule {
+    setters: IImportDef[];
+    execute: ISetup;
+}
+declare class System {
+    static register(imports: string[], setup: IModuleSetup): any;
+    static register(name: string, imports: string[], setup: IModuleSetup): any;
 }
 declare class UMDClass {
     viewPrefix: string;

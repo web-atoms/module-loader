@@ -53,15 +53,15 @@ class System {
                     }
                     all.push(this.import(iterator));
                 }
-                await Promise.all(all);
+                const resolved = await Promise.all(all);
                 const r = setup((name, value) => {
                     module.exports[name] = value;
                 }, AmdLoader.instance);
 
                 // set all imports...
                 const { setters } = r;
-                for (let index = 0; index < all.length; index++) {
-                    const element = all[index];
+                for (let index = 0; index < resolved.length; index++) {
+                    const element = resolved[index];
                     setters[index](element);
                 }
 

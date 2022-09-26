@@ -29,10 +29,10 @@ class System {
         importsOrSetup: string[] | IModuleSetup,
         setup?: IModuleSetup) {
 
-        const loader = async () => {
-            let name = Array.isArray(nameOrImports)
-                ? AmdLoader.current.name
-                : nameOrImports as string;
+            AmdLoader.instance.define = () => {
+        
+            let name = AmdLoader.current.name;
+
             let imports = importsOrSetup as string[];
             if (arguments.length === 2) {
                 imports = nameOrImports as string[];
@@ -40,33 +40,33 @@ class System {
             }
 
             const module = AmdLoader.instance.get(name);
-            // load all modules...
-            const all = await Promise.all(
-                imports.map(
-                    (x) => AmdLoader.instance.import(module.require.resolve(x))
-                )
-            );
+            const loader = async () => {
+                // load all modules...
+                const all = await Promise.all(
+                    imports.map(
+                        (x) => AmdLoader.instance.import(module.require.resolve(x))
+                    )
+                );
 
-            const r = setup((name, value) => {
-                module.exports[name] = value;
-            }, AmdLoader.instance);
+                const r = setup((name, value) => {
+                    module.exports[name] = value;
+                }, AmdLoader.instance);
 
-            // set all imports...
-            const { setters } = r;
-            for (let index = 0; index < all.length; index++) {
-                const element = all[index];
-                setters[index](element);
-            }
+                // set all imports...
+                const { setters } = r;
+                for (let index = 0; index < all.length; index++) {
+                    const element = all[index];
+                    setters[index](element);
+                }
 
-            const rp = r.execute();
-            if (rp && rp.then) {
-                await rp;
-            }
+                const rp = r.execute();
+                if (rp && rp.then) {
+                    await rp;
+                }
+                return module.exports;
+            };
 
-        }
-
-        AmdLoader.instance.define = () => {
-            loader().catch((error) => console.error(error));
+            module.importPromise = loader();
         };
     }
 

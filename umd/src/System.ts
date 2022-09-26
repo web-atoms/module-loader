@@ -73,6 +73,7 @@ class System {
             };
 
             module.resolver = loader();
+            module.factory = () => module.exports;
         };
     }
 

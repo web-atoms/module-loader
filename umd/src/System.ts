@@ -15,6 +15,10 @@ interface IModule {
 }
 class System {
 
+    public static import(name) {
+        return AmdLoader.instance.import(name);
+    }
+
     public static register(imports: string[],
         setup: IModuleSetup);
     public static register(name: string,

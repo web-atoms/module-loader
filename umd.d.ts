@@ -147,6 +147,7 @@ interface IModule {
     execute: ISetup;
 }
 declare class System {
+    static import(name: any): Promise<any>;
     static register(imports: string[], setup: IModuleSetup): any;
     static register(name: string, imports: string[], setup: IModuleSetup): any;
 }

@@ -1335,6 +1335,9 @@ class MockType {
 }
 ;
 class System {
+    static import(name) {
+        return AmdLoader.instance.import(name);
+    }
     static register(nameOrImports, importsOrSetup, setup) {
         const loader = () => __awaiter(this, arguments, void 0, function* () {
             let name = Array.isArray(nameOrImports)

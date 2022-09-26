@@ -450,7 +450,6 @@ AmdLoader.moduleLoader = (name, url, success, error) => {
     script.type = "text/javascript";
     script.src = url;
     const s: any = script as any;
-    
     script.onload = s.onreadystatechange = () => {
         if ((s.readyState && s.readyState !== "complete" && s.readyState !== "loaded")) {
             return;

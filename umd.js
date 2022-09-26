@@ -749,7 +749,7 @@ class Module {
             this.folder = "";
         }
         else {
-            this.folder = name.substr(0, index);
+            this.folder = name.substring(0, index);
         }
         this.exports = this.emptyExports;
     }
@@ -775,9 +775,11 @@ class Module {
                 const result = factory(this.require, this.exports);
                 if (result) {
                     if (typeof result === "object" || typeof result === "function") {
-                        this.exports = result;
-                        if (typeof result.default === "undefined") {
-                            result.default = result;
+                        for (const key in result) {
+                            if (result.hasOwnProperty(key)) {
+                                const element = result[key];
+                                this.exports[key] = element;
+                            }
                         }
                     }
                     else if (!this.exports.default) {

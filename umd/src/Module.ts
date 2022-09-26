@@ -74,8 +74,10 @@ class Module {
         if (index === -1) {
             this.folder = "";
         } else {
-            this.folder = name.substr(0, index);
+            this.folder = name.substring(0, index);
         }
+        // this is moved on top
+        // to support circular dependencies
         this.exports = this.emptyExports;
     }
 
@@ -104,15 +106,11 @@ class Module {
                 const result: any = factory(this.require, this.exports);
                 if (result) {
                     if (typeof result === "object" || typeof result === "function") {
-                        // for (const key in result) {
-                        //     if (result.hasOwnProperty(key)) {
-                        //         const element: any = result[key];
-                        //         this.exports[key] = element;
-                        //     }
-                        // }
-                        this.exports = result;
-                        if (typeof result.default === "undefined") {
-                            result.default = result;
+                        for (const key in result) {
+                            if (result.hasOwnProperty(key)) {
+                                const element: any = result[key];
+                                this.exports[key] = element;
+                            }
                         }
                     } else if (!this.exports.default) {
                         this.exports.default = result;

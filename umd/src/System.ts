@@ -66,7 +66,7 @@ class System {
                 return module.exports;
             };
 
-            module.importPromise = loader();
+            module.resolver = loader();
         };
     }
 

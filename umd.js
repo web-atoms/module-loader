@@ -1203,6 +1203,8 @@ AmdLoader.moduleProgress = (() => {
     style.position = "fixed";
     style.top = "50%";
     style.left = "50%";
+    style.width = "200px";
+    style.height = "100px";
     style.transform = `translate(-50%,-50%)`;
     style.borderStyle = "solid";
     style.borderWidth = "1px";

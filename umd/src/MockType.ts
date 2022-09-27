@@ -1,8 +1,8 @@
 class MockType {
 
-    public get loaded() {
-        return this.replacedModule.ignoreModule;
-    }
+    // public get loaded() {
+    //     return this.replacedModule.ignoreModule;
+    // }
     public replaced: any;
     public replacedModule: Module;
 

@@ -1,6 +1,6 @@
 interface IContext {
-    import(name: string): Promise<any>
-};
+    import(name: string): Promise<any>;
+}
 
 type IImportDef = (e: any) => void;
 type IExportDef = (name, value) => void;
@@ -50,8 +50,8 @@ class System {
                 const all = [];
                 for (const iterator of module.dependencies) {
                     if (iterator.isResolved
-                        || iterator.ignoreModule === module
-                        || iterator === module.ignoreModule
+                        // || iterator.ignoreModule === module
+                        // || iterator === module.ignoreModule
                         || (iterator.importPromise && iterator.isDependentOn(module))) {
                         all.push(Promise.resolve(iterator.exports));
                         continue;
@@ -69,11 +69,13 @@ class System {
                     const element = resolved[index];
                     setters[index](element);
                 }
-
+                module.isResolved = true;
                 const rp = r.execute();
                 if (rp && rp.then) {
                     await rp;
                 }
+
+                module.postExports?.();
 
                 if (module.dynamicImports) {
                     for (const iterator of module.dynamicImports) {
@@ -91,4 +93,4 @@ class System {
         };
     }
 
-};
+}

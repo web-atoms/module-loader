@@ -739,7 +739,6 @@ class Module {
         this.name = name;
         this.folder = folder;
         this.emptyExports = {};
-        this.ignoreModule = null;
         this.isLoaded = false;
         this.isResolved = false;
         this.dependencies = [];
@@ -757,9 +756,6 @@ class Module {
         return this.name;
     }
     addDependency(d) {
-        if (d === this.ignoreModule) {
-            return;
-        }
         this.dependencies.push(d);
         if (d.isDependentOn(this)) {
             console.warn(`${d.name} already depends on ${this.name}`);
@@ -809,9 +805,6 @@ class Module {
         return this.exports;
     }
     isDependentOn(m, visited) {
-        if (this.ignoreModule === m) {
-            return false;
-        }
         visited = visited || {};
         visited[this.name] = true;
         for (const iterator of this.dependencies) {
@@ -1054,6 +1047,9 @@ class AmdLoader {
     importAsync(module) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.load(module);
+            if (module.resolver) {
+                return yield module.resolver;
+            }
             return yield this.resolve(module);
         });
     }
@@ -1063,8 +1059,6 @@ class AmdLoader {
             const waiting = module.waiting = [];
             for (const iterator of module.dependencies) {
                 if (iterator.isResolved
-                    || iterator.ignoreModule === module
-                    || iterator === module.ignoreModule
                     || (iterator.importPromise && iterator.isDependentOn(module))) {
                     continue;
                 }
@@ -1206,11 +1200,10 @@ AmdLoader.moduleProgress = (() => {
     const progressDiv = document.createElement("div");
     progressDiv.className = "web-atoms-progress-div";
     const style = progressDiv.style;
-    style.position = "absolute";
-    style.margin = "auto";
-    style.width = "200px";
-    style.height = "100px";
-    style.top = style.right = style.left = style.bottom = "5px";
+    style.position = "fixed";
+    style.top = "50%";
+    style.left = "50%";
+    style.transform = `translate(-50%,-50%)`;
     style.borderStyle = "solid";
     style.borderWidth = "1px";
     style.borderColor = "#A0A0A0";
@@ -1221,10 +1214,6 @@ AmdLoader.moduleProgress = (() => {
     const progressLabel = document.createElement("pre");
     progressDiv.appendChild(progressLabel);
     progressLabel.style.color = "#A0A0A0";
-    const ps = progressLabel.style;
-    ps.position = "absolute";
-    ps.left = "5px";
-    ps.bottom = "0";
     function ready() {
         document.body.appendChild(progressDiv);
     }
@@ -1329,46 +1318,65 @@ class MockType {
             this.exportName = "default";
         }
     }
-    get loaded() {
-        return this.replacedModule.ignoreModule;
-    }
 }
-;
 class System {
     static import(name) {
         return AmdLoader.instance.import(name);
     }
     static register(nameOrImports, importsOrSetup, setup) {
-        const loader = () => __awaiter(this, arguments, void 0, function* () {
-            let name = Array.isArray(nameOrImports)
-                ? AmdLoader.current.name
-                : nameOrImports;
+        const instance = AmdLoader.instance;
+        instance.define = () => {
+            const name = typeof nameOrImports === "string"
+                ? nameOrImports
+                : AmdLoader.current.name;
             let imports = importsOrSetup;
             if (arguments.length === 2) {
                 imports = nameOrImports;
                 setup = importsOrSetup;
             }
-            const module = AmdLoader.instance.get(name);
-            const all = yield Promise.all(imports.map((x) => AmdLoader.instance.import(module.require.resolve(x))));
-            const r = setup((name, value) => {
-                module.exports[name] = value;
-            }, AmdLoader.instance);
-            const { setters } = r;
-            for (let index = 0; index < all.length; index++) {
-                const element = all[index];
-                setters[index](element);
-            }
-            const rp = r.execute();
-            if (rp && rp.then) {
-                yield rp;
-            }
-        });
-        AmdLoader.instance.define = () => {
-            loader().catch((error) => console.error(error));
+            const module = instance.get(name);
+            module.dependencies.push(...imports.map((x) => instance.get(module.require.resolve(x))));
+            const loader = () => __awaiter(this, void 0, void 0, function* () {
+                var _a;
+                const all = [];
+                for (const iterator of module.dependencies) {
+                    if (iterator.isResolved
+                        || (iterator.importPromise && iterator.isDependentOn(module))) {
+                        all.push(Promise.resolve(iterator.exports));
+                        continue;
+                    }
+                    all.push(this.import(iterator));
+                }
+                const resolved = yield Promise.all(all);
+                const r = setup((key, value) => {
+                    module.exports[key] = value;
+                }, instance);
+                const { setters } = r;
+                for (let index = 0; index < resolved.length; index++) {
+                    const element = resolved[index];
+                    setters[index](element);
+                }
+                module.isResolved = true;
+                const rp = r.execute();
+                if (rp && rp.then) {
+                    yield rp;
+                }
+                (_a = module.postExports) === null || _a === void 0 ? void 0 : _a.call(module);
+                if (module.dynamicImports) {
+                    for (const iterator of module.dynamicImports) {
+                        if (iterator.replacedModule.importPromise) {
+                            continue;
+                        }
+                        yield instance.import(iterator.replacedModule);
+                    }
+                }
+                return module.exports;
+            });
+            module.resolver = loader();
+            module.factory = () => module.exports;
         };
     }
 }
-;
 class UMDClass {
     constructor() {
         this.viewPrefix = "web";

@@ -47,7 +47,6 @@ declare class Module {
     dynamicImports: MockType[];
     url: string;
     exports: any;
-    ignoreModule: Module;
     isLoaded: boolean;
     isResolved: boolean;
     require: IRequireFunction;
@@ -130,7 +129,6 @@ declare class MockType {
     mock: boolean;
     moduleName?: string;
     readonly exportName?: string;
-    get loaded(): Module;
     replaced: any;
     replacedModule: Module;
     constructor(module: Module, type: any, name: string, mock: boolean, moduleName?: string, exportName?: string);

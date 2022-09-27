@@ -33,7 +33,7 @@ class Module {
 
     public exports: any;
 
-    public ignoreModule: Module = null;
+    // public ignoreModule: Module = null;
 
     public isLoaded: boolean = false;
 
@@ -83,9 +83,9 @@ class Module {
 
     public addDependency(d: Module): void {
         // ignore module contains dependency resolution module
-        if (d === this.ignoreModule) {
-            return;
-        }
+        // if (d === this.ignoreModule) {
+        //     return;
+        // }
         // if (d.isDependentOn(this)) {
         //     return;
         // }
@@ -147,9 +147,9 @@ class Module {
     }
 
     public isDependentOn(m: Module, visited?: any): boolean {
-        if (this.ignoreModule === m) {
-            return false;
-        }
+        // if (this.ignoreModule === m) {
+        //     return false;
+        // }
         visited = visited || {};
         visited[this.name] = true;
         for (const iterator of this.dependencies) {

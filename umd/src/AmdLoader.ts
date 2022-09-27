@@ -332,8 +332,8 @@ class AmdLoader {
         const waiting = (module as any).waiting = [];
         for (const iterator of module.dependencies) {
             if (iterator.isResolved
-                || iterator.ignoreModule === module
-                || iterator === module.ignoreModule
+                // || iterator.ignoreModule === module
+                // || iterator === module.ignoreModule
                 || (iterator.importPromise && iterator.isDependentOn(module))) {
                 continue;
             }

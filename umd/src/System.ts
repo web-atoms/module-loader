@@ -19,9 +19,11 @@ class System {
         return AmdLoader.instance.import(name);
     }
 
-    public static register(imports: string[],
+    public static register(
+        imports: string[],
         setup: IModuleSetup);
-    public static register(name: string,
+    public static register(
+        name: string,
         imports: string[],
         setup: IModuleSetup);
     public static register(
@@ -29,9 +31,12 @@ class System {
         importsOrSetup: string[] | IModuleSetup,
         setup?: IModuleSetup) {
 
-            AmdLoader.instance.define = () => {
-        
-            let name = AmdLoader.current.name;
+            const instance = AmdLoader.instance;
+            instance.define = () => {
+
+            const name = typeof nameOrImports === "string"
+                ? nameOrImports
+                : AmdLoader.current.name;
 
             let imports = importsOrSetup as string[];
             if (arguments.length === 2) {
@@ -39,8 +44,8 @@ class System {
                 setup = importsOrSetup as IModuleSetup;
             }
 
-            const module = AmdLoader.instance.get(name);
-            module.dependencies.push(... imports.map((x) => AmdLoader.instance.get(module.require.resolve(x))));
+            const module = instance.get(name);
+            module.dependencies.push(... imports.map((x) => instance.get(module.require.resolve(x))));
             const loader = async () => {
                 const all = [];
                 for (const iterator of module.dependencies) {
@@ -54,9 +59,9 @@ class System {
                     all.push(this.import(iterator));
                 }
                 const resolved = await Promise.all(all);
-                const r = setup((name, value) => {
-                    module.exports[name] = value;
-                }, AmdLoader.instance);
+                const r = setup((key, value) => {
+                    module.exports[key] = value;
+                }, instance);
 
                 // set all imports...
                 const { setters } = r;
@@ -68,6 +73,15 @@ class System {
                 const rp = r.execute();
                 if (rp && rp.then) {
                     await rp;
+                }
+
+                if (module.dynamicImports) {
+                    for (const iterator of module.dynamicImports) {
+                        if (iterator.replacedModule.importPromise) {
+                            continue;
+                        }
+                        await instance.import(iterator.replacedModule);
+                    }
                 }
                 return module.exports;
             };

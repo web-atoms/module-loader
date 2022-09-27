@@ -492,11 +492,10 @@ AmdLoader.moduleProgress = (() => {
     progressDiv.className = "web-atoms-progress-div";
     const style: CSSStyleDeclaration = progressDiv.style;
 
-    style.position = "absolute";
-    style.margin = "auto";
-    style.width = "200px";
-    style.height = "100px";
-    style.top = style.right = style.left = style.bottom = "5px";
+    style.position = "fixed";
+    style.top = "50%";
+    style.left = "50%";
+    style.transform = `translate(-50%,-50%)`;
 
     style.borderStyle = "solid";
     style.borderWidth = "1px";
@@ -510,10 +509,10 @@ AmdLoader.moduleProgress = (() => {
     progressDiv.appendChild(progressLabel);
     progressLabel.style.color = "#A0A0A0";
 
-    const ps: CSSStyleDeclaration = progressLabel.style;
-    ps.position = "absolute";
-    ps.left = "5px";
-    ps.bottom = "0";
+    // const ps: CSSStyleDeclaration = progressLabel.style;
+    // ps.position = "absolute";
+    // ps.left = "5px";
+    // ps.bottom = "0";
 
     function ready(): void {
         document.body.appendChild(progressDiv);

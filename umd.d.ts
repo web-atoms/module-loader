@@ -63,7 +63,7 @@ declare class Module {
     constructor(name: string, folder?: string);
     addDependency(d: Module): void;
     getExports(): any;
-    isDependentOn(m: Module, visited?: any): boolean;
+    isDependentOn(m: Module, visited?: Set<string>): boolean;
 }
 declare var require: any;
 declare var md: any;
@@ -72,9 +72,7 @@ declare class AmdLoader {
     static isMedia: RegExp;
     static isJson: RegExp;
     static globalVar: any;
-    static moduleProgress: (name: string, modules: {
-        [key: string]: Module;
-    }, status: "done" | "loading") => void;
+    static moduleProgress: (name: string, modules: Map<string, Module>, status: "done" | "loading") => void;
     static moduleLoader: (packageName: string, url: string, success: () => void, failed: (error: any) => void) => void;
     static httpTextLoader: (url: string, resolve: (r: any) => void, failed: (error: any) => void) => void;
     static instance: AmdLoader;
@@ -83,12 +81,8 @@ declare class AmdLoader {
     defaultUrl: string;
     currentStack: Module[];
     nodeModules: Module[];
-    modules: {
-        [key: string]: Module;
-    };
-    pathMap: {
-        [key: string]: IPackage;
-    };
+    modules: Map<string, Module>;
+    pathMap: Map<string, IPackage>;
     enableMock: boolean;
     define: any;
     private mockTypes;

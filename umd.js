@@ -805,13 +805,13 @@ class Module {
         return this.exports;
     }
     isDependentOn(m, visited) {
-        visited = visited || {};
-        visited[this.name] = true;
+        visited !== null && visited !== void 0 ? visited : (visited = new Set());
+        visited.add(this.name);
         for (const iterator of this.dependencies) {
             if (iterator === m) {
                 return true;
             }
-            if (visited[iterator.name]) {
+            if (visited.has(iterator.name)) {
                 continue;
             }
             if (iterator.isDependentOn(m, visited)) {
@@ -832,13 +832,13 @@ class AmdLoader {
         this.defaultUrl = null;
         this.currentStack = [];
         this.nodeModules = [];
-        this.modules = {};
-        this.pathMap = {};
+        this.modules = new Map();
+        this.pathMap = new Map();
         this.mockTypes = [];
     }
     register(packages, modules) {
         for (const iterator of packages) {
-            if (!this.pathMap[iterator]) {
+            if (!this.pathMap.has(iterator)) {
                 this.map(iterator, "/");
             }
         }
@@ -848,13 +848,11 @@ class AmdLoader {
     }
     setupRoot(root, url) {
         if (url.endsWith("/")) {
-            url = url.substr(0, url.length - 1);
+            url = url.substring(0, url.length - 1);
         }
-        for (const key in this.pathMap) {
-            if (this.pathMap.hasOwnProperty(key)) {
-                const moduleUrl = key === root ? url : `${url}/node_modules/${key}`;
-                this.map(key, moduleUrl);
-            }
+        for (const key of this.pathMap.keys()) {
+            const moduleUrl = key === root ? url : `${url}/node_modules/${key}`;
+            this.map(key, moduleUrl);
         }
         this.defaultUrl = `${url}/node_modules/`;
     }
@@ -899,7 +897,7 @@ class AmdLoader {
         return t ? t.replaced : type;
     }
     map(packageName, packageUrl, type = "amd", exportVar) {
-        let existing = this.pathMap[packageName];
+        let existing = this.pathMap.get(packageName);
         if (existing) {
             existing.url = packageUrl;
             existing.exportVar = exportVar;
@@ -916,7 +914,7 @@ class AmdLoader {
         if (packageName === "reflect-metadata") {
             type = "global";
         }
-        this.pathMap[packageName] = existing;
+        this.pathMap.set(packageName, existing);
         return existing;
     }
     resolveSource(name, defExt = ".js") {
@@ -925,31 +923,29 @@ class AmdLoader {
                 return name;
             }
             let path = null;
-            for (const key in this.pathMap) {
-                if (this.pathMap.hasOwnProperty(key)) {
-                    const packageName = key;
-                    if (name.startsWith(packageName)) {
-                        path = this.pathMap[key].url;
-                        if (name.length !== packageName.length) {
-                            if (name[packageName.length] !== "/") {
-                                continue;
-                            }
-                            name = name.substr(packageName.length + 1);
+            for (const key of this.pathMap.keys()) {
+                const packageName = key;
+                if (name.startsWith(packageName)) {
+                    path = this.pathMap.get(key).url;
+                    if (name.length !== packageName.length) {
+                        if (name[packageName.length] !== "/") {
+                            continue;
                         }
-                        else {
-                            return path;
-                        }
-                        if (path.endsWith("/")) {
-                            path = path.substr(0, path.length - 1);
-                        }
-                        path = path + "/" + name;
-                        const i = name.lastIndexOf("/");
-                        const fileName = name.substr(i + 1);
-                        if (fileName.indexOf(".") === -1) {
-                            path = path + defExt;
-                        }
+                        name = name.substr(packageName.length + 1);
+                    }
+                    else {
                         return path;
                     }
+                    if (path.endsWith("/")) {
+                        path = path.substr(0, path.length - 1);
+                    }
+                    path = path + "/" + name;
+                    const i = name.lastIndexOf("/");
+                    const fileName = name.substr(i + 1);
+                    if (fileName.indexOf(".") === -1) {
+                        path = path + defExt;
+                    }
+                    return path;
                 }
             }
             return name;
@@ -999,19 +995,23 @@ class AmdLoader {
         return { packageName, version, name };
     }
     get(name1) {
-        let module = this.modules[name1];
+        let module = this.modules.get(name1);
         if (!module) {
             const { packageName, version, name } = this.getPackageVersion(name1);
             module = new Module(name);
-            this.modules[name1] = module;
-            module.package = this.pathMap[packageName] ||
-                (this.pathMap[packageName] = {
+            this.modules.set(name1, module);
+            let pp = this.pathMap.get(packageName);
+            if (!pp) {
+                pp = {
                     type: "amd",
                     name: packageName,
                     version,
                     url: this.defaultUrl ?
                         (this.defaultUrl + packageName) : undefined
-                });
+                };
+                this.pathMap.set(packageName, pp);
+            }
+            module.package = pp;
             module.url = this.resolveSource(name);
             if (!module.url) {
                 if (typeof require === "undefined") {
@@ -1025,7 +1025,7 @@ class AmdLoader {
                 return m;
             };
             module.require.resolve = (n) => this.resolveRelativePath(n, module.name);
-            this.modules[name] = module;
+            this.modules.set(name, module);
         }
         return module;
     }

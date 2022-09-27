@@ -146,17 +146,17 @@ class Module {
         return this.exports;
     }
 
-    public isDependentOn(m: Module, visited?: any): boolean {
+    public isDependentOn(m: Module, visited?: Set<string>): boolean {
         // if (this.ignoreModule === m) {
         //     return false;
         // }
-        visited = visited || {};
-        visited[this.name] = true;
+        visited ??= new Set<string>();
+        visited.add(this.name);
         for (const iterator of this.dependencies) {
             if (iterator === m) {
                 return true;
             }
-            if (visited[iterator.name]) {
+            if (visited.has(iterator.name)) {
                 continue;
             }
             if (iterator.isDependentOn(m, visited)) {

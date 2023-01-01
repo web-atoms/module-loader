@@ -61,6 +61,7 @@ class System {
                 const resolved = await Promise.all(all);
                 const r = setup((key, value) => {
                     module.exports[key] = value;
+                    return value;
                 }, instance);
 
                 // set all imports...

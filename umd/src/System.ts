@@ -69,7 +69,7 @@ class System {
                 }
                 const resolved = await Promise.all(all);
                 const r = setup((key, value) => {
-                    if (arguments.length === 1) {
+                    if (typeof key === "object") {
                         merge(module.exports, key);
                         return module.exports;
                     }

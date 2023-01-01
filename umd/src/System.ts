@@ -13,6 +13,15 @@ interface IModule {
     setters: IImportDef[];
     execute: ISetup;
 }
+
+const merge = (target, source) => {
+    for (const key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+        }
+    }
+};
+
 class System {
 
     public static import(name) {
@@ -60,6 +69,10 @@ class System {
                 }
                 const resolved = await Promise.all(all);
                 const r = setup((key, value) => {
+                    if (arguments.length === 1) {
+                        merge(module.exports, key);
+                        return module.exports;
+                    }
                     module.exports[key] = value;
                     return value;
                 }, instance);

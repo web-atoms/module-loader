@@ -45,7 +45,7 @@ declare class Module {
     dependencyHooks: [(...a: any) => void, () => void];
     resolveHooks: [(...a: any) => void, () => void];
     dynamicImports: MockType[];
-    url: string;
+    get url(): string;
     exports: any;
     isLoaded: boolean;
     isResolved: boolean;
@@ -110,7 +110,7 @@ declare class AmdLoader {
 }
 declare var global: any;
 declare const a: AmdLoader;
-declare type IAnyFunction = (...a: any[]) => any;
+type IAnyFunction = (...a: any[]) => any;
 interface IDefine {
     (requiresOrFactory: string[] | IAnyFunction, factory?: IAnyFunction): any;
     amd?: object;
@@ -130,14 +130,15 @@ declare class MockType {
 interface IContext {
     import(name: string): Promise<any>;
 }
-declare type IImportDef = (e: any) => void;
-declare type IExportDef = (name: any, value: any) => void;
-declare type ISetup = () => void | Promise<void>;
-declare type IModuleSetup = (exports: IExportDef, context: IContext) => IModule;
+type IImportDef = (e: any) => void;
+type IExportDef = (name: any, value: any) => void;
+type ISetup = () => void | Promise<void>;
+type IModuleSetup = (exports: IExportDef, context: IContext) => IModule;
 interface IModule {
     setters: IImportDef[];
     execute: ISetup;
 }
+declare const merge: (target: any, source: any) => void;
 declare class System {
     static import(name: any): Promise<any>;
     static register(imports: string[], setup: IModuleSetup): any;

@@ -286,12 +286,12 @@ class AmdLoader {
 
             module.package = pp;
 
-            module.url = this.resolveSource(name);
-            if (!module.url) {
-                if (typeof require === "undefined") {
-                    throw new Error(`No url mapped for ${name}`);
-                }
-            }
+            // module.url = this.resolveSource(name);
+            // if (!module.url) {
+            //     if (typeof require === "undefined") {
+            //         throw new Error(`No url mapped for ${name}`);
+            //     }
+            // }
             module.require = (n: string) => {
                 const an: string = this.resolveRelativePath(n, module.name);
                 const resolvedModule: Module = this.get(an);
@@ -395,7 +395,7 @@ class AmdLoader {
                     ? (module.package.url + module.url)
                     : module.url;
                     Object.defineProperty(m, "url", { value: mUrl, enumerable: true });
-                    return mUrl;    
+                    return mUrl;
                 },
                 toString() {
                     return this.url;

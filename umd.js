@@ -735,6 +735,14 @@ if (typeof Element !== "undefined") {
     }
 }
 class Module {
+    get url() {
+        const u = AmdLoader.instance.resolveSource(this.name);
+        Object.defineProperty(this, "url", { value: u, enumerable: true });
+        return u;
+    }
+    get filename() {
+        return this.name;
+    }
     constructor(name, folder) {
         this.name = name;
         this.folder = folder;
@@ -751,9 +759,6 @@ class Module {
             this.folder = name.substring(0, index);
         }
         this.exports = this.emptyExports;
-    }
-    get filename() {
-        return this.name;
     }
     addDependency(d) {
         this.dependencies.push(d);
@@ -1012,12 +1017,6 @@ class AmdLoader {
                 this.pathMap.set(packageName, pp);
             }
             module.package = pp;
-            module.url = this.resolveSource(name);
-            if (!module.url) {
-                if (typeof require === "undefined") {
-                    throw new Error(`No url mapped for ${name}`);
-                }
-            }
             module.require = (n) => {
                 const an = this.resolveRelativePath(n, module.name);
                 const resolvedModule = this.get(an);
@@ -1108,12 +1107,17 @@ class AmdLoader {
             });
         }
         if (AmdLoader.isMedia.test(module.url)) {
-            const mUrl = !module.url.startsWith(module.package.url)
-                ? (module.package.url + module.url)
-                : module.url;
             const m = {
-                url: mUrl,
-                toString: () => mUrl
+                get url() {
+                    const mUrl = !module.url.startsWith(module.package.url)
+                        ? (module.package.url + module.url)
+                        : module.url;
+                    Object.defineProperty(m, "url", { value: mUrl, enumerable: true });
+                    return mUrl;
+                },
+                toString() {
+                    return this.url;
+                }
             };
             const e = { __esModule: true, default: m };
             module.exports = e;
@@ -1321,6 +1325,13 @@ class MockType {
         }
     }
 }
+const merge = (target, source) => {
+    for (const key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+        }
+    }
+};
 class System {
     static import(name) {
         return AmdLoader.instance.import(name);
@@ -1351,7 +1362,12 @@ class System {
                 }
                 const resolved = yield Promise.all(all);
                 const r = setup((key, value) => {
+                    if (typeof key === "object") {
+                        merge(module.exports, key);
+                        return module.exports;
+                    }
                     module.exports[key] = value;
+                    return value;
                 }, instance);
                 const { setters } = r;
                 for (let index = 0; index < resolved.length; index++) {

@@ -29,7 +29,11 @@ class Module {
 
     public dynamicImports: MockType[];
 
-    public url: string;
+    public get url() {
+        const u = AmdLoader.instance.resolveSource(this.name);
+        Object.defineProperty(this, "url", { value: u, enumerable: true });
+        return u;
+    }
 
     public exports: any;
 

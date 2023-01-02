@@ -386,12 +386,20 @@ class AmdLoader {
         }
 
         if (AmdLoader.isMedia.test(module.url)) {
-            const mUrl = !module.url.startsWith(module.package.url)
-                ? (module.package.url + module.url)
-                : module.url;
+            // in case of packed loader
+            // module.package.url isn't set
+            // so it should be loaded only first time when requested...
             const m = {
-                url: mUrl,
-                toString: () => mUrl
+                get url() {
+                    const mUrl = !module.url.startsWith(module.package.url)
+                    ? (module.package.url + module.url)
+                    : module.url;
+                    Object.defineProperty(m, "url", { value: mUrl, enumerable: true });
+                    return mUrl;    
+                },
+                toString() {
+                    return this.url;
+                }
             };
             const e = { __esModule: true, default: m };
             module.exports = e;

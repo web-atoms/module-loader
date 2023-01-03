@@ -68,6 +68,7 @@ class System {
                     all.push(this.import(iterator));
                 }
                 const resolved = await Promise.all(all);
+                AmdLoader.instance.currentStack.push(module);
                 const r = setup((key, value) => {
                     if (typeof key === "object") {
                         merge(module.exports, key);
@@ -76,6 +77,7 @@ class System {
                     module.exports[key] = value;
                     return value;
                 }, instance);
+                AmdLoader.instance.currentStack.pop();
 
                 // set all imports...
                 const { setters } = r;

@@ -126,10 +126,18 @@ class System {
                 var list = module.dependencies;
 
                 const { setters } = r;
-                    for (let index = 0; index < list.length; index++) {
-                        const element = list[index];
-                        setters[index](element.getExports());
-                    }
+                for (let index = 0; index < list.length; index++) {
+                    const element = list[index];
+                    setters[index](element.getExports());
+                }
+
+                const rp = r.execute() as any;
+                if (rp?.then) {
+                    rp.catch((error) => {
+                        console.error(error);
+                    });
+                }
+
                 return module.exports;
             }
         };

@@ -79,6 +79,11 @@ class System {
                 }, instance);
                 AmdLoader.instance.currentStack.pop();
 
+                const def = module.exports.default;
+                if (typeof def === "function" || typeof def === "object") {
+                    def[UMD.nameSymbol] = module.name;
+                }
+
                 // set all imports...
                 const { setters } = r;
                 for (let index = 0; index < resolved.length; index++) {

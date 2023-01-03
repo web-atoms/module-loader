@@ -1,3 +1,4 @@
+/// <reference path="./TSLib.ts"/>
 /// <reference path="./ReflectMetadata.ts"/>
 /// <reference path="./ArrayHelper.ts"/>
 /// <reference path="./Module.ts"/>

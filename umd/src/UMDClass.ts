@@ -1,4 +1,5 @@
 /// <reference path="./AmdLoader.ts"/>
+/// <reference path="./TSLib.ts"/>
 
 // declare var Symbol: any;
 
@@ -137,4 +138,7 @@ const UMD: UMDClass = new UMDClass();
     const globalNS = (typeof window !== "undefined" ? window : global);
     globalNS.UMD = u;
     globalNS.AmdLoader = AmdLoader;
+
+    AmdLoader.instance.registerModule("tslib", setupTSLib());
+
 })(UMD);

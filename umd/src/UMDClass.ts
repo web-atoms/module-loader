@@ -138,7 +138,7 @@ const UMD: UMDClass = new UMDClass();
     const globalNS = (typeof window !== "undefined" ? window : global);
     globalNS.UMD = u;
     globalNS.AmdLoader = AmdLoader;
-
+    globalNS.System = System;
     AmdLoader.instance.registerModule("tslib", setupTSLib());
 
 })(UMD);

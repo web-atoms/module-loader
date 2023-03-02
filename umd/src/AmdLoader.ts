@@ -328,7 +328,7 @@ class AmdLoader {
             // we need to check if the module is System or UMD
             // UMD can be loaded directly, but System needs to be loaded
             // via http loader...
-            const moduleCode = require("fs").readFileSync(require.resolve(name)).trim();
+            const moduleCode = require("fs").readFileSync(require.resolve(name), "utf8").trim();
             if (!/^System\.Register/.test(moduleCode)) {
                 return Promise.resolve(require(name));
             }

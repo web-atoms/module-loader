@@ -306,13 +306,13 @@ class AmdLoader {
     }
 
     public import(name: string | Module): Promise<any> {
-        const m = this.importNodeModule(name);
-        if (m) {
-            return m;
-        }
         const module: Module = typeof name === "object" ? name as Module : this.get(name);
         if (module.importPromise) {
             return module.importPromise;
+        }
+        const m = this.importNodeModule(module);
+        if (m) {
+            return m;
         }
         if (module.isResolved) {
             module.importPromise = Promise.resolve(module.getExports());
@@ -322,8 +322,9 @@ class AmdLoader {
         return module.importPromise;
     }
 
-    public importNodeModule(name: string | Module) {
+    public importNodeModule(module: Module) {
         if (typeof require !== "undefined") {
+            const name = module.url;
             // we are inside node ..
             // we need to check if the module is System or UMD
             // UMD can be loaded directly, but System needs to be loaded

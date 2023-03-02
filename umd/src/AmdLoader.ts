@@ -306,8 +306,9 @@ class AmdLoader {
     }
 
     public import(name: string | Module): Promise<any> {
-        if (typeof require !== "undefined") {
-            return Promise.resolve(require(name));
+        const m = this.importNodeModule(name);
+        if (m) {
+            return m;
         }
         const module: Module = typeof name === "object" ? name as Module : this.get(name);
         if (module.importPromise) {
@@ -319,6 +320,19 @@ class AmdLoader {
         }
         module.importPromise = this.importAsync(module);
         return module.importPromise;
+    }
+
+    public importNodeModule(name: string | Module) {
+        if (typeof require !== "undefined") {
+            // we are inside node ..
+            // we need to check if the module is System or UMD
+            // UMD can be loaded directly, but System needs to be loaded
+            // via http loader...
+            const moduleCode = require("fs").readFileSync(require.resolve(name)).trim();
+            if (!/^System\.Register/.test(moduleCode)) {
+                return Promise.resolve(require(name));
+            }
+        }
     }
 
     public async importAsync(module: Module): Promise<any> {

@@ -94,9 +94,11 @@ class Module {
         //     return;
         // }
         this.dependencies.push(d);
-        if (d.isDependentOn(this)) {
-            // tslint:disable-next-line: no-console
-            console.warn(`${d.name} already depends on ${this.name}`);
+        if (UMD.debug) {
+            if (d.isDependentOn(this)) {
+                // tslint:disable-next-line: no-console
+                console.warn(`${d.name} already depends on ${this.name}`);
+            }
         }
     }
 
@@ -148,17 +150,17 @@ class Module {
         return this.exports;
     }
 
-    public isDependentOn(m: Module, visited?: Set<string>): boolean {
+    public isDependentOn(m: Module, visited?: Set<Module>): boolean {
         // if (this.ignoreModule === m) {
         //     return false;
         // }
-        visited ??= new Set<string>();
-        visited.add(this.name);
+        visited ??= new Set<Module>();
+        visited.add(this);
         for (const iterator of this.dependencies) {
             if (iterator === m) {
                 return true;
             }
-            if (visited.has(iterator.name)) {
+            if (visited.has(iterator)) {
                 continue;
             }
             if (iterator.isDependentOn(m, visited)) {

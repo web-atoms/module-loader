@@ -5,6 +5,8 @@
 
 class UMDClass {
 
+    public debug = false;
+
     public viewPrefix = "web";
 
     public defaultApp = "@web-atoms/core/dist/web/WebApp";
@@ -133,7 +135,6 @@ class UMDClass {
 }
 
 const UMD: UMDClass = new UMDClass();
-
 ((u) => {
     const globalNS = (typeof window !== "undefined" ? window : global);
     globalNS.UMD = u;

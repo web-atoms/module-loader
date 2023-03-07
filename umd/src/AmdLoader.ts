@@ -346,16 +346,28 @@ class AmdLoader {
 
     public async resolve(module: Module): Promise<any> {
         const ds = [];
-        const waiting = (module as any).waiting = [];
-        for (const iterator of module.dependencies) {
-            if (iterator.isResolved
-                // || iterator.ignoreModule === module
-                // || iterator === module.ignoreModule
-                || (iterator.importPromise && iterator.isDependentOn(module))) {
-                continue;
+        if (UMD.debug) {
+            const waiting = (module as any).waiting = [];
+            for (const iterator of module.dependencies) {
+                if (iterator.isResolved
+                    // || iterator.ignoreModule === module
+                    // || iterator === module.ignoreModule
+                    || (iterator.importPromise && iterator.isDependentOn(module))) {
+                    continue;
+                }
+                waiting.push(iterator);
+                ds.push(this.import(iterator));
             }
-            waiting.push(iterator);
-            ds.push(this.import(iterator));
+        } else {
+            for (const iterator of module.dependencies) {
+                if (iterator.isResolved
+                    // || iterator.ignoreModule === module
+                    // || iterator === module.ignoreModule
+                    || (iterator.importPromise && iterator.isDependentOn(module))) {
+                    continue;
+                }
+                ds.push(this.import(iterator));
+            }
         }
         await Promise.all(ds);
         const exports = module.getExports();

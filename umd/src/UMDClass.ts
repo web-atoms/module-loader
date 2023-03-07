@@ -141,5 +141,4 @@ const UMD: UMDClass = new UMDClass();
     globalNS.AmdLoader = AmdLoader;
     globalNS.System = System;
     AmdLoader.instance.registerModule("tslib", setupTSLib());
-
 })(UMD);

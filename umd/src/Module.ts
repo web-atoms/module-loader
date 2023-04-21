@@ -85,6 +85,11 @@ class Module {
         this.exports = this.emptyExports;
     }
 
+    public import(name: string) {
+        const resolvedName = this.require.resolve(name);
+        return AmdLoader.instance.import(resolvedName);
+    }
+
     public addDependency(d: Module): void {
         // ignore module contains dependency resolution module
         // if (d === this.ignoreModule) {

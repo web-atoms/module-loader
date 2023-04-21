@@ -56,62 +56,6 @@ class System {
             const module = instance.get(name);
             module.dependencies.push(... imports.map((x) => instance.get(module.require.resolve(x))));
             module.isLoaded = true;
-            // const loader = async () => {
-
-
-            //     const all = [];
-            //     for (const iterator of module.dependencies) {
-            //         if (iterator.isResolved
-            //             // || iterator.ignoreModule === module
-            //             // || iterator === module.ignoreModule
-            //             || (iterator.importPromise && iterator.isDependentOn(module))) {
-            //             all.push(Promise.resolve(iterator.exports));
-            //             continue;
-            //         }
-            //         all.push(this.import(iterator));
-            //     }
-            //     const resolved = await Promise.all(all);
-            //     AmdLoader.instance.currentStack.push(module);
-            //     const r = setup((key, value) => {
-            //         if (typeof key === "object") {
-            //             merge(module.exports, key);
-            //             return module.exports;
-            //         }
-            //         module.exports[key] = value;
-            //         return value;
-            //     }, instance);
-            //     AmdLoader.instance.currentStack.pop();
-
-            //     const def = module.exports.default;
-            //     if (typeof def === "function" || typeof def === "object") {
-            //         def[UMD.nameSymbol] = module.name;
-            //     }
-
-            //     // set all imports...
-            //     const { setters } = r;
-            //     for (let index = 0; index < resolved.length; index++) {
-            //         const element = resolved[index];
-            //         setters[index](element);
-            //     }
-            //     module.isResolved = true;
-            //     const rp = r.execute();
-            //     if (rp && rp.then) {
-            //         await rp;
-            //     }
-
-            //     module.postExports?.();
-
-            //     if (module.dynamicImports) {
-            //         for (const iterator of module.dynamicImports) {
-            //             if (iterator.replacedModule.importPromise) {
-            //                 continue;
-            //             }
-            //             await instance.import(iterator.replacedModule);
-            //         }
-            //     }
-            //     return module.exports;
-            // };
-
             // module.resolver = loader();
             module.factory = () => {
                 const r = setup((key, value) => {
@@ -121,7 +65,7 @@ class System {
                             }
                             module.exports[key] = value;
                             return value;
-                        }, instance);
+                        }, module);
 
                 var list = module.dependencies;
 

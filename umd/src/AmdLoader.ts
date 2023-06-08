@@ -516,7 +516,9 @@ AmdLoader.httpTextLoader = (url, success, error) => {
     xhr.send();
 };
 
-AmdLoader.moduleProgress = (() => {
+var amdConfig;
+amdConfig ??= {};
+amdConfig.moduleProgress ??= (() => {
 
     if (!document) {
         return (name, p) => {
@@ -525,62 +527,8 @@ AmdLoader.moduleProgress = (() => {
         };
     }
 
-    const progressDiv: HTMLDivElement = document.createElement("div");
-    progressDiv.className = "web-atoms-progress-div";
-    const style: CSSStyleDeclaration = progressDiv.style;
-
-    style.position = "fixed";
-    style.top = "50%";
-    style.left = "50%";
-    style.width = "200px";
-    style.height = "100px";
-    style.transform = `translate(-50%,-50%)`;
-
-    style.borderStyle = "solid";
-    style.borderWidth = "1px";
-    style.borderColor = "#A0A0A0";
-    style.borderRadius = "5px";
-    style.padding = "5px";
-    style.textAlign = "left";
-    style.verticalAlign = "bottom";
-
-    const progressLabel: HTMLPreElement = document.createElement("pre");
-    progressDiv.appendChild(progressLabel);
-    progressLabel.style.color = "#A0A0A0";
-
-    // const ps: CSSStyleDeclaration = progressLabel.style;
-    // ps.position = "absolute";
-    // ps.left = "5px";
-    // ps.bottom = "0";
-
-    function ready(): void {
-        document.body.appendChild(progressDiv);
-    }
-
-    function completed(): void {
-        document.removeEventListener( "DOMContentLoaded", completed );
-        window.removeEventListener( "load", completed );
-        ready();
-    }
-
-    if ( document.readyState === "complete" ||
-        // tslint:disable-next-line:no-string-literal
-        ( document.readyState !== "loading" && !document.documentElement["doScroll"] ) ) {
-
-        window.setTimeout( ready );
-    } else {
-        document.addEventListener( "DOMContentLoaded", completed );
-        window.addEventListener( "load", completed );
-    }
-
     return (name, n, status) => {
-        if (status === "done") {
-            progressDiv.style.display = "none";
-            return;
-        } else {
-            progressDiv.style.display = "block";
-        }
-        name = name.split("/").pop();
-        progressLabel.textContent = name;
     };
 })();
+
+AmdLoader.moduleProgress = amdConfig.moduleProgress;

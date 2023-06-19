@@ -24,6 +24,15 @@ const merge = (target, source) => {
 
 class System {
 
+    /**
+     * Returns absolute url for given module id
+     * @param id module identifier
+     * @returns absolute URL
+     */
+    public static resolve(id) {
+        return AmdLoader.instance.resolveSource(id);
+    }
+
     public static import(name) {
         return AmdLoader.instance.import(name);
     }

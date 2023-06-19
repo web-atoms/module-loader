@@ -35,6 +35,13 @@ class Module {
         return u;
     }
 
+    public get meta() {
+        return {
+            url: this.url,
+            resolve: this.require.resolve
+        };
+    }
+
     public exports: any;
 
     // public ignoreModule: Module = null;

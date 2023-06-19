@@ -299,7 +299,7 @@ class AmdLoader {
                 const m = resolvedModule.getExports();
                 return m;
             };
-            module.require.resolve = (n: string) => this.resolveSource(this.resolveRelativePath(n, module.name));
+            module.require.resolve = (n: string) => this.resolveRelativePath(n, module.name);
             this.modules.set(name, module);
         }
         return module;

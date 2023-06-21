@@ -293,9 +293,18 @@ class AmdLoader {
             //         throw new Error(`No url mapped for ${name}`);
             //     }
             // }
-            module.require = (n: string) => {
+            module.require = (n: string | string[], resolve, reject) => {
+                let isAsync = false;
+                if (typeof n !== "string") {
+                    n = n[0];
+                    isAsync = true;
+                }
+
                 const an: string = this.resolveRelativePath(n, module.name);
                 const resolvedModule: Module = this.get(an);
+                if (isAsync) {
+                    return this.import(resolvedModule).then(resolve, reject);
+                }
                 const m = resolvedModule.getExports();
                 return m;
             };

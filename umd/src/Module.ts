@@ -7,7 +7,7 @@ interface IPackage {
 }
 
 interface IRequireFunction {
-    (path: string): any;
+    (path: string | string[], resolve?, reject?): any;
     resolve?: (path: string) => string;
 }
 

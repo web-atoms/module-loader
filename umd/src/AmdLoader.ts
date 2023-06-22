@@ -403,7 +403,7 @@ class AmdLoader {
             return module.loader;
         }
         if (AmdLoader.isJson.test(module.url)) {
-            const mUrl = module.package.url + module.url;
+            const mUrl = module.url.startsWith(module.package.url) ? module.url : module.package.url + module.url;
             module.loader = new Promise<void>((resolve, reject) => {
                 try {
                     AmdLoader.httpTextLoader(mUrl, (r) => {

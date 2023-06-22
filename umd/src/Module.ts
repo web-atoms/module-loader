@@ -73,7 +73,7 @@ class Module {
     /**
      * This promise can be awaited by dependency resolver
      */
-    public resolver: Promise<any>;
+    public resolver: () => Promise<any>;
 
     private rID: number = null;
 

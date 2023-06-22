@@ -22,6 +22,8 @@ const merge = (target, source) => {
     }
 };
 
+const enumerable = true, configurable = true;
+
 class System {
 
     /**
@@ -99,11 +101,11 @@ class System {
                 };
             });
 
-            module.resolver = (async () => {
+            module.resolver = async () => {
                 await AmdLoader.instance.resolve(module);
                 await postResolve;
                 return module.exports;
-            })();
+            };
         };
         
     }

@@ -92,7 +92,7 @@ class AmdLoader {
         m.package.url = "/";
         m.exports = { __esModule: true, ... moduleExports };
         m.loader = promiseDone;
-        m.resolver = Promise.resolve(m.exports);
+        m.resolver = () => Promise.resolve(m.exports);
         m.isLoaded = true;
         m.isResolved = true;
     }
@@ -348,7 +348,7 @@ class AmdLoader {
     public async importAsync(module: Module): Promise<any> {
         await this.load(module);
         if (module.resolver) {
-            return await module.resolver;
+            return await module.resolver();
         }
         return await this.resolve(module);
     }

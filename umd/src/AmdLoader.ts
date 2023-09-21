@@ -420,6 +420,7 @@ class AmdLoader {
                     reject(e1);
                 }
             });
+            return module.loader;
         }
 
         if (AmdLoader.isMedia.test(module.url)) {

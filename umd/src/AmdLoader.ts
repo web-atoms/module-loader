@@ -21,7 +21,7 @@ const promiseDone = Promise.resolve(0);
 
 class AmdLoader {
 
-    public static isMedia = /\.(jpg|jpeg|gif|png|mp4|mp3|css|html|svg)$/i;
+    public static isMedia = /\.(jpg|jpeg|gif|png|mp4|mp3|css|html|svg|webp|webm)$/i;
 
     public static isJson = /\.json$/i;
 
@@ -208,17 +208,17 @@ class AmdLoader {
                             if (name[packageName.length] !== "/") {
                                 continue;
                             }
-                            name = name.substr(packageName.length + 1);
+                            name = name.substring(packageName.length + 1);
                         } else {
                             return path;
                         }
                         if (path.endsWith("/")) {
-                            path = path.substr(0, path.length - 1);
+                            path = path.substring(0, path.length - 1);
                         }
                         path = path + "/" + name;
                         const i = name.lastIndexOf("/");
-                        const fileName = name.substr(i + 1);
-                        if (fileName.indexOf(".") === -1) {
+                        const fileName = name.substring(i + 1);
+                        if (!/\.(js|jpg|jpeg|gif|png|mp4|mp3|css|html|svg|webp|webm)$/i.test(fileName)) {
                             path = path + defExt;
                         }
                         // if (defExt && !path.endsWith(defExt)) {

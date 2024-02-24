@@ -7,7 +7,7 @@ interface IPackage {
 }
 
 interface IRequireFunction {
-    (path: string): any;
+    (path: string | string[], resolve?, reject?): any;
     resolve?: (path: string) => string;
 }
 
@@ -27,11 +27,24 @@ class Module {
 
     public resolveHooks: [(... a: any) => void, () => void];
 
-    public url: string;
+    public dynamicImports: MockType[];
+
+    public get url() {
+        const u = AmdLoader.instance.resolveSource(this.name);
+        Object.defineProperty(this, "url", { value: u, enumerable: true });
+        return u;
+    }
+
+    public get meta() {
+        return {
+            url: this.url,
+            resolve: this.require.resolve
+        };
+    }
 
     public exports: any;
 
-    public ignoreModule: Module = null;
+    // public ignoreModule: Module = null;
 
     public isLoaded: boolean = false;
 
@@ -49,29 +62,18 @@ class Module {
 
     public loader: Promise<any>;
 
+    public postExports: () => void;
+
     public get filename(): string {
         return this.name;
     }
 
-    public get dependents() {
-        const d = [];
-        const v = {};
-        const modules = AmdLoader.instance.modules;
-        for (const key in modules) {
-            if (modules.hasOwnProperty(key)) {
-                const element = modules[key];
-                if (element.isDependentOn(this, v)) {
-                    d.push(element);
-                }
-            }
-        }
-        return d;
-    }
+    public importPromise: Promise<any>;
 
     /**
      * This promise can be awaited by dependency resolver
      */
-    public resolver: Promise<any>;
+    public resolver: () => Promise<any>;
 
     private rID: number = null;
 
@@ -83,95 +85,36 @@ class Module {
         if (index === -1) {
             this.folder = "";
         } else {
-            this.folder = name.substr(0, index);
+            this.folder = name.substring(0, index);
         }
-
+        // this is moved on top
+        // to support circular dependencies
+        this.exports = this.emptyExports;
     }
 
-    public resolve(id?: number): boolean {
-
-        if (!this.isLoaded) {
-            return false;
-        }
-
-        if (this.isResolved) {
-            return true;
-        }
-
-        if (!id) {
-            id = Module.nextID++;
-        }
-
-        if (this.rID === id) {
-            // circular dependency found...
-            let childrenResolved = true;
-            for (const iterator of this.dependencies) {
-                if (iterator === this.ignoreModule) {
-                    continue;
-                }
-                if (iterator.rID === id) {
-                    continue;
-                }
-                if (!iterator.resolve(id)) {
-                    childrenResolved = false;
-                    break;
-                }
-            }
-            return childrenResolved;
-        }
-
-        this.rID = id;
-
-        let allResolved = true;
-
-        for (const iterator of this.dependencies) {
-            if (iterator === this.ignoreModule) {
-                continue;
-            }
-            if (!iterator.resolve(id)) {
-                allResolved = false;
-                break;
-            }
-        }
-
-        if (!allResolved) {
-            this.rID = 0;
-            return false;
-        }
-        const i = AmdLoader.instance;
-
-        if (this.dependencyHooks) {
-            this.dependencyHooks[0]();
-            this.dependencyHooks = null;
-        }
-
-        if (this.resolveHooks) {
-            this.resolveHooks[0](this.getExports());
-            this.resolveHooks = null;
-
-            i.remove(this);
-            this.rID = 0;
-            return true;
-        }
-
-        this.rID = 0;
-        return false;
-
+    public import(name: string) {
+        const resolvedName = this.require.resolve(name);
+        return AmdLoader.instance.import(resolvedName);
     }
 
     public addDependency(d: Module): void {
         // ignore module contains dependency resolution module
-        if (d === this.ignoreModule) {
-            return;
-        }
+        // if (d === this.ignoreModule) {
+        //     return;
+        // }
         // if (d.isDependentOn(this)) {
         //     return;
         // }
         this.dependencies.push(d);
+        if (UMD.debug) {
+            if (d.isDependentOn(this)) {
+                // tslint:disable-next-line: no-console
+                console.warn(`${d.name} already depends on ${this.name}`);
+            }
+        }
     }
 
     public getExports(): any {
-        this.exports = this.emptyExports;
         if (this.factory) {
             try {
                 const factory = this.factory;
@@ -180,12 +123,10 @@ class Module {
                 AmdLoader.instance.currentStack.push(this);
                 const result: any = factory(this.require, this.exports);
                 if (result) {
-                    if (typeof result === "object") {
-                        for (const key in result) {
-                            if (result.hasOwnProperty(key)) {
-                                const element: any = result[key];
-                                this.exports[key] = element;
-                            }
+                    if (typeof result === "object" || typeof result === "function") {
+                        this.exports = result;
+                        if (typeof result.default === "undefined") {
+                            result.default = result;
                         }
                     } else if (!this.exports.default) {
                         this.exports.default = result;
@@ -195,15 +136,19 @@ class Module {
                 delete this.factory;
 
                 const def = this.exports.default;
-                if (def && typeof def === "object") {
+                if (typeof def === "function" || typeof def === "object") {
                     def[UMD.nameSymbol] = this.name;
                 }
             } catch (e) {
                 const em = e.stack ? (`${e}\n${e.stack}`) : e;
                 const s = [];
+                // tslint:disable-next-line: no-console
+                console.error(e);
                 // modules in the stack...
                 for (const iterator of AmdLoader.instance.currentStack) {
                     s.push(iterator.name);
+                    // tslint:disable-next-line: no-console
+                    console.error(iterator.name);
                 }
 
                 const ne = new Error(`Failed loading module ${this.name
@@ -217,16 +162,17 @@ class Module {
         return this.exports;
     }
 
-    /**
-     * Displays list of all dependents (including nested)
-     */
-    private isDependentOn(m: Module, visited: any): boolean {
-        visited[this.name] = true;
+    public isDependentOn(m: Module, visited?: Set<Module>): boolean {
+        // if (this.ignoreModule === m) {
+        //     return false;
+        // }
+        visited ??= new Set<Module>();
+        visited.add(this);
         for (const iterator of this.dependencies) {
-            if (iterator.name === m.name) {
+            if (iterator === m) {
                 return true;
             }
-            if (visited[iterator.name]) {
+            if (visited.has(iterator)) {
                 continue;
             }
             if (iterator.isDependentOn(m, visited)) {

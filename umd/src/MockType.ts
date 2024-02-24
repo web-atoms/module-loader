@@ -1,7 +1,10 @@
 class MockType {
 
-    public loaded: boolean = false;
+    // public get loaded() {
+    //     return this.replacedModule.ignoreModule;
+    // }
     public replaced: any;
+    public replacedModule: Module;
 
     constructor(
         public readonly module: Module,

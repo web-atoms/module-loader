@@ -1,4 +1,3 @@
-declare var module: any, exports: any, amd: any, global: any;
 declare namespace Reflect {
     function decorate(decorators: ClassDecorator[], target: Function): Function;
     function decorate(decorators: (PropertyDecorator | MethodDecorator)[], target: any, propertyKey: string | symbol, attributes?: PropertyDescriptor | null): PropertyDescriptor | undefined;
@@ -45,9 +44,9 @@ declare class Module {
     emptyExports: any;
     dependencyHooks: [(...a: any) => void, () => void];
     resolveHooks: [(...a: any) => void, () => void];
-    url: string;
+    dynamicImports: MockType[];
+    get url(): string;
     exports: any;
-    ignoreModule: Module;
     isLoaded: boolean;
     isResolved: boolean;
     require: IRequireFunction;
@@ -56,15 +55,15 @@ declare class Module {
     exportVar: string;
     factory: (r: any, e: any) => void;
     loader: Promise<any>;
+    postExports: () => void;
     get filename(): string;
-    get dependents(): any[];
+    importPromise: Promise<any>;
     resolver: Promise<any>;
     private rID;
     constructor(name: string, folder?: string);
-    resolve(id?: number): boolean;
     addDependency(d: Module): void;
     getExports(): any;
-    private isDependentOn;
+    isDependentOn(m: Module, visited?: Set<string>): boolean;
 }
 declare var require: any;
 declare var md: any;
@@ -73,9 +72,7 @@ declare class AmdLoader {
     static isMedia: RegExp;
     static isJson: RegExp;
     static globalVar: any;
-    static moduleProgress: (name: string, modules: {
-        [key: string]: Module;
-    }, status: "done" | "loading") => void;
+    static moduleProgress: (name: string, modules: Map<string, Module>, status: "done" | "loading") => void;
     static moduleLoader: (packageName: string, url: string, success: () => void, failed: (error: any) => void) => void;
     static httpTextLoader: (url: string, resolve: (r: any) => void, failed: (error: any) => void) => void;
     static instance: AmdLoader;
@@ -84,25 +81,17 @@ declare class AmdLoader {
     defaultUrl: string;
     currentStack: Module[];
     nodeModules: Module[];
-    modules: {
-        [key: string]: Module;
-    };
-    pathMap: {
-        [key: string]: IPackage;
-    };
+    modules: Map<string, Module>;
+    pathMap: Map<string, IPackage>;
     enableMock: boolean;
     define: any;
     private mockTypes;
-    private lastTimeout;
-    private tail;
-    private dirty;
     register(packages: string[], modules: string[]): void;
     setupRoot(root: string, url: string): void;
     registerModule(name: string, moduleExports: {
         [key: string]: any;
     }): void;
     setup(name: string): void;
-    loadDependencies(m: Module): void;
     replace(type: any, name: string, mock: boolean): void;
     resolveType(type: any): any;
     map(packageName: string, packageUrl: string, type?: ("amd" | "global"), exportVar?: string): IPackage;
@@ -115,18 +104,13 @@ declare class AmdLoader {
     });
     get(name1: string): Module;
     import(name: string | Module): Promise<any>;
+    importAsync(module: Module): Promise<any>;
+    resolve(module: Module): Promise<any>;
     load(module: Module): Promise<any>;
-    resolveModule(module: Module): Promise<any>;
-    remove(m: Module): void;
-    queueResolveModules(n?: number): void;
-    watch(): void;
-    private resolvePendingModules;
-    private push;
-    private _resolveModule;
 }
 declare var global: any;
 declare const a: AmdLoader;
-declare type IAnyFunction = (...a: any[]) => any;
+type IAnyFunction = (...a: any[]) => any;
 interface IDefine {
     (requiresOrFactory: string[] | IAnyFunction, factory?: IAnyFunction): any;
     amd?: object;
@@ -139,9 +123,26 @@ declare class MockType {
     mock: boolean;
     moduleName?: string;
     readonly exportName?: string;
-    loaded: boolean;
     replaced: any;
+    replacedModule: Module;
     constructor(module: Module, type: any, name: string, mock: boolean, moduleName?: string, exportName?: string);
+}
+interface IContext {
+    import(name: string): Promise<any>;
+}
+type IImportDef = (e: any) => void;
+type IExportDef = (name: any, value: any) => void;
+type ISetup = () => void | Promise<void>;
+type IModuleSetup = (exports: IExportDef, context: IContext) => IModule;
+interface IModule {
+    setters: IImportDef[];
+    execute: ISetup;
+}
+declare const merge: (target: any, source: any) => void;
+declare class System {
+    static import(name: any): Promise<any>;
+    static register(imports: string[], setup: IModuleSetup): any;
+    static register(name: string, imports: string[], setup: IModuleSetup): any;
 }
 declare class UMDClass {
     viewPrefix: string;

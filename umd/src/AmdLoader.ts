@@ -1,3 +1,4 @@
+/// <reference path="./TSLib.ts"/>
 /// <reference path="./ReflectMetadata.ts"/>
 /// <reference path="./ArrayHelper.ts"/>
 /// <reference path="./Module.ts"/>
@@ -27,7 +28,7 @@ class AmdLoader {
 
     public static globalVar: any = {};
 
-    public static moduleProgress: (name: string, modules: {[key: string]: Module}, status: "done" | "loading") => void;
+    public static moduleProgress: (name: string, modules: Map<string, Module>, status: "done" | "loading") => void;
 
     public static moduleLoader:
         (packageName: string, url: string, success: () => void, failed: (error: any) => void) => void;
@@ -52,9 +53,9 @@ class AmdLoader {
     // only useful in node environment
     public nodeModules: Module[] = [];
 
-    public modules: { [key: string]: Module } = {};
+    public modules: Map<string, Module> = new Map();
 
-    public pathMap: { [key: string]: IPackage } = {};
+    public pathMap: Map<string, IPackage> = new Map();
 
     public enableMock: boolean;
 
@@ -62,17 +63,11 @@ class AmdLoader {
 
     private mockTypes: MockType[] = [];
 
-    private lastTimeout: any = null;
-
-    private tail: Module;
-
-    private dirty: boolean = false;
-
     public register(
         packages: string[],
         modules: string[]): void {
         for (const iterator of packages) {
-            if (!this.pathMap[iterator]) {
+            if (!this.pathMap.has(iterator)) {
                 this.map(iterator, "/");
             }
         }
@@ -83,13 +78,11 @@ class AmdLoader {
 
     public setupRoot(root: string, url: string): void {
         if (url.endsWith("/")) {
-            url = url.substr(0, url.length - 1);
+            url = url.substring(0, url.length - 1);
         }
-        for (const key in this.pathMap) {
-            if (this.pathMap.hasOwnProperty(key)) {
-                const moduleUrl: string = key === root ? url : `${url}/node_modules/${key}`;
-                this.map(key, moduleUrl);
-            }
+        for (const key of this.pathMap.keys()) {
+            const moduleUrl: string = key === root ? url : `${url}/node_modules/${key}`;
+            this.map(key, moduleUrl);
         }
         this.defaultUrl = `${url}/node_modules/`;
     }
@@ -98,8 +91,8 @@ class AmdLoader {
         const m: Module = this.get(name);
         m.package.url = "/";
         m.exports = { __esModule: true, ... moduleExports };
-        m.loader = Promise.resolve();
-        m.resolver = Promise.resolve(m.exports);
+        m.loader = promiseDone;
+        m.resolver = () => Promise.resolve(m.exports);
         m.isLoaded = true;
         m.isResolved = true;
     }
@@ -108,7 +101,7 @@ class AmdLoader {
         const jsModule: Module = this.get(name);
         // tslint:disable-next-line:ban-types
         const define: Function = this.define;
-        jsModule.loader = Promise.resolve();
+        jsModule.loader = promiseDone;
         AmdLoader.current = jsModule;
         if (define) {
             define();
@@ -116,35 +109,11 @@ class AmdLoader {
         if (jsModule.exportVar) {
             jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
         }
-
-        this.push(jsModule);
-
         jsModule.isLoaded = true;
-        setTimeout(() => {
-            this.loadDependencies(jsModule);
-        }, 1);
-    }
-
-    public loadDependencies(m: Module): void {
-        this.resolveModule(m).catch((e) => {
-            // tslint:disable-next-line:no-console
-            console.error(e);
-        });
-        if (m.dependencies.length) {
-            const all = m.dependencies.map((m1) => {
-                if (m1.isResolved) { return promiseDone; }
-                return this.import(m1);
-            });
-            Promise.all(all).catch((e) => {
-                // tslint:disable-next-line:no-console
-                console.error(e);
-            }).then(() => {
-                m.resolve();
-            });
-        } else {
-            m.resolve();
-        }
-        this.queueResolveModules(1);
+        // this is not possible as
+        // dynamically injected module may be pending to be injected
+        // jsModule.getExports();
+        // jsModule.isResolved = true;
     }
 
     public replace(type: any, name: string, mock: boolean): void {
@@ -152,7 +121,13 @@ class AmdLoader {
             return;
         }
         const peek: Module = this.currentStack.length ? this.currentStack[this.currentStack.length - 1] : undefined;
+        name = this.resolveRelativePath(name, peek.name);
         const rt: MockType = new MockType(peek, type, name, mock);
+        rt.replacedModule = this.get(rt.moduleName);
+        rt.replacedModule.postExports = () => {
+            rt.replaced = rt.replacedModule.getExports()[rt.exportName];
+        };
+        (peek.dynamicImports = peek.dynamicImports || []).push(rt);
         this.mockTypes.push(rt);
     }
 
@@ -169,7 +144,7 @@ class AmdLoader {
     ): IPackage {
 
         // ignore map if it exists already...
-        let existing: IPackage = this.pathMap[packageName];
+        let existing: IPackage = this.pathMap.get(packageName);
         if (existing) {
             existing.url = packageUrl;
             existing.exportVar = exportVar;
@@ -188,7 +163,7 @@ class AmdLoader {
             type = "global";
         }
 
-        this.pathMap[packageName] = existing;
+        this.pathMap.set(packageName, existing);
         return existing;
     }
 
@@ -199,33 +174,31 @@ class AmdLoader {
                 return name;
             }
             let path: string = null;
-            for (const key in this.pathMap) {
-                if (this.pathMap.hasOwnProperty(key)) {
-                    const packageName: string = key;
-                    if (name.startsWith(packageName)) {
-                        path = this.pathMap[key].url;
-                        if (name.length !== packageName.length) {
-                            if (name[packageName.length] !== "/") {
-                                continue;
-                            }
-                            name = name.substring(packageName.length + 1);
-                        } else {
-                            return path;
+            for (const key of this.pathMap.keys()) {
+                const packageName: string = key;
+                if (name.startsWith(packageName)) {
+                    path = this.pathMap.get(key).url;
+                    if (name.length !== packageName.length) {
+                        if (name[packageName.length] !== "/") {
+                            continue;
                         }
-                        if (path.endsWith("/")) {
-                            path = path.substring(0, path.length - 1);
-                        }
-                        path = path + "/" + name;
-                        const i = name.lastIndexOf("/");
-                        const fileName = name.substring(i + 1);
-                        if (!/\.(js|jpg|jpeg|gif|png|mp4|mp3|css|html|svg|webp|webm)$/i.test(fileName)) {
-                            path = path + defExt;
-                        }
-                        // if (defExt && !path.endsWith(defExt)) {
-                        //     path = path + defExt;
-                        // }
+                        name = name.substring(packageName.length + 1);
+                    } else {
                         return path;
                     }
+                    if (path.endsWith("/")) {
+                        path = path.substring(0, path.length - 1);
+                    }
+                    path = path + "/" + name;
+                    const i = name.lastIndexOf("/");
+                    const fileName = name.substring(i + 1);
+                    if (!/\.(js|jpg|jpeg|gif|png|mp4|mp3|css|html|svg|webp|webm)$/i.test(fileName)) {
+                        path = path + defExt;
+                    }
+                    // if (defExt && !path.endsWith(defExt)) {
+                    //     path = path + defExt;
+                    // }
+                    return path;
                 }
             }
             return name;
@@ -291,64 +264,137 @@ class AmdLoader {
 
     public get(name1: string): Module {
 
-        let module: Module = this.modules[name1];
+        let module: Module = this.modules.get(name1);
         if (!module) {
 
             // strip '@' version info
             const { packageName, version, name } = this.getPackageVersion(name1);
             module = new Module(name);
 
-            this.modules[name1] = module;
+            this.modules.set(name1, module);
 
-            module.package = this.pathMap[packageName] ||
-                (this.pathMap[packageName] = {
-                        type: "amd",
-                        name: packageName,
-                        version,
-                        url: this.defaultUrl ?
-                            (this.defaultUrl + packageName) : undefined
-                    });
-
-            module.url = this.resolveSource(name);
-            if (!module.url) {
-                if (typeof require === "undefined") {
-                    throw new Error(`No url mapped for ${name}`);
-                }
+            let pp = this.pathMap.get(packageName);
+            if (!pp) {
+                pp = {
+                    type: "amd",
+                    name: packageName,
+                    version,
+                    url: this.defaultUrl ?
+                        (this.defaultUrl + packageName) : undefined
+                };
+                this.pathMap.set(packageName, pp);
             }
-            module.require = (n: string) => {
+
+            module.package = pp;
+
+            // module.url = this.resolveSource(name);
+            // if (!module.url) {
+            //     if (typeof require === "undefined") {
+            //         throw new Error(`No url mapped for ${name}`);
+            //     }
+            // }
+            module.require = (n: string | string[], resolve, reject) => {
+                let isAsync = false;
+                if (typeof n !== "string") {
+                    n = n[0];
+                    isAsync = true;
+                }
+
                 const an: string = this.resolveRelativePath(n, module.name);
                 const resolvedModule: Module = this.get(an);
+                if (isAsync) {
+                    return this.import(resolvedModule).then(resolve, reject);
+                }
                 const m = resolvedModule.getExports();
                 return m;
             };
             module.require.resolve = (n: string) => this.resolveRelativePath(n, module.name);
-            this.modules[name] = module;
+            this.modules.set(name, module);
         }
         return module;
     }
 
-    public async import(name: string | Module): Promise<any> {
-        if (typeof require !== "undefined") {
-            return Promise.resolve(require(name));
-        }
+    public import(name: string | Module): Promise<any> {
         const module: Module = typeof name === "object" ? name as Module : this.get(name);
-
+        if (module.importPromise) {
+            return module.importPromise;
+        }
+        const m = this.importNodeModule(module);
+        if (m) {
+            return m;
+        }
         if (module.isResolved) {
-            return module.getExports();
+            module.importPromise = Promise.resolve(module.getExports());
+            return module.importPromise;
+        }
+        module.importPromise = this.importAsync(module);
+        return module.importPromise;
+    }
+
+    public importNodeModule(module: Module) {
+        if (typeof require !== "undefined") {
+            const name = module.url;
+            // we are inside node ..
+            // we need to check if the module is System or UMD
+            // UMD can be loaded directly, but System needs to be loaded
+            // via http loader...
+            const moduleCode = require("fs").readFileSync(require.resolve(name), "utf8").trim();
+            if (!/^System\.Register/.test(moduleCode)) {
+                return Promise.resolve(require(name));
+            }
+        }
+    }
+
+    public async importAsync(module: Module): Promise<any> {
+        await this.load(module);
+        if (module.resolver) {
+            return await module.resolver();
+        }
+        return await this.resolve(module);
+    }
+
+    public async resolve(module: Module): Promise<any> {
+        const ds = [];
+        if (UMD.debug) {
+            const waiting = (module as any).waiting = [];
+            for (const iterator of module.dependencies) {
+                if (iterator.isResolved
+                    // || iterator.ignoreModule === module
+                    // || iterator === module.ignoreModule
+                    || (iterator.importPromise && iterator.isDependentOn(module))) {
+                    continue;
+                }
+                waiting.push(iterator);
+                ds.push(this.import(iterator));
+            }
+        } else {
+            for (const iterator of module.dependencies) {
+                if (iterator.isResolved
+                    // || iterator.ignoreModule === module
+                    // || iterator === module.ignoreModule
+                    || (iterator.importPromise && iterator.isDependentOn(module))) {
+                    continue;
+                }
+                ds.push(this.import(iterator));
+            }
+        }
+        await Promise.all(ds);
+        const exports = module.getExports();
+        module.isResolved = true;
+        if (module.postExports) {
+            module.postExports();
         }
 
-        // if (typeof globalImport !== "undefined") {
-        //     module.exports = await globalImport(module.url);
-        //     const def = module.exports.default;
-        //     if (def && typeof def === "object") {
-        //         def[UMD.nameSymbol] = module.name;
-        //     }
-        //     return module.exports;
-        // }
+        if (module.dynamicImports) {
+            for (const iterator of module.dynamicImports) {
+                if (iterator.replacedModule.importPromise) {
+                    continue;
+                }
+                await this.import(iterator.replacedModule);
+            }
+        }
 
-        await this.load(module);
-        const e = await this.resolveModule(module);
-        return e;
+        return exports;
     }
 
     public load(module: Module): Promise<any> {
@@ -356,10 +402,8 @@ class AmdLoader {
         if (module.loader) {
             return module.loader;
         }
-        this.push(module);
-
         if (AmdLoader.isJson.test(module.url)) {
-            const mUrl = module.package.url + module.url;
+            const mUrl = module.url.startsWith(module.package.url) ? module.url : module.package.url + module.url;
             module.loader = new Promise<void>((resolve, reject) => {
                 try {
                     AmdLoader.httpTextLoader(mUrl, (r) => {
@@ -367,7 +411,6 @@ class AmdLoader {
                             module.exports = JSON.parse(r);
                             module.emptyExports = module.exports;
                             module.isLoaded = true;
-                            setTimeout(() => this.loadDependencies(module), 1);
                             resolve();
                         } catch (e) {
                             reject(e);
@@ -377,20 +420,29 @@ class AmdLoader {
                     reject(e1);
                 }
             });
+            return module.loader;
         }
 
         if (AmdLoader.isMedia.test(module.url)) {
-            const mUrl = !module.url.startsWith(module.package.url)
-                ? (module.package.url + module.url)
-                : module.url;
+            // in case of packed loader
+            // module.package.url isn't set
+            // so it should be loaded only first time when requested...
             const m = {
-                url: mUrl,
-                toString: () => mUrl
+                get url() {
+                    const mUrl = !module.url.startsWith(module.package.url)
+                    ? (module.package.url + module.url)
+                    : module.url;
+                    Object.defineProperty(m, "url", { value: mUrl, enumerable: true });
+                    return mUrl;
+                },
+                toString() {
+                    return this.url;
+                }
             };
             const e = { __esModule: true, default: m };
             module.exports = e;
             module.emptyExports = e;
-            module.loader = Promise.resolve();
+            module.loader = promiseDone;
             module.isLoaded = true;
             return module.loader;
         }
@@ -414,12 +466,7 @@ class AmdLoader {
                     }
 
                     module.isLoaded = true;
-
-                    setTimeout(() => {
-                        this.loadDependencies(module);
-                    }, 1);
                     resolve();
-
                 } catch (e) {
                     // tslint:disable-next-line: no-console
                     console.error(e);
@@ -434,157 +481,6 @@ class AmdLoader {
 
         return module.loader;
     }
-
-    public resolveModule(module: Module): Promise<any> {
-        if (module.resolver) {
-            return module.resolver;
-        }
-        module.resolver = this._resolveModule(module);
-        return module.resolver;
-    }
-
-    public remove(m: Module): void {
-        if (this.tail === m) {
-            this.tail = m.previous;
-        }
-        if (m.next) {
-            m.next.previous = m.previous;
-        }
-        if (m.previous) {
-            m.previous.next = m.next;
-        }
-        m.next = null;
-        m.previous = null;
-        this.dirty = true;
-        this.queueResolveModules();
-    }
-
-    public queueResolveModules(n: number = 1): void {
-        if (this.lastTimeout) {
-            // clearTimeout(this.lastTimeout);
-            // this.lastTimeout = null;
-            return;
-        }
-        this.lastTimeout = setTimeout(() => {
-            this.lastTimeout = 0;
-            this.resolvePendingModules();
-        }, n);
-    }
-
-    public watch() {
-        const id = setInterval(() => {
-            if (this.tail) {
-                const list = [];
-                for (const key in this.modules) {
-                    if (this.modules.hasOwnProperty(key)) {
-                        const element = this.modules[key];
-                        if (!element.isResolved) {
-                            list.push({
-                                name: element.name,
-                                dependencies: element.dependencies.map((x) => x.name)
-                            });
-                        }
-                    }
-                }
-                // tslint:disable-next-line: no-console
-                console.log("Pending modules");
-                // tslint:disable-next-line: no-console
-                console.log(JSON.stringify(list));
-                return;
-            }
-            clearInterval(id);
-        }, 10000);
-    }
-
-    private resolvePendingModules(): void {
-
-        if (!this.tail) {
-            return;
-        }
-
-        this.dirty = false;
-
-        // first resolve modules without any
-        // dependencies
-        const pending: Module[] = [];
-        let m = this.tail;
-        while (m) {
-            if (!m.dependencies.length) {
-                m.resolve();
-            } else {
-                pending.push(m);
-            }
-            m = m.previous;
-        }
-        if (this.dirty) {
-            this.dirty = false;
-            return;
-        }
-        for (const iterator of pending) {
-            iterator.resolve();
-        }
-        if (this.dirty) {
-            this.dirty = false;
-            return;
-        }
-        if (this.tail) {
-            this.queueResolveModules();
-        }
-    }
-
-    private push(m: Module): void {
-        if (this.tail) {
-            m.previous = this.tail;
-            this.tail.next = m;
-        }
-        this.tail = m;
-    }
-
-    private async _resolveModule(module: Module): Promise<any> {
-
-        if (!this.root) {
-            this.root = module;
-        }
-
-        await new Promise((resolve, reject) => {
-            module.dependencyHooks = [resolve, reject];
-        });
-
-        // tslint:disable-next-line:typedef
-        const exports = module.getExports();
-
-        // load requested dependencies for mock or abstract injects
-        const pendingList: MockType[] = this.mockTypes.filter((t) => !t.loaded );
-        if (pendingList.length) {
-            for (const iterator of pendingList) {
-                iterator.loaded = true;
-            }
-            const tasks = pendingList.map(async (iterator) => {
-                const containerModule: Module = iterator.module;
-                const resolvedName: string = this.resolveRelativePath(iterator.moduleName, containerModule.name);
-                const im: Module = this.get(resolvedName);
-                im.ignoreModule = module;
-                const ex: any = await this.import(im);
-                const type: any = ex[iterator.exportName];
-                iterator.replaced = type;
-            });
-            await Promise.all(tasks);
-        }
-
-        const setHooks: Promise<void> = new Promise((resolve, reject) => {
-            module.resolveHooks = [resolve, reject];
-        });
-        await setHooks;
-
-        if (this.root === module) {
-            this.root = null;
-            AmdLoader.moduleProgress(null, this.modules, "done");
-        }
-        module.isResolved = true;
-
-        return exports;
-    }
-
 }
 
 declare var global: any;
@@ -630,7 +526,9 @@ AmdLoader.httpTextLoader = (url, success, error) => {
     xhr.send();
 };
 
-AmdLoader.moduleProgress = (() => {
+var amdConfig;
+amdConfig ??= {};
+amdConfig.moduleProgress ??= (() => {
 
     if (!document) {
         return (name, p) => {
@@ -639,61 +537,8 @@ AmdLoader.moduleProgress = (() => {
         };
     }
 
-    const progressDiv: HTMLDivElement = document.createElement("div");
-    progressDiv.className = "web-atoms-progress-div";
-    const style: CSSStyleDeclaration = progressDiv.style;
-
-    style.position = "absolute";
-    style.margin = "auto";
-    style.width = "200px";
-    style.height = "100px";
-    style.top = style.right = style.left = style.bottom = "5px";
-
-    style.borderStyle = "solid";
-    style.borderWidth = "1px";
-    style.borderColor = "#A0A0A0";
-    style.borderRadius = "5px";
-    style.padding = "5px";
-    style.textAlign = "left";
-    style.verticalAlign = "bottom";
-
-    const progressLabel: HTMLPreElement = document.createElement("pre");
-    progressDiv.appendChild(progressLabel);
-    progressLabel.style.color = "#A0A0A0";
-
-    const ps: CSSStyleDeclaration = progressLabel.style;
-    ps.position = "absolute";
-    ps.left = "5px";
-    ps.bottom = "0";
-
-    function ready(): void {
-        document.body.appendChild(progressDiv);
-    }
-
-    function completed(): void {
-        document.removeEventListener( "DOMContentLoaded", completed );
-        window.removeEventListener( "load", completed );
-        ready();
-    }
-
-    if ( document.readyState === "complete" ||
-        // tslint:disable-next-line:no-string-literal
-        ( document.readyState !== "loading" && !document.documentElement["doScroll"] ) ) {
-
-        window.setTimeout( ready );
-    } else {
-        document.addEventListener( "DOMContentLoaded", completed );
-        window.addEventListener( "load", completed );
-    }
-
     return (name, n, status) => {
-        if (status === "done") {
-            progressDiv.style.display = "none";
-            return;
-        } else {
-            progressDiv.style.display = "block";
-        }
-        name = name.split("/").pop();
-        progressLabel.textContent = name;
     };
 })();
+
+AmdLoader.moduleProgress = amdConfig.moduleProgress;

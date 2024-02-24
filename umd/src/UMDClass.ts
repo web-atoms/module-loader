@@ -1,8 +1,11 @@
 /// <reference path="./AmdLoader.ts"/>
+/// <reference path="./TSLib.ts"/>
 
 // declare var Symbol: any;
 
 class UMDClass {
+
+    public debug = false;
 
     public viewPrefix = "web";
 
@@ -132,9 +135,10 @@ class UMDClass {
 }
 
 const UMD: UMDClass = new UMDClass();
-
 ((u) => {
     const globalNS = (typeof window !== "undefined" ? window : global);
     globalNS.UMD = u;
     globalNS.AmdLoader = AmdLoader;
+    globalNS.System = System;
+    AmdLoader.instance.registerModule("tslib", setupTSLib());
 })(UMD);

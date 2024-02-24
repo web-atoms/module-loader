@@ -5,6 +5,7 @@
         "chakra",
         "deferreds",
         "definately",
+        "nocheck",
         "postversion"
     ]
 }

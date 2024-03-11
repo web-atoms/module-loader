@@ -3,6 +3,8 @@
 
 // declare var Symbol: any;
 
+const globalNS = (typeof window !== "undefined" ? window : global);
+
 class UMDClass {
 
     public debug = false;
@@ -85,7 +87,7 @@ class UMDClass {
             this.mock = designMode;
             AmdLoader.instance.get(path);
             const m: any = await this.load(this.defaultApp, designMode);
-            const app: any = new (m.default)();
+            const app: any = (globalNS.webApp ??= new (m.default)());
             app.onReady(async () => {
                 try {
                     const viewClass: any = await AmdLoader.instance.import(path);
@@ -98,7 +100,7 @@ class UMDClass {
                     console.error(e);
                 }
             });
-            } catch (e) {
+        } catch (e) {
             // tslint:disable-next-line:no-console
             console.error(e);
         }
@@ -136,7 +138,6 @@ class UMDClass {
 
 const UMD: UMDClass = new UMDClass();
 ((u) => {
-    const globalNS = (typeof window !== "undefined" ? window : global);
     globalNS.UMD = u;
     globalNS.AmdLoader = AmdLoader;
     globalNS.System = System;

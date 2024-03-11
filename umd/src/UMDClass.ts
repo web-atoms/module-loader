@@ -82,7 +82,7 @@ class UMDClass {
      * @param path path of module
      * @param designMode true/false (default false)
      */
-    public async hostView(id: string, path: string, designMode?: boolean): Promise<any> {
+    public async hostView(id: string | HTMLElement, path: string, designMode?: boolean): Promise<any> {
         try {
             this.mock = designMode;
             AmdLoader.instance.get(path);
@@ -93,7 +93,7 @@ class UMDClass {
                     const viewClass: any = await AmdLoader.instance.import(path);
                     const view: any = new (viewClass.default)(app);
                     // app.root = view;
-                    const element: HTMLElement = document.getElementById(id);
+                    const element: HTMLElement = typeof id === "string" ? document.getElementById(id) : id;
                     element.appendChild(view.element);
                 } catch (e) {
                     // tslint:disable-next-line:no-console

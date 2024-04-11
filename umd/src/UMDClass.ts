@@ -112,7 +112,7 @@ class UMDClass {
             appPath = appPath || this.defaultApp;
             AmdLoader.instance.get(path);
             const m: any = await this.load(appPath, designMode);
-            const app: any = new (m.default)();
+            const app: any = (globalNS.webApp ??= new (m.default)());
             return await new Promise((resolve, reject) => {
                 app.onReady(async () => {
                     try {

@@ -88,18 +88,13 @@ class UMDClass {
             AmdLoader.instance.get(path);
             const m: any = await this.load(this.defaultApp, designMode);
             const app: any = (globalNS.webApp ??= new (m.default)());
-            app.onReady(async () => {
-                try {
-                    const viewClass: any = await AmdLoader.instance.import(path);
-                    const view: any = new (viewClass.default)(app);
-                    // app.root = view;
-                    const element: HTMLElement = typeof id === "string" ? document.getElementById(id) : id;
-                    element.appendChild(view.element);
-                } catch (e) {
-                    // tslint:disable-next-line:no-console
-                    console.error(e);
-                }
-            });
+            await app.initPromise;
+            const viewClass: any = await AmdLoader.instance.import(path);
+            const view: any = new (viewClass.default)(app);
+            // app.root = view;
+            const element: HTMLElement = typeof id === "string" ? document.getElementById(id) : id;
+            element.appendChild(view.element);
+            return view;
         } catch (e) {
             // tslint:disable-next-line:no-console
             console.error(e);
@@ -113,20 +108,11 @@ class UMDClass {
             AmdLoader.instance.get(path);
             const m: any = await this.load(appPath, designMode);
             const app: any = (globalNS.webApp ??= new (m.default)());
-            return await new Promise((resolve, reject) => {
-                app.onReady(async () => {
-                    try {
-                        const viewClass: any = await AmdLoader.instance.import(path);
-                        const view: any = new (viewClass.default)(app);
-                        app.root = view;
-                        resolve(view);
-                    } catch (e) {
-                        // tslint:disable-next-line:no-console
-                        console.error(e);
-                        reject(e);
-                    }
-                });
-            });
+            await app.initPromise;
+            const viewClass: any = await AmdLoader.instance.import(path);
+            const view: any = new (viewClass.default)(app);
+            app.root = view;
+            return view;
         } catch (er) {
             // tslint:disable-next-line: no-console
             console.error(er);

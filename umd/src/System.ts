@@ -39,56 +39,6 @@ class System {
         return AmdLoader.instance.import(name);
     }
 
-    public static registerModule(
-        name: string,
-        imports: string[],
-        setup: IModuleSetup
-    ) {
-        const instance = AmdLoader.instance;
-        const module = instance.get(name);
-        if (module.isLoaded) {
-            return;
-        }
-        module.dependencies.push(... imports.map((x) => instance.get(module.require.resolve(x))));
-        module.isLoaded = true;
-
-        const postResolve = new Promise<void>((resolve, reject) => {
-            module.factory = () => {
-                const r = setup((key, value) => {
-                            if (typeof key === "object") {
-                                merge(module.exports, key);
-                                return module.exports;
-                            }
-                            module.exports[key] = value;
-                            return value;
-                        }, module);
-
-                var list = module.dependencies;
-
-                const { setters } = r;
-                for (let index = 0; index < list.length; index++) {
-                    const element = list[index];
-                    setters[index](element.getExports());
-                }
-
-                const rp = r.execute() as any;
-                if (rp?.then) {
-                    rp.then(resolve, reject);
-                } else {
-                    resolve();
-                }
-
-                return module.exports;
-            };
-        });
-
-        module.resolver = async () => {
-            await AmdLoader.instance.resolve(module);
-            await postResolve;
-            return module.exports;
-        };
-    }
-
     public static register(
         imports: string[],
         setup: IModuleSetup);
@@ -100,10 +50,66 @@ class System {
         nameOrImports: string | string[],
         importsOrSetup: string[] | IModuleSetup,
         setup?: IModuleSetup) {
+
+            const instance = AmdLoader.instance;
+            instance.define = () => {
+
+            const name = typeof nameOrImports === "string"
+                ? nameOrImports
+                : AmdLoader.current.name;
+
             let imports = importsOrSetup as string[];
             if (arguments.length === 2) {
-                return this.registerModule(AmdLoader.current.name, imports, importsOrSetup as IModuleSetup);
+                imports = nameOrImports as string[];
+                setup = importsOrSetup as IModuleSetup;
             }
-        return this.registerModule(nameOrImports as string, imports, setup);
+
+            const module = instance.get(name);
+            if (module.isLoaded) {
+                return;
+            }
+            module.dependencies.push(... imports.map((x) => instance.get(module.require.resolve(x))));
+            module.isLoaded = true;
+
+            const postResolve = new Promise<void>((resolve, reject) => {
+                module.factory = () => {
+                    const r = setup((key, value) => {
+                                if (typeof key === "object") {
+                                    merge(module.exports, key);
+                                    return module.exports;
+                                }
+                                module.exports[key] = value;
+                                return value;
+                            }, module);
+
+                    var list = module.dependencies;
+
+                    const { setters } = r;
+                    for (let index = 0; index < list.length; index++) {
+                        const element = list[index];
+                        setters[index](element.getExports());
+                    }
+
+                    const rp = r.execute() as any;
+                    if (rp?.then) {
+                        rp.then(resolve, reject);
+                        // rp.catch((error) => {
+                        //     console.error(error);
+                        // });
+                    } else {
+                        resolve();
+                    }
+
+                    return module.exports;
+                };
+            });
+
+            module.resolver = async () => {
+                await AmdLoader.instance.resolve(module);
+                await postResolve;
+                return module.exports;
+            };
+        };
+        
     }
 }

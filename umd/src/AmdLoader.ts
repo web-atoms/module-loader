@@ -192,7 +192,7 @@ class AmdLoader {
                     path = path + "/" + name;
                     const i = name.lastIndexOf("/");
                     const fileName = name.substring(i + 1);
-                    if (!/\.(js|jpg|jpeg|gif|png|mp4|mp3|css|html|svg|webp|webm)$/i.test(fileName)) {
+                    if (!/\.(js|jpg|jpeg|gif|png|mp4|mp3|css|html|svg|webp|webm|json)$/i.test(fileName)) {
                         path = path + defExt;
                     }
                     // if (defExt && !path.endsWith(defExt)) {

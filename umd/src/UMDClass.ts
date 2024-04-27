@@ -3,6 +3,8 @@
 
 // declare var Symbol: any;
 
+const globalNS = (typeof window !== "undefined" ? window : global);
+
 class UMDClass {
 
     public debug = false;
@@ -80,25 +82,20 @@ class UMDClass {
      * @param path path of module
      * @param designMode true/false (default false)
      */
-    public async hostView(id: string, path: string, designMode?: boolean): Promise<any> {
+    public async hostView(id: string | HTMLElement, path: string, designMode?: boolean): Promise<any> {
         try {
             this.mock = designMode;
             AmdLoader.instance.get(path);
             const m: any = await this.load(this.defaultApp, designMode);
-            const app: any = new (m.default)();
-            app.onReady(async () => {
-                try {
-                    const viewClass: any = await AmdLoader.instance.import(path);
-                    const view: any = new (viewClass.default)(app);
-                    // app.root = view;
-                    const element: HTMLElement = document.getElementById(id);
-                    element.appendChild(view.element);
-                } catch (e) {
-                    // tslint:disable-next-line:no-console
-                    console.error(e);
-                }
-            });
-            } catch (e) {
+            const app: any = (globalNS.webApp ??= new (m.default)());
+            await app.initPromise;
+            const viewClass: any = await AmdLoader.instance.import(path);
+            const view: any = new (viewClass.default)(app);
+            // app.root = view;
+            const element: HTMLElement = typeof id === "string" ? document.getElementById(id) : id;
+            element.appendChild(view.element);
+            return view;
+        } catch (e) {
             // tslint:disable-next-line:no-console
             console.error(e);
         }
@@ -110,21 +107,12 @@ class UMDClass {
             appPath = appPath || this.defaultApp;
             AmdLoader.instance.get(path);
             const m: any = await this.load(appPath, designMode);
-            const app: any = new (m.default)();
-            return await new Promise((resolve, reject) => {
-                app.onReady(async () => {
-                    try {
-                        const viewClass: any = await AmdLoader.instance.import(path);
-                        const view: any = new (viewClass.default)(app);
-                        app.root = view;
-                        resolve(view);
-                    } catch (e) {
-                        // tslint:disable-next-line:no-console
-                        console.error(e);
-                        reject(e);
-                    }
-                });
-            });
+            const app: any = (globalNS.webApp ??= new (m.default)());
+            await app.initPromise;
+            const viewClass: any = await AmdLoader.instance.import(path);
+            const view: any = new (viewClass.default)(app);
+            app.root = view;
+            return view;
         } catch (er) {
             // tslint:disable-next-line: no-console
             console.error(er);
@@ -136,7 +124,6 @@ class UMDClass {
 
 const UMD: UMDClass = new UMDClass();
 ((u) => {
-    const globalNS = (typeof window !== "undefined" ? window : global);
     globalNS.UMD = u;
     globalNS.AmdLoader = AmdLoader;
     globalNS.System = System;

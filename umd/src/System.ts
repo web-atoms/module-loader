@@ -65,6 +65,9 @@ class System {
             }
 
             const module = instance.get(name);
+            if (module.isLoaded) {
+                return;
+            }
             module.dependencies.push(... imports.map((x) => instance.get(module.require.resolve(x))));
             module.isLoaded = true;
 

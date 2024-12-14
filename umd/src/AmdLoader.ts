@@ -436,7 +436,10 @@ class AmdLoader {
                     : module.url;
 
                     const [ _, g1 ] = /\.([^\.]+)\.(css|less|scss)$/i.exec(mUrl) ?? [] ;
-                    const segment = g1 ?? "local-high";
+                    let segment = g1 ?? "local-high";
+                    if (/^(global|local)/.test(segment)) {
+                        segment = "global-" + segment;
+                    }
 
                     // install CSS
                     if(!/\.css$/i.test(mUrl)) {

@@ -478,9 +478,7 @@ class AmdLoader {
             };
             const e = {
                 __esModule: true,
-                get default() {
-                    return m.url
-                }
+                default: m.url
             };
             module.exports = e;
             module.emptyExports = e;

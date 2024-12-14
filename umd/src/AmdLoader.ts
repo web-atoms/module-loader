@@ -22,7 +22,9 @@ const promiseDone = Promise.resolve(0);
 
 class AmdLoader {
 
-    public static isMedia = /\.(jpg|jpeg|gif|png|mp4|mp3|css|html|svg|webp|webm)$/i;
+    public static isMedia = /\.(jpg|jpeg|gif|png|mp4|mp3|css|less|scss|html|svg|webp|webm)$/i;
+
+    public static isCss = /\.(css|less|scss)$/i;
 
     public static isJson = /\.json$/i;
 
@@ -192,7 +194,7 @@ class AmdLoader {
                     path = path + "/" + name;
                     const i = name.lastIndexOf("/");
                     const fileName = name.substring(i + 1);
-                    if (!/\.(js|mjs|jpg|jpeg|gif|png|mp4|mp3|css|html|svg|webp|webm|json)$/i.test(fileName)) {
+                    if (!/\.(js|mjs|jpg|jpeg|gif|png|mp4|mp3|css|less|scss|html|svg|webp|webm|json)$/i.test(fileName)) {
                         path = path + defExt;
                     }
                     // if (defExt && !path.endsWith(defExt)) {
@@ -420,6 +422,67 @@ class AmdLoader {
                     reject(e1);
                 }
             });
+            return module.loader;
+        }
+
+        if (AmdLoader.isCss.test(module.url)) {
+
+            // simply attach CSS to browser
+
+            const m = {
+                get url() {
+                    let mUrl = !module.url.startsWith(module.package.url)
+                    ? (module.package.url + module.url)
+                    : module.url;
+
+                    const [ _, g1 ] = /\.([^\.]+)\.(css|less|scss)$/i.exec(mUrl) ?? [] ;
+                    const segment = g1 ?? "local-high";
+
+                    // install CSS
+                    if(!/\.css$/i.test(mUrl)) {
+                        mUrl += ".css";
+                    }
+
+                    Object.defineProperty(m, "url", { value: mUrl, enumerable: true });
+
+                    const all = document.querySelectorAll(`link[rel="stylesheet"]`);
+                    let added = false;
+                    for (let index = 0; index < all.length; index++) {
+                        const element = all[index] as HTMLLinkElement;
+                        if(element.href === mUrl) {
+                            added = true;
+                            break;
+                        }
+                    }
+
+                    if(!added) {
+                        const marker = document.head.querySelector(`meta[name="${segment}"]`);
+                        const link = document.createElement("link");
+                        link.rel = "stylesheet";
+                        link.href = mUrl;
+                        if (marker) {
+                            marker.parentElement.insertBefore(link, marker);
+                        } else {
+                            document.head.appendChild(link);
+                        }
+                    }
+
+                    return mUrl;
+                },
+                toString() {
+                    return this.url;
+                }
+            };
+            const e = {
+                __esModule: true,
+                get default() {
+                    return m.url
+                }
+            };
+            module.exports = e;
+            module.emptyExports = e;
+            module.loader = promiseDone;
+            module.isLoaded = true;
             return module.loader;
         }
 

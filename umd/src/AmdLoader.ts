@@ -459,7 +459,7 @@ class AmdLoader {
                     }
 
                     if(!added) {
-                        const marker = document.head.querySelector(`meta[name="${segment}"]`);
+                        const marker = document.head.querySelector(`meta[name="${segment}-style"]`);
                         const link = document.createElement("link");
                         link.rel = "stylesheet";
                         link.href = mUrl;

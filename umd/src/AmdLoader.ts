@@ -113,6 +113,7 @@ class AmdLoader {
         // }
         jsModule.isLoaded = true;
         jsModule.packed = true;
+        AmdLoader.current = jsModule;
         // this is not possible as
         // dynamically injected module may be pending to be injected
         // jsModule.getExports();

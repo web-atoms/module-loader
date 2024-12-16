@@ -446,29 +446,7 @@ class AmdLoader {
                         mUrl += ".css";
                     }
 
-                    Object.defineProperty(m, "url", { value: mUrl, enumerable: true });
-
-                    const all = document.querySelectorAll(`link[rel="stylesheet"]`);
-                    let added = false;
-                    for (let index = 0; index < all.length; index++) {
-                        const element = all[index] as HTMLLinkElement;
-                        if(element.href === mUrl) {
-                            added = true;
-                            break;
-                        }
-                    }
-
-                    if(!added) {
-                        const marker = document.head.querySelector(`meta[name="${segment}-style"]`);
-                        const link = document.createElement("link");
-                        link.rel = "stylesheet";
-                        link.href = mUrl;
-                        if (marker) {
-                            marker.parentElement.insertBefore(link, marker);
-                        } else {
-                            document.head.appendChild(link);
-                        }
-                    }
+                    (window as any).installStyleSheet(mUrl);
 
                     return mUrl;
                 },

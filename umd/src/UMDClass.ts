@@ -120,6 +120,10 @@ class UMDClass {
         }
     }
 
+    public installStyleSheet(path: string, imports = {}) {
+        // do nothing...
+    }
+
 }
 
 const UMD: UMDClass = new UMDClass();
@@ -129,3 +133,71 @@ const UMD: UMDClass = new UMDClass();
     globalNS.System = System;
     AmdLoader.instance.registerModule("tslib", setupTSLib());
 })(UMD);
+
+if (window) {
+
+    let first = document.head.firstElementChild;
+
+    const markers = {
+
+    };
+
+    const addMarker = (name) => {
+        const m = document.createElement("meta");
+        m.name = name;
+        if (first) {
+            first.insertAdjacentElement("afterend", m);
+        } else {
+            document.head.insertAdjacentElement("afterbegin", m);
+        }
+        first = m;
+        markers[name] = m;
+        return m;
+    }
+
+    const installed = document.createElement("meta");
+    installed.setAttribute("name", "installed-styles");
+    first.insertAdjacentElement("afterend", installed);
+   
+    addMarker("global-low-style");
+    addMarker("global-style");
+    addMarker("global-high-style");
+    
+    addMarker("local-low-style");
+    addMarker("local-style");
+    addMarker("local-high-style");
+
+    const all = installed.textContent.split("\n");
+
+    (window as any).installStyleSheet = UMD.installStyleSheet = (path, { imports }: { imports? } = {}) => {
+
+        if (all.indexOf(path) !== -1) {
+            return;
+        }
+
+        all.push(path);
+
+        if (imports) {
+            for (const element of imports) {
+                all.push(element);
+            }
+        }
+
+        installed.textContent = all.join("\n");
+
+        const [ _, g1 ] = /\.((global|local)[^\.]{0,10})\.(css|less|scss)$/i.exec(path) ?? [] ;
+        let segment = g1 ?? "local-high";
+        if (!/^(global|local)/.test(segment)) {
+            segment = "local-high";
+        }
+
+        const marker = (markers[segment] ?? markers["local"]) as HTMLElement;
+
+        const link =  document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = path;
+        marker.insertAdjacentElement("beforebegin", link);
+
+
+    }; 
+}

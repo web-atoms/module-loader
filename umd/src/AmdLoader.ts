@@ -446,7 +446,9 @@ class AmdLoader {
                         mUrl += ".css";
                     }
 
-                    (window as any).installStyleSheet(mUrl);
+                    if (!module.packed) {
+                        (window as any).installStyleSheet(mUrl);
+                    }
 
                     return mUrl;
                 },

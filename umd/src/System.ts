@@ -51,20 +51,22 @@ class System {
         importsOrSetup: string[] | IModuleSetup,
         setup?: IModuleSetup) {
 
-            const instance = AmdLoader.instance;
-            instance.define = () => {
+        const instance = AmdLoader.instance;
 
-            const name = typeof nameOrImports === "string"
-                ? nameOrImports
-                : AmdLoader.current.name;
+        const name = typeof nameOrImports === "string"
+            ? nameOrImports
+            : AmdLoader.current.name;
 
-            let imports = importsOrSetup as string[];
-            if (arguments.length === 2) {
-                imports = nameOrImports as string[];
-                setup = importsOrSetup as IModuleSetup;
-            }
+        let imports = importsOrSetup as string[];
+        if (arguments.length === 2) {
+            imports = nameOrImports as string[];
+            setup = importsOrSetup as IModuleSetup;
+        }
 
-            const module = instance.get(name);
+        const module = instance.get(name);
+
+        instance.define = () => {
+
             if (module.isLoaded) {
                 return;
             }
@@ -110,6 +112,8 @@ class System {
                 return module.exports;
             };
         };
+
+        return module;
         
     }
 }

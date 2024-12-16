@@ -155,10 +155,6 @@ if (window) {
         return m;
     }
 
-    const installed = document.createElement("meta");
-    installed.setAttribute("name", "installed-styles");
-    first.insertAdjacentElement("afterend", installed);
-   
     addMarker("global-low-style");
     addMarker("global-style");
     addMarker("global-high-style");
@@ -167,23 +163,8 @@ if (window) {
     addMarker("local-style");
     addMarker("local-high-style");
 
-    const all = installed.textContent.split("\n");
 
     (window as any).installStyleSheet = UMD.installStyleSheet = (path, { imports }: { imports? } = {}) => {
-
-        if (all.indexOf(path) !== -1) {
-            return;
-        }
-
-        all.push(path);
-
-        if (imports) {
-            for (const element of imports) {
-                all.push(element);
-            }
-        }
-
-        installed.textContent = all.join("\n");
 
         const [ _, g1 ] = /\.((global|local)[^\.]{0,10})\.(css|less|scss)$/i.exec(path) ?? [] ;
         let segment = g1 ?? "local-high";
@@ -197,7 +178,5 @@ if (window) {
         link.rel = "stylesheet";
         link.href = path;
         marker.insertAdjacentElement("beforebegin", link);
-
-
     }; 
 }

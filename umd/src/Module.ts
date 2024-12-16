@@ -23,6 +23,8 @@ class Module {
 
     public emptyExports: any = {};
 
+    public packed = false;
+
     public dependencyHooks: [(...a: any) => void, () => void];
 
     public resolveHooks: [(... a: any) => void, () => void];

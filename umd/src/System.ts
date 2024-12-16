@@ -65,13 +65,16 @@ class System {
 
         const module = instance.get(name);
 
-        instance.define = () => {
-
+        module.loader = new Promise((resolve, reject) => {
             if (module.isLoaded) {
                 return;
             }
             module.dependencies.push(... imports.map((x) => instance.get(module.require.resolve(x))));
             module.isLoaded = true;
+
+            if (module.exportVar) {
+                module.exports = AmdLoader.globalVar[module.exportVar];
+            }
 
             const postResolve = new Promise<void>((resolve, reject) => {
                 module.factory = () => {
@@ -111,7 +114,8 @@ class System {
                 await postResolve;
                 return module.exports;
             };
-        };
+            resolve(module);
+        });
 
         return module;
         

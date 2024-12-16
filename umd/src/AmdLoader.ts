@@ -102,16 +102,17 @@ class AmdLoader {
     public setup(name: string): void {
         const jsModule: Module = this.get(name);
         // tslint:disable-next-line:ban-types
-        const define: Function = this.define;
-        jsModule.loader = promiseDone;
-        AmdLoader.current = jsModule;
-        if (define) {
-            define();
-        }
-        if (jsModule.exportVar) {
-            jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
-        }
+        // const define: Function = this.define;
+        // jsModule.loader = promiseDone;
+        // AmdLoader.current = jsModule;
+        // if (define) {
+        //     define();
+        // }
+        // if (jsModule.exportVar) {
+        //     jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
+        // }
         jsModule.isLoaded = true;
+        jsModule.packed = true;
         // this is not possible as
         // dynamically injected module may be pending to be injected
         // jsModule.getExports();

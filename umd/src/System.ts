@@ -169,7 +169,10 @@ class System {
 
                 const set = setters[index++];
 
-                const setP = this.import(iterator).then(set);
+                const setP = this.import(iterator).then((x) => {
+                    set(x);
+                    return x;
+                });
 
                 if (iterator.isDependentOn(module)) {
                     isCircularDependency = true;

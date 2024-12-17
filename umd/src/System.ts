@@ -101,9 +101,11 @@ class System {
             module.exports = AmdLoader.globalVar[module.exportVar];
         }
 
+        module.setup = setup;
+
         const postResolve = new Promise<void>((resolve, reject) => {
             module.factory = () => {
-                const r = setup((key, value) => {
+                const r = module.setup((key, value) => {
                             if (typeof key === "object") {
                                 merge(module.exports, key);
                                 return module.exports;

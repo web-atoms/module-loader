@@ -79,6 +79,8 @@ class Module {
      */
     public resolver: () => Promise<any>;
 
+    public setup: IModuleSetup;
+
     private rID: number = null;
 
     constructor(

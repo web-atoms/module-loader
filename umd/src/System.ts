@@ -171,12 +171,13 @@ class System {
 
                 const set = setters[index++];
 
+                iterator.linkExports(set);
+
                 if (iterator.isResolved) {
                     set(iterator.getExports());
                     continue;
                 }
 
-                iterator.linkExports(set);
                 if (iterator.isDependentOn(module)) {
                     isCircularDependency = true;
                     continue;
@@ -190,11 +191,10 @@ class System {
             }
 
             const rp = r.execute() as any;
-            module.isResolved = true;
             if (rp?.then) {
                 await rp;
             }
-
+            module.isResolved = true;
             module.getExports();
             if (module.postExports) {
                 module.postExports();

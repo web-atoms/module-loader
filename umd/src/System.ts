@@ -77,7 +77,6 @@ class System {
                     // we will not add it as a dependency
                     // ass css/less are packed.
                     dm.packed = true;
-                    continue;
                 }
                 module.dependencies.push(dm);
             }
@@ -107,57 +106,6 @@ class System {
             return value;
         }, module);
 
-        // var list = module.dependencies;
-
-        // const postResolve = new Promise<void>((resolve, reject) => {
-        //     module.factory = () => {
-        //         const r = module.setup((key, value) => {
-        //                     if (typeof key === "object") {
-        //                         merge(module.exports, key);
-        //                         return module.exports;
-        //                     }
-        //                     module.exports[key] = value;
-        //                     return value;
-        //                 }, module);
-
-        //         var list = module.dependencies;
-
-        //         // wait here...
-        //         const ds = [];
-        //         for (const iterator of list) {
-        //             if (iterator.isResolved
-        //                 // || iterator.ignoreModule === module
-        //                 // || iterator === module.ignoreModule
-        //                 || (iterator.importPromise && iterator.isDependentOn(module))) {
-        //                 continue;
-        //             }
-        //             ds.push(this.import(iterator));
-        //         }
-
-        //         Promise.all(ds).then(() => {
-
-        //             const { setters } = r;
-        //             for (let index = 0; index < list.length; index++) {
-        //                 const element = list[index];
-        //                 setters[index](element.getExports());
-        //             }
-
-        //             const rp = r.execute() as any;
-        //             if (rp?.then) {
-        //                 rp.then(resolve, reject);
-        //                 // rp.catch((error) => {
-        //                 //     console.error(error);
-        //                 // });
-        //             } else {
-        //                 resolve();
-        //             }
-        //         });
-
-        //         return module.exports;
-
-        //     };
-        // });
-
         module.resolver = async () => {
 
             const ds = [];
@@ -169,10 +117,12 @@ class System {
 
                 const set = setters[index++];
 
-                const setP = this.import(iterator).then((x) => {
-                    set(x);
-                    return x;
-                });
+                if (iterator.isResolved) {
+                    set(iterator.getExports());
+                    continue;
+                }
+
+                const setP = this.import(iterator).then(set);
 
                 if (iterator.isDependentOn(module)) {
                     isCircularDependency = true;

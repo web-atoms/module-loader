@@ -1,3 +1,5 @@
+/// <reference path="./Module.ts"/>
+
 interface IContext {
     import(name: string): Promise<any>;
 }
@@ -52,6 +54,15 @@ class System {
         setup?: IModuleSetup) {
 
         const instance = AmdLoader.instance;
+
+        if (!AmdLoader.current) {
+            // dynamic loader
+            const amdModule = document.currentScript[currentModuleSymbol];
+
+            if (amdModule) {
+                AmdLoader.current = amdModule;
+            }
+        }
 
         const name = typeof nameOrImports === "string"
             ? nameOrImports

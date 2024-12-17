@@ -1,3 +1,5 @@
+const currentModuleSymbol = Symbol("currentModule");
+
 interface IPackage {
     name: string;
     version: string;

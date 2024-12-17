@@ -494,7 +494,7 @@ class AmdLoader {
         }
         module.loader = new Promise<void>((resolve, reject) => {
 
-            AmdLoader.moduleLoader(module.name, module.url, () => {
+            const script = AmdLoader.moduleLoader(module.name, module.url, () => {
 
                 try {
                     AmdLoader.current = module;
@@ -522,6 +522,8 @@ class AmdLoader {
             }, (error) => {
                 reject(error);
             });
+
+            script[currentModuleSymbol] = module;
 
         });
 
@@ -555,6 +557,7 @@ AmdLoader.moduleLoader = (name, url, success, error) => {
     };
     script.onerror = (e) => { error(e); };
     document.body.appendChild(script);
+    return script;
 };
 
 AmdLoader.httpTextLoader = (url, success, error) => {

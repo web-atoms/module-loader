@@ -62,6 +62,16 @@ var define: IDefine = (
     }
 
     AmdLoader.instance.define = () => {
+
+        if (!AmdLoader.current) {
+            // dynamic loader
+            const amdModule = document.currentScript?.[currentModuleSymbol];
+
+            if (amdModule) {
+                AmdLoader.current = amdModule;
+            }
+        }
+
         const current: Module = AmdLoader.current;
         if (!current) {
             return;

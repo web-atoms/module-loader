@@ -55,18 +55,11 @@ class System {
 
         const instance = AmdLoader.instance;
 
-        if (!AmdLoader.current) {
-            // dynamic loader
-            const amdModule = document.currentScript?.[currentModuleSymbol];
-
-            if (amdModule) {
-                AmdLoader.current = amdModule;
-            }
-        }
+        const currentModule = document.currentScript?.[currentModuleSymbol] ?? AmdLoader.current;
 
         const name = typeof nameOrImports === "string"
             ? nameOrImports
-            : AmdLoader.current.name;
+            : void 0;
 
         let imports = importsOrSetup as string[];
         if (arguments.length === 2) {
@@ -74,7 +67,7 @@ class System {
             setup = importsOrSetup as IModuleSetup;
         }
 
-        const module = instance.get(name);
+        const module = name ? instance.get(name) : currentModule;
 
         if (module.packed) {
             for(const d of imports) {

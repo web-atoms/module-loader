@@ -55,7 +55,7 @@ class System {
 
         const instance = AmdLoader.instance;
 
-        const currentModule = document.currentScript?.[currentModuleSymbol] ?? AmdLoader.current;
+        const currentModule: Module = document.currentScript?.[currentModuleSymbol] ?? AmdLoader.current;
 
         const name = typeof nameOrImports === "string"
             ? nameOrImports
@@ -95,6 +95,8 @@ class System {
         }
 
         module.setup = setup;
+
+        module.loader = promiseDone;
 
         const postResolve = new Promise<void>((resolve, reject) => {
             module.factory = () => {

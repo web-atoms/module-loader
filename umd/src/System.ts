@@ -171,27 +171,19 @@ class System {
 
                 const set = setters[index++];
 
-                iterator.linkExports(set);
-
-                if (iterator.isResolved) {
-                    continue;
-                }
+                const setP = this.import(iterator).then(set);
 
                 if (iterator.isDependentOn(module)) {
                     isCircularDependency = true;
                     continue;
                 }
-                ds.push(this.import(iterator));
+                ds.push(setP);
             }
+
             await Promise.all(ds);
 
             if (isCircularDependency) {
                 await new Promise((resolve) => setTimeout(resolve,1));
-            }
-
-            index = 0;
-            for (const element of module.dependencies) {
-                setters[index++](element.getExports());
             }
 
             const rp = r.execute() as any;

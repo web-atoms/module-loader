@@ -169,12 +169,14 @@ class System {
             let index = 0;
             for (const iterator of module.dependencies) {
 
-                iterator.linkExports(setters[index++]);
+                const set = setters[index++];
 
                 if (iterator.isResolved) {
+                    set(iterator.getExports());
                     continue;
                 }
 
+                iterator.linkExports(set);
                 if (iterator.isDependentOn(module)) {
                     isCircularDependency = true;
                     continue;

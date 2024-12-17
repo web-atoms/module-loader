@@ -76,99 +76,93 @@ class System {
 
         const module = instance.get(name);
 
-        module.loader = new Promise((resolve, reject) => {
-            if (module.isLoaded) {
-                return;
+        if (module.packed) {
+            for(const d of imports) {
+                const absolutePath = module.require.resolve(d);
+                const dm = instance.get(absolutePath);
+                if (/\.(css|less)$/i.test(absolutePath)) {
+                    // we will not add it as a dependency
+                    // ass css/less are packed.
+                    dm.packed = true;
+                    continue;
+                }
+                module.dependencies.push(dm);
             }
-            if (module.packed) {
-                for(const d of imports) {
-                    const absolutePath = module.require.resolve(d);
-                    const dm = instance.get(absolutePath);
-                    if (/\.(css|less)$/i.test(absolutePath)) {
-                        // we will not add it as a dependency
-                        // ass css/less are packed.
-                        dm.packed = true;
+        } else {
+            for(const d of imports) {
+                const absolutePath = module.require.resolve(d);
+                const dm = instance.get(absolutePath);
+                module.dependencies.push(dm);
+            }
+        }
+        module.isLoaded = true;
+
+        if (module.exportVar) {
+            module.exports = AmdLoader.globalVar[module.exportVar];
+        }
+
+        module.resolver = async () => {
+
+            const postResolve = new Promise<void>((resolve, reject) => {
+                module.factory = () => {
+                    const r = setup((key, value) => {
+                                if (typeof key === "object") {
+                                    merge(module.exports, key);
+                                    return module.exports;
+                                }
+                                module.exports[key] = value;
+                                return value;
+                            }, module);
+
+                    var list = module.dependencies;
+
+                    const { setters } = r;
+                    for (let index = 0; index < list.length; index++) {
+                        const element = list[index];
+                        setters[index](element.getExports());
+                    }
+
+                    const rp = r.execute() as any;
+                    if (rp?.then) {
+                        rp.then(resolve, reject);
+                        // rp.catch((error) => {
+                        //     console.error(error);
+                        // });
+                    } else {
+                        resolve();
+                    }
+
+                    return module.exports;
+                };
+            });
+            const ds = [];
+            for (const iterator of module.dependencies) {
+                if (iterator.isResolved
+                    // || iterator.ignoreModule === module
+                    // || iterator === module.ignoreModule
+                    || (iterator.importPromise && iterator.isDependentOn(module))) {
+                    continue;
+                }
+                ds.push(this.import(iterator));
+            }
+            await Promise.all(ds);
+            module.getExports();
+            await postResolve;
+            module.isResolved = true;
+            if (module.postExports) {
+                module.postExports();
+            }
+    
+            if (module.dynamicImports) {
+                for (const iterator of module.dynamicImports) {
+                    if (iterator.replacedModule.importPromise) {
                         continue;
                     }
-                    module.dependencies.push(dm);
-                }
-            } else {
-                for(const d of imports) {
-                    const absolutePath = module.require.resolve(d);
-                    const dm = instance.get(absolutePath);
-                    module.dependencies.push(dm);
+                    await this.import(iterator.replacedModule);
                 }
             }
-            module.isLoaded = true;
-
-            if (module.exportVar) {
-                module.exports = AmdLoader.globalVar[module.exportVar];
-            }
-
-            module.resolver = async () => {
-
-                const postResolve = new Promise<void>((resolve, reject) => {
-                    module.factory = () => {
-                        const r = setup((key, value) => {
-                                    if (typeof key === "object") {
-                                        merge(module.exports, key);
-                                        return module.exports;
-                                    }
-                                    module.exports[key] = value;
-                                    return value;
-                                }, module);
-    
-                        var list = module.dependencies;
-    
-                        const { setters } = r;
-                        for (let index = 0; index < list.length; index++) {
-                            const element = list[index];
-                            setters[index](element.getExports());
-                        }
-    
-                        const rp = r.execute() as any;
-                        if (rp?.then) {
-                            rp.then(resolve, reject);
-                            // rp.catch((error) => {
-                            //     console.error(error);
-                            // });
-                        } else {
-                            resolve();
-                        }
-    
-                        return module.exports;
-                    };
-                });
-                const ds = [];
-                for (const iterator of module.dependencies) {
-                    if (iterator.isResolved
-                        // || iterator.ignoreModule === module
-                        // || iterator === module.ignoreModule
-                        || (iterator.importPromise && iterator.isDependentOn(module))) {
-                        continue;
-                    }
-                    ds.push(this.import(iterator));
-                }
-                await Promise.all(ds);
-                module.getExports();
-                await postResolve;
-                module.isResolved = true;
-                if (module.postExports) {
-                    module.postExports();
-                }
-        
-                if (module.dynamicImports) {
-                    for (const iterator of module.dynamicImports) {
-                        if (iterator.replacedModule.importPromise) {
-                            continue;
-                        }
-                        await this.import(iterator.replacedModule);
-                    }
-                }
-                return module.exports;
-            };
-            resolve(module);
-        });
+            return module.exports;
+        };
 
         return module;
         

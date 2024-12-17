@@ -139,8 +139,18 @@ class System {
                         return module.exports;
                     };
                 });
-
-                await AmdLoader.instance.resolve(module);
+                const ds = [];
+                for (const iterator of module.dependencies) {
+                    if (iterator.isResolved
+                        // || iterator.ignoreModule === module
+                        // || iterator === module.ignoreModule
+                        || (iterator.importPromise && iterator.isDependentOn(module))) {
+                        continue;
+                    }
+                    ds.push(this.import(iterator));
+                }
+                await Promise.all(ds);
+                module.getExports();
                 await postResolve;
                 return module.exports;
             };

@@ -98,38 +98,65 @@ class System {
 
         module.loader = promiseDone;
 
-        const postResolve = new Promise<void>((resolve, reject) => {
-            module.factory = () => {
-                const r = module.setup((key, value) => {
-                            if (typeof key === "object") {
-                                merge(module.exports, key);
-                                return module.exports;
-                            }
-                            module.exports[key] = value;
-                            return value;
-                        }, module);
-
-                var list = module.dependencies;
-
-                const { setters } = r;
-                for (let index = 0; index < list.length; index++) {
-                    const element = list[index];
-                    setters[index](element.getExports());
-                }
-
-                const rp = r.execute() as any;
-                if (rp?.then) {
-                    rp.then(resolve, reject);
-                    // rp.catch((error) => {
-                    //     console.error(error);
-                    // });
-                } else {
-                    resolve();
-                }
-
+        const r = module.setup((key, value) => {
+            if (typeof key === "object") {
+                merge(module.exports, key);
                 return module.exports;
-            };
-        });
+            }
+            module.exports[key] = value;
+            return value;
+        }, module);
+
+        // var list = module.dependencies;
+
+        // const postResolve = new Promise<void>((resolve, reject) => {
+        //     module.factory = () => {
+        //         const r = module.setup((key, value) => {
+        //                     if (typeof key === "object") {
+        //                         merge(module.exports, key);
+        //                         return module.exports;
+        //                     }
+        //                     module.exports[key] = value;
+        //                     return value;
+        //                 }, module);
+
+        //         var list = module.dependencies;
+
+        //         // wait here...
+        //         const ds = [];
+        //         for (const iterator of list) {
+        //             if (iterator.isResolved
+        //                 // || iterator.ignoreModule === module
+        //                 // || iterator === module.ignoreModule
+        //                 || (iterator.importPromise && iterator.isDependentOn(module))) {
+        //                 continue;
+        //             }
+        //             ds.push(this.import(iterator));
+        //         }
+
+        //         Promise.all(ds).then(() => {
+
+        //             const { setters } = r;
+        //             for (let index = 0; index < list.length; index++) {
+        //                 const element = list[index];
+        //                 setters[index](element.getExports());
+        //             }
+
+        //             const rp = r.execute() as any;
+        //             if (rp?.then) {
+        //                 rp.then(resolve, reject);
+        //                 // rp.catch((error) => {
+        //                 //     console.error(error);
+        //                 // });
+        //             } else {
+        //                 resolve();
+        //             }
+        //         });
+
+        //         return module.exports;
+
+        //     };
+        // });
 
         module.resolver = async () => {
 
@@ -144,9 +171,21 @@ class System {
                 ds.push(this.import(iterator));
             }
             await Promise.all(ds);
-            module.getExports();
-            await postResolve;
+
+            const { setters } = r;
+            var list = module.dependencies;
+            for (let index = 0; index < list.length; index++) {
+                const element = list[index];
+                setters[index](element.getExports());
+            }
+
+            const rp = r.execute() as any;
             module.isResolved = true;
+            if (rp?.then) {
+                await rp;
+            }
+
+            module.getExports();
             if (module.postExports) {
                 module.postExports();
             }

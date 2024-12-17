@@ -144,7 +144,7 @@ if (window) {
 
     const addMarker = (name) => {
         const m = document.createElement("meta");
-        m.name = name;
+        m.name = name + "-marker";
         if (first) {
             first.insertAdjacentElement("afterend", m);
         } else {
@@ -155,13 +155,13 @@ if (window) {
         return m;
     }
 
-    addMarker("global-low-style");
-    addMarker("global-style");
-    addMarker("global-high-style");
+    addMarker("global-low");
+    addMarker("global");
+    addMarker("global-high");
     
-    addMarker("local-low-style");
-    addMarker("local-style");
-    addMarker("local-high-style");
+    addMarker("local-low");
+    addMarker("local");
+    addMarker("local-high");
 
 
     (window as any).installStyleSheet = UMD.installStyleSheet = (path, { imports }: { imports? } = {}) => {

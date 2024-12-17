@@ -57,7 +57,7 @@ class System {
 
         if (!AmdLoader.current) {
             // dynamic loader
-            const amdModule = document.currentScript[currentModuleSymbol];
+            const amdModule = document.currentScript?.[currentModuleSymbol];
 
             if (amdModule) {
                 AmdLoader.current = amdModule;

@@ -111,7 +111,7 @@ class AmdLoader {
         // if (jsModule.exportVar) {
         //     jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
         // }
-        jsModule.isLoaded = true;
+        // jsModule.isLoaded = true;
         jsModule.packed = true;
         AmdLoader.current = jsModule;
         // this is not possible as

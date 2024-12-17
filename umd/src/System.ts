@@ -153,6 +153,18 @@ class System {
                 module.getExports();
                 await postResolve;
                 module.isResolved = true;
+                if (module.postExports) {
+                    module.postExports();
+                }
+        
+                if (module.dynamicImports) {
+                    for (const iterator of module.dynamicImports) {
+                        if (iterator.replacedModule.importPromise) {
+                            continue;
+                        }
+                        await this.import(iterator.replacedModule);
+                    }
+                }
                 return module.exports;
             };
             resolve(module);

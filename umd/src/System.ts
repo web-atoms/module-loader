@@ -138,10 +138,10 @@ class System {
             }
 
             const rp = r.execute() as any;
-            module.isResolved = true;
             if (rp?.then) {
                 await rp;
             }
+            module.isResolved = true;
             module.getExports();
             if (module.postExports) {
                 module.postExports();

@@ -1,6 +1,6 @@
 {
   "name": "@web-atoms/module-loader",
-  "version": "2.1.58",
+  "version": "2.1.59",
   "description": "AMD & SystemJS Module loader for Web Atoms",
   "main": "index.js",
   "scripts": {

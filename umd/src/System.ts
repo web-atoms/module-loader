@@ -101,9 +101,11 @@ class System {
         const r = module.setup((key, value) => {
             if (typeof key === "object") {
                 merge(module.exports, key);
+                module.publishExports(key, value);
                 return module.exports;
             }
             module.exports[key] = value;
+            module.publishExports(key, value);
             return value;
         }, module);
 
@@ -162,8 +164,13 @@ class System {
 
             const ds = [];
 
+            const { setters } = r;
             let isCircularDependency;
+            let index = 0;
             for (const iterator of module.dependencies) {
+
+                iterator.linkExports(setters[index++]);
+
                 if (iterator.isResolved) {
                     continue;
                 }
@@ -178,13 +185,6 @@ class System {
 
             if (isCircularDependency) {
                 await new Promise((resolve) => setTimeout(resolve,1));
-            }
-
-            const { setters } = r;
-            var list = module.dependencies;
-            for (let index = 0; index < list.length; index++) {
-                const element = list[index];
-                setters[index](element.getExports());
             }
 
             const rp = r.execute() as any;

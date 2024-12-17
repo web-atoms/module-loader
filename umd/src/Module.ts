@@ -83,6 +83,8 @@ class Module {
 
     private rID: number = null;
 
+    private watchExport = [] as ((name, value) => void)[];
+
     constructor(
         public readonly name: string,
         public readonly folder?: string
@@ -186,6 +188,16 @@ class Module {
             }
         }
         return false;
+    }
+
+    public linkExports(watcher: (name, value) => any) {
+        this.watchExport.push(watcher);
+    }
+
+    publishExports(key: any, value: any) {
+        for (const element of this.watchExport) {
+            element(key, value);
+        }
     }
 
 }

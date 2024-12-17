@@ -328,7 +328,7 @@ class AmdLoader {
             return m;
         }
         if (module.isResolved) {
-            module.importPromise = Promise.resolve(module.getExports());
+            module.importPromise ??= Promise.resolve(module.getExports());
             return module.importPromise;
         }
         module.importPromise = this.importAsync(module);

@@ -101,11 +101,9 @@ class System {
         const r = module.setup((key, value) => {
             if (typeof key === "object") {
                 merge(module.exports, key);
-                module.publishExports(key, value);
                 return module.exports;
             }
             module.exports[key] = value;
-            module.publishExports(key, value);
             return value;
         }, module);
 

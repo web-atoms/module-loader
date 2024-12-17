@@ -152,6 +152,7 @@ class System {
                 await Promise.all(ds);
                 module.getExports();
                 await postResolve;
+                module.isResolved = true;
                 return module.exports;
             };
             resolve(module);

@@ -327,12 +327,7 @@ class AmdLoader {
         if (m) {
             return m;
         }
-        if (module.isResolved) {
-            module.importPromise ??= Promise.resolve(module.getExports());
-            return module.importPromise;
-        }
-        module.importPromise = this.importAsync(module);
-        return module.importPromise;
+        return module.importPromise ??= module.isResolved ? Promise.resolve(module.getExports()) : this.importAsync(module);
     }
 
     public importNodeModule(module: Module) {

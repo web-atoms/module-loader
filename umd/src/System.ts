@@ -69,7 +69,25 @@ class System {
             if (module.isLoaded) {
                 return;
             }
-            module.dependencies.push(... imports.map((x) => instance.get(module.require.resolve(x))));
+            if (module.packed) {
+                for(const d of imports) {
+                    const absolutePath = module.require.resolve(d);
+                    const dm = instance.get(absolutePath);
+                    if (/\.(css|less)$/i.test(absolutePath)) {
+                        // we will not add it as a dependency
+                        // ass css/less are packed.
+                        dm.packed = true;
+                        continue;
+                    }
+                    module.dependencies.push(dm);
+                }
+            } else {
+                for(const d of imports) {
+                    const absolutePath = module.require.resolve(d);
+                    const dm = instance.get(absolutePath);
+                    module.dependencies.push(dm);
+                }
+            }
             module.isLoaded = true;
 
             if (module.exportVar) {

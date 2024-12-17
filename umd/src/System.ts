@@ -190,6 +190,11 @@ class System {
                 await new Promise((resolve) => setTimeout(resolve,1));
             }
 
+            index = 0;
+            for (const element of module.dependencies) {
+                setters[index++](element.getExports());
+            }
+
             const rp = r.execute() as any;
             module.isResolved = true;
             if (rp?.then) {

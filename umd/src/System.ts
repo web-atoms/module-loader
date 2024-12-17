@@ -161,16 +161,24 @@ class System {
         module.resolver = async () => {
 
             const ds = [];
+
+            let isCircularDependency;
             for (const iterator of module.dependencies) {
-                if (iterator.isResolved
-                    // || iterator.ignoreModule === module
-                    // || iterator === module.ignoreModule
-                    || (iterator.importPromise && iterator.isDependentOn(module))) {
+                if (iterator.isResolved) {
+                    continue;
+                }
+
+                if (iterator.importPromise && iterator.isDependentOn(module)) {
+                    isCircularDependency = true;
                     continue;
                 }
                 ds.push(this.import(iterator));
             }
             await Promise.all(ds);
+
+            if (isCircularDependency) {
+                await new Promise((resolve) => setTimeout(resolve,1));
+            }
 
             const { setters } = r;
             var list = module.dependencies;

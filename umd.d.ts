@@ -1,3 +1,36 @@
+declare function setupTSLib(): {
+    __extends: any;
+    __assign: any;
+    __rest: any;
+    __decorate: any;
+    __param: any;
+    __esDecorate: any;
+    __runInitializers: any;
+    __propKey: any;
+    __setFunctionName: any;
+    __metadata: any;
+    __awaiter: any;
+    __generator: any;
+    __exportStar: any;
+    __values: any;
+    __read: any;
+    __spread: any;
+    __spreadArrays: any;
+    __spreadArray: any;
+    __await: any;
+    __asyncGenerator: any;
+    __asyncDelegator: any;
+    __asyncValues: any;
+    __makeTemplateObject: any;
+    __importStar: any;
+    __importDefault: any;
+    __classPrivateFieldGet: any;
+    __classPrivateFieldSet: any;
+    __classPrivateFieldIn: any;
+    __createBinding: any;
+    __addDisposableResource: any;
+    __disposeResources: any;
+};
 declare namespace Reflect {
     function decorate(decorators: ClassDecorator[], target: Function): Function;
     function decorate(decorators: (PropertyDecorator | MethodDecorator)[], target: any, propertyKey: string | symbol, attributes?: PropertyDescriptor | null): PropertyDescriptor | undefined;
@@ -23,6 +56,7 @@ declare namespace Reflect {
     function deleteMetadata(metadataKey: any, target: any): boolean;
     function deleteMetadata(metadataKey: any, target: any, propertyKey: string | symbol): boolean;
 }
+declare const currentModuleSymbol: unique symbol;
 interface IPackage {
     name: string;
     version: string;
@@ -31,7 +65,7 @@ interface IPackage {
     exportVar?: string;
 }
 interface IRequireFunction {
-    (path: string): any;
+    (path: string | string[], resolve?: any, reject?: any): any;
     resolve?: (path: string) => string;
 }
 declare class Module {
@@ -42,10 +76,15 @@ declare class Module {
     next: Module;
     package: IPackage;
     emptyExports: any;
+    packed: boolean;
     dependencyHooks: [(...a: any) => void, () => void];
     resolveHooks: [(...a: any) => void, () => void];
     dynamicImports: MockType[];
     get url(): string;
+    get meta(): {
+        url: string;
+        resolve: (path: string) => string;
+    };
     exports: any;
     isLoaded: boolean;
     isResolved: boolean;
@@ -58,18 +97,21 @@ declare class Module {
     postExports: () => void;
     get filename(): string;
     importPromise: Promise<any>;
-    resolver: Promise<any>;
+    resolver: () => Promise<any>;
+    setup: IModuleSetup;
     private rID;
     constructor(name: string, folder?: string);
+    import(name: string): Promise<any>;
     addDependency(d: Module): void;
     getExports(): any;
-    isDependentOn(m: Module, visited?: Set<string>): boolean;
+    isDependentOn(m: Module, visited?: Set<Module>): boolean;
 }
 declare var require: any;
 declare var md: any;
 declare const promiseDone: Promise<number>;
 declare class AmdLoader {
     static isMedia: RegExp;
+    static isCss: RegExp;
     static isJson: RegExp;
     static globalVar: any;
     static moduleProgress: (name: string, modules: Map<string, Module>, status: "done" | "loading") => void;
@@ -104,12 +146,14 @@ declare class AmdLoader {
     });
     get(name1: string): Module;
     import(name: string | Module): Promise<any>;
+    importNodeModule(module: Module): Promise<any>;
     importAsync(module: Module): Promise<any>;
     resolve(module: Module): Promise<any>;
     load(module: Module): Promise<any>;
 }
 declare var global: any;
 declare const a: AmdLoader;
+declare var amdConfig: any;
 type IAnyFunction = (...a: any[]) => any;
 interface IDefine {
     (requiresOrFactory: string[] | IAnyFunction, factory?: IAnyFunction): any;
@@ -139,12 +183,16 @@ interface IModule {
     execute: ISetup;
 }
 declare const merge: (target: any, source: any) => void;
+declare const enumerable = true, configurable = true;
 declare class System {
+    static resolve(id: any): string;
     static import(name: any): Promise<any>;
     static register(imports: string[], setup: IModuleSetup): any;
     static register(name: string, imports: string[], setup: IModuleSetup): any;
 }
+declare const globalNS: any;
 declare class UMDClass {
+    debug: boolean;
     viewPrefix: string;
     defaultApp: string;
     lang: string;
@@ -161,7 +209,8 @@ declare class UMDClass {
     resolveViewClassAsync(path: string): Promise<any>;
     import(path: string): Promise<any>;
     load(path: string, designMode?: boolean): Promise<any>;
-    hostView(id: string, path: string, designMode?: boolean): Promise<any>;
+    hostView(id: string | HTMLElement, path: string, designMode?: boolean): Promise<any>;
     loadView(path: string, designMode?: boolean, appPath?: string): Promise<any>;
+    installStyleSheet(path: string, imports?: {}): void;
 }
 declare const UMD: UMDClass;

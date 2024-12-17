@@ -168,7 +168,7 @@ class System {
                     continue;
                 }
 
-                if (iterator.importPromise && iterator.isDependentOn(module)) {
+                if (iterator.isDependentOn(module)) {
                     isCircularDependency = true;
                     continue;
                 }

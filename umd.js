@@ -7,6 +7,482 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+function setupTSLib() {
+    var __extends;
+    var __assign;
+    var __rest;
+    var __decorate;
+    var __param;
+    var __esDecorate;
+    var __runInitializers;
+    var __propKey;
+    var __setFunctionName;
+    var __metadata;
+    var __awaiter;
+    var __generator;
+    var __exportStar;
+    var __values;
+    var __read;
+    var __spread;
+    var __spreadArrays;
+    var __spreadArray;
+    var __await;
+    var __asyncGenerator;
+    var __asyncDelegator;
+    var __asyncValues;
+    var __makeTemplateObject;
+    var __importStar;
+    var __importDefault;
+    var __classPrivateFieldGet;
+    var __classPrivateFieldSet;
+    var __classPrivateFieldIn;
+    var __createBinding;
+    var __addDisposableResource;
+    var __disposeResources;
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b)
+            if (Object.prototype.hasOwnProperty.call(b, p))
+                d[p] = b[p]; };
+    __extends = function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+    __assign = Object.assign || function (t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s)
+                if (Object.prototype.hasOwnProperty.call(s, p))
+                    t[p] = s[p];
+        }
+        return t;
+    };
+    __rest = function (s, e) {
+        var t = {};
+        for (var p in s)
+            if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+                t[p] = s[p];
+        if (s != null && typeof Object.getOwnPropertySymbols === "function")
+            for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+                if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                    t[p[i]] = s[p[i]];
+            }
+        return t;
+    };
+    __decorate = function (decorators, target, key, desc) {
+        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function")
+            r = Reflect.decorate(decorators, target, key, desc);
+        else
+            for (var i = decorators.length - 1; i >= 0; i--)
+                if (d = decorators[i])
+                    r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    };
+    __param = function (paramIndex, decorator) {
+        return function (target, key) { decorator(target, key, paramIndex); };
+    };
+    __esDecorate = function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+        function accept(f) { if (f !== void 0 && typeof f !== "function")
+            throw new TypeError("Function expected"); return f; }
+        var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+        var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+        var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+        var _, done = false;
+        for (var i = decorators.length - 1; i >= 0; i--) {
+            var context = {};
+            for (var p in contextIn)
+                context[p] = p === "access" ? {} : contextIn[p];
+            for (var p in contextIn.access)
+                context.access[p] = contextIn.access[p];
+            context.addInitializer = function (f) { if (done)
+                throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+            var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+            if (kind === "accessor") {
+                if (result === void 0)
+                    continue;
+                if (result === null || typeof result !== "object")
+                    throw new TypeError("Object expected");
+                if (_ = accept(result.get))
+                    descriptor.get = _;
+                if (_ = accept(result.set))
+                    descriptor.set = _;
+                if (_ = accept(result.init))
+                    initializers.unshift(_);
+            }
+            else if (_ = accept(result)) {
+                if (kind === "field")
+                    initializers.unshift(_);
+                else
+                    descriptor[key] = _;
+            }
+        }
+        if (target)
+            Object.defineProperty(target, contextIn.name, descriptor);
+        done = true;
+    };
+    __runInitializers = function (thisArg, initializers, value) {
+        var useValue = arguments.length > 2;
+        for (var i = 0; i < initializers.length; i++) {
+            value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+        }
+        return useValue ? value : void 0;
+    };
+    __propKey = function (x) {
+        return typeof x === "symbol" ? x : "".concat(x);
+    };
+    __setFunctionName = function (f, name, prefix) {
+        if (typeof name === "symbol")
+            name = name.description ? "[".concat(name.description, "]") : "";
+        return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
+    };
+    __metadata = function (metadataKey, metadataValue) {
+        if (typeof Reflect === "object" && typeof Reflect.metadata === "function")
+            return Reflect.metadata(metadataKey, metadataValue);
+    };
+    __awaiter = function (thisArg, _arguments, P, generator) {
+        function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+        return new (P || (P = Promise))(function (resolve, reject) {
+            function fulfilled(value) { try {
+                step(generator.next(value));
+            }
+            catch (e) {
+                reject(e);
+            } }
+            function rejected(value) { try {
+                step(generator["throw"](value));
+            }
+            catch (e) {
+                reject(e);
+            } }
+            function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+            step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
+    };
+    __generator = function (thisArg, body) {
+        var _ = { label: 0, sent: function () { if (t[0] & 1)
+                throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function () { return this; }), g;
+        function verb(n) { return function (v) { return step([n, v]); }; }
+        function step(op) {
+            if (f)
+                throw new TypeError("Generator is already executing.");
+            while (g && (g = 0, op[0] && (_ = 0)), _)
+                try {
+                    if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done)
+                        return t;
+                    if (y = 0, t)
+                        op = [op[0] & 2, t.value];
+                    switch (op[0]) {
+                        case 0:
+                        case 1:
+                            t = op;
+                            break;
+                        case 4:
+                            _.label++;
+                            return { value: op[1], done: false };
+                        case 5:
+                            _.label++;
+                            y = op[1];
+                            op = [0];
+                            continue;
+                        case 7:
+                            op = _.ops.pop();
+                            _.trys.pop();
+                            continue;
+                        default:
+                            if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
+                                _ = 0;
+                                continue;
+                            }
+                            if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) {
+                                _.label = op[1];
+                                break;
+                            }
+                            if (op[0] === 6 && _.label < t[1]) {
+                                _.label = t[1];
+                                t = op;
+                                break;
+                            }
+                            if (t && _.label < t[2]) {
+                                _.label = t[2];
+                                _.ops.push(op);
+                                break;
+                            }
+                            if (t[2])
+                                _.ops.pop();
+                            _.trys.pop();
+                            continue;
+                    }
+                    op = body.call(thisArg, _);
+                }
+                catch (e) {
+                    op = [6, e];
+                    y = 0;
+                }
+                finally {
+                    f = t = 0;
+                }
+            if (op[0] & 5)
+                throw op[1];
+            return { value: op[0] ? op[1] : void 0, done: true };
+        }
+    };
+    __exportStar = function (m, o) {
+        for (var p in m)
+            if (p !== "default" && !Object.prototype.hasOwnProperty.call(o, p))
+                __createBinding(o, m, p);
+    };
+    __createBinding = Object.create ? (function (o, m, k, k2) {
+        if (k2 === undefined)
+            k2 = k;
+        var desc = Object.getOwnPropertyDescriptor(m, k);
+        if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+            desc = { enumerable: true, get: function () { return m[k]; } };
+        }
+        Object.defineProperty(o, k2, desc);
+    }) : (function (o, m, k, k2) {
+        if (k2 === undefined)
+            k2 = k;
+        o[k2] = m[k];
+    });
+    __values = function (o) {
+        var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+        if (m)
+            return m.call(o);
+        if (o && typeof o.length === "number")
+            return {
+                next: function () {
+                    if (o && i >= o.length)
+                        o = void 0;
+                    return { value: o && o[i++], done: !o };
+                }
+            };
+        throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+    };
+    __read = function (o, n) {
+        var m = typeof Symbol === "function" && o[Symbol.iterator];
+        if (!m)
+            return o;
+        var i = m.call(o), r, ar = [], e;
+        try {
+            while ((n === void 0 || n-- > 0) && !(r = i.next()).done)
+                ar.push(r.value);
+        }
+        catch (error) {
+            e = { error: error };
+        }
+        finally {
+            try {
+                if (r && !r.done && (m = i["return"]))
+                    m.call(i);
+            }
+            finally {
+                if (e)
+                    throw e.error;
+            }
+        }
+        return ar;
+    };
+    __spread = function () {
+        for (var ar = [], i = 0; i < arguments.length; i++)
+            ar = ar.concat(__read(arguments[i]));
+        return ar;
+    };
+    __spreadArrays = function () {
+        for (var s = 0, i = 0, il = arguments.length; i < il; i++)
+            s += arguments[i].length;
+        for (var r = Array(s), k = 0, i = 0; i < il; i++)
+            for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+                r[k] = a[j];
+        return r;
+    };
+    __spreadArray = function (to, from, pack) {
+        if (pack || arguments.length === 2)
+            for (var i = 0, l = from.length, ar; i < l; i++) {
+                if (ar || !(i in from)) {
+                    if (!ar)
+                        ar = Array.prototype.slice.call(from, 0, i);
+                    ar[i] = from[i];
+                }
+            }
+        return to.concat(ar || Array.prototype.slice.call(from));
+    };
+    __await = function (v) {
+        return this instanceof __await ? (this.v = v, this) : new __await(v);
+    };
+    __asyncGenerator = function (thisArg, _arguments, generator) {
+        if (!Symbol.asyncIterator)
+            throw new TypeError("Symbol.asyncIterator is not defined.");
+        var g = generator.apply(thisArg, _arguments || []), i, q = [];
+        return i = {}, verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function () { return this; }, i;
+        function awaitReturn(f) { return function (v) { return Promise.resolve(v).then(f, reject); }; }
+        function verb(n, f) { if (g[n]) {
+            i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); };
+            if (f)
+                i[n] = f(i[n]);
+        } }
+        function resume(n, v) { try {
+            step(g[n](v));
+        }
+        catch (e) {
+            settle(q[0][3], e);
+        } }
+        function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r); }
+        function fulfill(value) { resume("next", value); }
+        function reject(value) { resume("throw", value); }
+        function settle(f, v) { if (f(v), q.shift(), q.length)
+            resume(q[0][0], q[0][1]); }
+    };
+    __asyncDelegator = function (o) {
+        var i, p;
+        return i = {}, verb("next"), verb("throw", function (e) { throw e; }), verb("return"), i[Symbol.iterator] = function () { return this; }, i;
+        function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: false } : f ? f(v) : v; } : f; }
+    };
+    __asyncValues = function (o) {
+        if (!Symbol.asyncIterator)
+            throw new TypeError("Symbol.asyncIterator is not defined.");
+        var m = o[Symbol.asyncIterator], i;
+        return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+        function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+        function settle(resolve, reject, d, v) { Promise.resolve(v).then(function (v) { resolve({ value: v, done: d }); }, reject); }
+    };
+    __makeTemplateObject = function (cooked, raw) {
+        if (Object.defineProperty) {
+            Object.defineProperty(cooked, "raw", { value: raw });
+        }
+        else {
+            cooked.raw = raw;
+        }
+        return cooked;
+    };
+    var __setModuleDefault = Object.create ? (function (o, v) {
+        Object.defineProperty(o, "default", { enumerable: true, value: v });
+    }) : function (o, v) {
+        o["default"] = v;
+    };
+    __importStar = function (mod) {
+        if (mod && mod.__esModule)
+            return mod;
+        var result = {};
+        if (mod != null)
+            for (var k in mod)
+                if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k))
+                    __createBinding(result, mod, k);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+    __importDefault = function (mod) {
+        return (mod && mod.__esModule) ? mod : { "default": mod };
+    };
+    __classPrivateFieldGet = function (receiver, state, kind, f) {
+        if (kind === "a" && !f)
+            throw new TypeError("Private accessor was defined without a getter");
+        if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver))
+            throw new TypeError("Cannot read private member from an object whose class did not declare it");
+        return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
+    };
+    __classPrivateFieldSet = function (receiver, state, value, kind, f) {
+        if (kind === "m")
+            throw new TypeError("Private method is not writable");
+        if (kind === "a" && !f)
+            throw new TypeError("Private accessor was defined without a setter");
+        if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver))
+            throw new TypeError("Cannot write private member to an object whose class did not declare it");
+        return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
+    };
+    __classPrivateFieldIn = function (state, receiver) {
+        if (receiver === null || (typeof receiver !== "object" && typeof receiver !== "function"))
+            throw new TypeError("Cannot use 'in' operator on non-object");
+        return typeof state === "function" ? receiver === state : state.has(receiver);
+    };
+    __addDisposableResource = function (env, value, async) {
+        if (value !== null && value !== void 0) {
+            if (typeof value !== "object" && typeof value !== "function")
+                throw new TypeError("Object expected.");
+            var dispose;
+            if (async) {
+                if (!Symbol.asyncDispose)
+                    throw new TypeError("Symbol.asyncDispose is not defined.");
+                dispose = value[Symbol.asyncDispose];
+            }
+            if (dispose === void 0) {
+                if (!Symbol.dispose)
+                    throw new TypeError("Symbol.dispose is not defined.");
+                dispose = value[Symbol.dispose];
+            }
+            if (typeof dispose !== "function")
+                throw new TypeError("Object not disposable.");
+            env.stack.push({ value: value, dispose: dispose, async: async });
+        }
+        else if (async) {
+            env.stack.push({ async: true });
+        }
+        return value;
+    };
+    var _SuppressedError = typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+        var e = new Error(message);
+        return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+    };
+    __disposeResources = function (env) {
+        function fail(e) {
+            env.error = env.hasError ? new _SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
+            env.hasError = true;
+        }
+        function next() {
+            while (env.stack.length) {
+                var rec = env.stack.pop();
+                try {
+                    var result = rec.dispose && rec.dispose.call(rec.value);
+                    if (rec.async)
+                        return Promise.resolve(result).then(next, function (e) { fail(e); return next(); });
+                }
+                catch (e) {
+                    fail(e);
+                }
+            }
+            if (env.hasError)
+                throw env.error;
+        }
+        return next();
+    };
+    return {
+        __extends,
+        __assign,
+        __rest,
+        __decorate,
+        __param,
+        __esDecorate,
+        __runInitializers,
+        __propKey,
+        __setFunctionName,
+        __metadata,
+        __awaiter,
+        __generator,
+        __exportStar,
+        __values,
+        __read,
+        __spread,
+        __spreadArrays,
+        __spreadArray,
+        __await,
+        __asyncGenerator,
+        __asyncDelegator,
+        __asyncValues,
+        __makeTemplateObject,
+        __importStar,
+        __importDefault,
+        __classPrivateFieldGet,
+        __classPrivateFieldSet,
+        __classPrivateFieldIn,
+        __createBinding,
+        __addDisposableResource,
+        __disposeResources,
+    };
+}
 var Reflect;
 (function (Reflect) {
     (function (factory) {
@@ -734,11 +1210,18 @@ if (typeof Element !== "undefined") {
         };
     }
 }
+const currentModuleSymbol = Symbol("currentModule");
 class Module {
     get url() {
         const u = AmdLoader.instance.resolveSource(this.name);
         Object.defineProperty(this, "url", { value: u, enumerable: true });
         return u;
+    }
+    get meta() {
+        return {
+            url: this.url,
+            resolve: this.require.resolve
+        };
     }
     get filename() {
         return this.name;
@@ -747,6 +1230,7 @@ class Module {
         this.name = name;
         this.folder = folder;
         this.emptyExports = {};
+        this.packed = false;
         this.isLoaded = false;
         this.isResolved = false;
         this.dependencies = [];
@@ -760,10 +1244,16 @@ class Module {
         }
         this.exports = this.emptyExports;
     }
+    import(name) {
+        const resolvedName = this.require.resolve(name);
+        return AmdLoader.instance.import(resolvedName);
+    }
     addDependency(d) {
         this.dependencies.push(d);
-        if (d.isDependentOn(this)) {
-            console.warn(`${d.name} already depends on ${this.name}`);
+        if (UMD.debug) {
+            if (d.isDependentOn(this)) {
+                console.warn(`${d.name} already depends on ${this.name}`);
+            }
         }
     }
     getExports() {
@@ -776,11 +1266,9 @@ class Module {
                 const result = factory(this.require, this.exports);
                 if (result) {
                     if (typeof result === "object" || typeof result === "function") {
-                        for (const key in result) {
-                            if (result.hasOwnProperty(key)) {
-                                const element = result[key];
-                                this.exports[key] = element;
-                            }
+                        this.exports = result;
+                        if (typeof result.default === "undefined") {
+                            result.default = result;
                         }
                     }
                     else if (!this.exports.default) {
@@ -811,12 +1299,12 @@ class Module {
     }
     isDependentOn(m, visited) {
         visited !== null && visited !== void 0 ? visited : (visited = new Set());
-        visited.add(this.name);
+        visited.add(this);
         for (const iterator of this.dependencies) {
             if (iterator === m) {
                 return true;
             }
-            if (visited.has(iterator.name)) {
+            if (visited.has(iterator)) {
                 continue;
             }
             if (iterator.isDependentOn(m, visited)) {
@@ -827,6 +1315,7 @@ class Module {
     }
 }
 Module.nextID = 1;
+var _a;
 if (typeof require !== "undefined") {
     md = require("module").Module;
 }
@@ -866,22 +1355,14 @@ class AmdLoader {
         m.package.url = "/";
         m.exports = Object.assign({ __esModule: true }, moduleExports);
         m.loader = promiseDone;
-        m.resolver = Promise.resolve(m.exports);
+        m.resolver = () => Promise.resolve(m.exports);
         m.isLoaded = true;
         m.isResolved = true;
     }
     setup(name) {
         const jsModule = this.get(name);
-        const define = this.define;
-        jsModule.loader = promiseDone;
+        jsModule.packed = true;
         AmdLoader.current = jsModule;
-        if (define) {
-            define();
-        }
-        if (jsModule.exportVar) {
-            jsModule.exports = AmdLoader.globalVar[jsModule.exportVar];
-        }
-        jsModule.isLoaded = true;
     }
     replace(type, name, mock) {
         if (mock && !this.enableMock) {
@@ -936,18 +1417,18 @@ class AmdLoader {
                         if (name[packageName.length] !== "/") {
                             continue;
                         }
-                        name = name.substr(packageName.length + 1);
+                        name = name.substring(packageName.length + 1);
                     }
                     else {
                         return path;
                     }
                     if (path.endsWith("/")) {
-                        path = path.substr(0, path.length - 1);
+                        path = path.substring(0, path.length - 1);
                     }
                     path = path + "/" + name;
                     const i = name.lastIndexOf("/");
-                    const fileName = name.substr(i + 1);
-                    if (fileName.indexOf(".") === -1) {
+                    const fileName = name.substring(i + 1);
+                    if (!/\.(js|mjs|jpg|jpeg|gif|png|mp4|mp3|css|less|scss|html|svg|webp|webm|json)$/i.test(fileName)) {
                         path = path + defExt;
                     }
                     return path;
@@ -1017,9 +1498,17 @@ class AmdLoader {
                 this.pathMap.set(packageName, pp);
             }
             module.package = pp;
-            module.require = (n) => {
+            module.require = (n, resolve, reject) => {
+                let isAsync = false;
+                if (typeof n !== "string") {
+                    n = n[0];
+                    isAsync = true;
+                }
                 const an = this.resolveRelativePath(n, module.name);
                 const resolvedModule = this.get(an);
+                if (isAsync) {
+                    return this.import(resolvedModule).then(resolve, reject);
+                }
                 const m = resolvedModule.getExports();
                 return m;
             };
@@ -1029,25 +1518,31 @@ class AmdLoader {
         return module;
     }
     import(name) {
-        if (typeof require !== "undefined") {
-            return Promise.resolve(require(name));
-        }
+        var _a;
         const module = typeof name === "object" ? name : this.get(name);
         if (module.importPromise) {
             return module.importPromise;
         }
-        if (module.isResolved) {
-            module.importPromise = Promise.resolve(module.getExports());
-            return module.importPromise;
+        const m = this.importNodeModule(module);
+        if (m) {
+            return m;
         }
-        module.importPromise = this.importAsync(module);
-        return module.importPromise;
+        return (_a = module.importPromise) !== null && _a !== void 0 ? _a : (module.importPromise = module.isResolved ? Promise.resolve(module.getExports()) : this.importAsync(module));
+    }
+    importNodeModule(module) {
+        if (typeof require !== "undefined") {
+            const name = module.url;
+            const moduleCode = require("fs").readFileSync(require.resolve(name), "utf8").trim();
+            if (!/^System\.Register/.test(moduleCode)) {
+                return Promise.resolve(require(name));
+            }
+        }
     }
     importAsync(module) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.load(module);
             if (module.resolver) {
-                return yield module.resolver;
+                return yield module.resolver();
             }
             return yield this.resolve(module);
         });
@@ -1055,14 +1550,25 @@ class AmdLoader {
     resolve(module) {
         return __awaiter(this, void 0, void 0, function* () {
             const ds = [];
-            const waiting = module.waiting = [];
-            for (const iterator of module.dependencies) {
-                if (iterator.isResolved
-                    || (iterator.importPromise && iterator.isDependentOn(module))) {
-                    continue;
+            if (UMD.debug) {
+                const waiting = module.waiting = [];
+                for (const iterator of module.dependencies) {
+                    if (iterator.isResolved
+                        || (iterator.importPromise && iterator.isDependentOn(module))) {
+                        continue;
+                    }
+                    waiting.push(iterator);
+                    ds.push(this.import(iterator));
                 }
-                waiting.push(iterator);
-                ds.push(this.import(iterator));
+            }
+            else {
+                for (const iterator of module.dependencies) {
+                    if (iterator.isResolved
+                        || (iterator.importPromise && iterator.isDependentOn(module))) {
+                        continue;
+                    }
+                    ds.push(this.import(iterator));
+                }
             }
             yield Promise.all(ds);
             const exports = module.getExports();
@@ -1086,7 +1592,7 @@ class AmdLoader {
             return module.loader;
         }
         if (AmdLoader.isJson.test(module.url)) {
-            const mUrl = module.package.url + module.url;
+            const mUrl = module.url.startsWith(module.package.url) ? module.url : module.package.url + module.url;
             module.loader = new Promise((resolve, reject) => {
                 try {
                     AmdLoader.httpTextLoader(mUrl, (r) => {
@@ -1105,6 +1611,41 @@ class AmdLoader {
                     reject(e1);
                 }
             });
+            return module.loader;
+        }
+        if (AmdLoader.isCss.test(module.url)) {
+            const m = {
+                get url() {
+                    var _a;
+                    let mUrl = !module.url.startsWith(module.package.url)
+                        ? (module.package.url + module.url)
+                        : module.url;
+                    const [_, g1] = (_a = /\.((global|local)[^\.]{0,10})\.(css|less|scss)$/i.exec(mUrl)) !== null && _a !== void 0 ? _a : [];
+                    let segment = g1 !== null && g1 !== void 0 ? g1 : "local-high";
+                    if (!/^(global|local)/.test(segment)) {
+                        segment = "local-high";
+                    }
+                    if (!/\.css$/i.test(mUrl)) {
+                        mUrl += ".css";
+                    }
+                    if (!module.packed) {
+                        window.installStyleSheet(mUrl);
+                    }
+                    return mUrl;
+                },
+                toString() {
+                    return this.url;
+                }
+            };
+            const e = {
+                __esModule: true,
+                default: m.url
+            };
+            module.exports = e;
+            module.emptyExports = e;
+            module.loader = promiseDone;
+            module.isLoaded = true;
+            return module.loader;
         }
         if (AmdLoader.isMedia.test(module.url)) {
             const m = {
@@ -1127,7 +1668,7 @@ class AmdLoader {
             return module.loader;
         }
         module.loader = new Promise((resolve, reject) => {
-            AmdLoader.moduleLoader(module.name, module.url, () => {
+            const script = AmdLoader.moduleLoader(module.name, module.url, () => {
                 try {
                     AmdLoader.current = module;
                     if (AmdLoader.instance.define) {
@@ -1150,11 +1691,13 @@ class AmdLoader {
             }, (error) => {
                 reject(error);
             });
+            script[currentModuleSymbol] = module;
         });
         return module.loader;
     }
 }
-AmdLoader.isMedia = /\.(jpg|jpeg|gif|png|mp4|mp3|css|html|svg)$/i;
+AmdLoader.isMedia = /\.(jpg|jpeg|gif|png|mp4|mp3|css|less|scss|html|svg|webp|webm)$/i;
+AmdLoader.isCss = /\.(css|less|scss)$/i;
 AmdLoader.isJson = /\.json$/i;
 AmdLoader.globalVar = {};
 AmdLoader.instance = new AmdLoader();
@@ -1179,6 +1722,7 @@ AmdLoader.moduleLoader = (name, url, success, error) => {
     };
     script.onerror = (e) => { error(e); };
     document.body.appendChild(script);
+    return script;
 };
 AmdLoader.httpTextLoader = (url, success, error) => {
     const xhr = new XMLHttpRequest();
@@ -1195,59 +1739,18 @@ AmdLoader.httpTextLoader = (url, success, error) => {
     xhr.open("GET", url);
     xhr.send();
 };
-AmdLoader.moduleProgress = (() => {
+var amdConfig;
+amdConfig !== null && amdConfig !== void 0 ? amdConfig : (amdConfig = {});
+(_a = amdConfig.moduleProgress) !== null && _a !== void 0 ? _a : (amdConfig.moduleProgress = (() => {
     if (!document) {
         return (name, p) => {
             console.log(`${name} ${p}%`);
         };
     }
-    const progressDiv = document.createElement("div");
-    progressDiv.className = "web-atoms-progress-div";
-    const style = progressDiv.style;
-    style.position = "fixed";
-    style.top = "50%";
-    style.left = "50%";
-    style.width = "200px";
-    style.height = "100px";
-    style.transform = `translate(-50%,-50%)`;
-    style.borderStyle = "solid";
-    style.borderWidth = "1px";
-    style.borderColor = "#A0A0A0";
-    style.borderRadius = "5px";
-    style.padding = "5px";
-    style.textAlign = "left";
-    style.verticalAlign = "bottom";
-    const progressLabel = document.createElement("pre");
-    progressDiv.appendChild(progressLabel);
-    progressLabel.style.color = "#A0A0A0";
-    function ready() {
-        document.body.appendChild(progressDiv);
-    }
-    function completed() {
-        document.removeEventListener("DOMContentLoaded", completed);
-        window.removeEventListener("load", completed);
-        ready();
-    }
-    if (document.readyState === "complete" ||
-        (document.readyState !== "loading" && !document.documentElement["doScroll"])) {
-        window.setTimeout(ready);
-    }
-    else {
-        document.addEventListener("DOMContentLoaded", completed);
-        window.addEventListener("load", completed);
-    }
     return (name, n, status) => {
-        if (status === "done") {
-            progressDiv.style.display = "none";
-            return;
-        }
-        else {
-            progressDiv.style.display = "block";
-        }
-        name = name.split("/").pop();
-        progressLabel.textContent = name;
     };
-})();
+})());
+AmdLoader.moduleProgress = amdConfig.moduleProgress;
 var define = (requiresOrFactory, factory, nested) => {
     const loader = AmdLoader.instance;
     function bindFactory(module, requireList, fx) {
@@ -1287,6 +1790,13 @@ var define = (requiresOrFactory, factory, nested) => {
         return;
     }
     AmdLoader.instance.define = () => {
+        var _a;
+        if (!AmdLoader.current) {
+            const amdModule = (_a = document.currentScript) === null || _a === void 0 ? void 0 : _a[currentModuleSymbol];
+            if (amdModule) {
+                AmdLoader.current = amdModule;
+            }
+        }
         const current = AmdLoader.current;
         if (!current) {
             return;
@@ -1332,71 +1842,108 @@ const merge = (target, source) => {
         }
     }
 };
+const enumerable = true, configurable = true;
 class System {
+    static resolve(id) {
+        return AmdLoader.instance.resolveSource(id);
+    }
     static import(name) {
         return AmdLoader.instance.import(name);
     }
     static register(nameOrImports, importsOrSetup, setup) {
+        var _a, _b;
         const instance = AmdLoader.instance;
-        instance.define = () => {
-            const name = typeof nameOrImports === "string"
-                ? nameOrImports
-                : AmdLoader.current.name;
-            let imports = importsOrSetup;
-            if (arguments.length === 2) {
-                imports = nameOrImports;
-                setup = importsOrSetup;
+        const currentModule = (_b = (_a = document.currentScript) === null || _a === void 0 ? void 0 : _a[currentModuleSymbol]) !== null && _b !== void 0 ? _b : AmdLoader.current;
+        const name = typeof nameOrImports === "string"
+            ? nameOrImports
+            : void 0;
+        let imports = importsOrSetup;
+        if (arguments.length === 2) {
+            imports = nameOrImports;
+            setup = importsOrSetup;
+        }
+        const module = name ? instance.get(name) : currentModule;
+        if (module.packed) {
+            for (const d of imports) {
+                const absolutePath = module.require.resolve(d);
+                const dm = instance.get(absolutePath);
+                if (/\.(css|less)$/i.test(absolutePath)) {
+                    dm.packed = true;
+                    continue;
+                }
+                module.dependencies.push(dm);
             }
-            const module = instance.get(name);
-            module.dependencies.push(...imports.map((x) => instance.get(module.require.resolve(x))));
-            const loader = () => __awaiter(this, void 0, void 0, function* () {
-                var _a;
-                const all = [];
-                for (const iterator of module.dependencies) {
-                    if (iterator.isResolved
-                        || (iterator.importPromise && iterator.isDependentOn(module))) {
-                        all.push(Promise.resolve(iterator.exports));
+        }
+        else {
+            for (const d of imports) {
+                const absolutePath = module.require.resolve(d);
+                const dm = instance.get(absolutePath);
+                module.dependencies.push(dm);
+            }
+        }
+        module.isLoaded = true;
+        if (module.exportVar) {
+            module.exports = AmdLoader.globalVar[module.exportVar];
+        }
+        module.setup = setup;
+        module.loader = promiseDone;
+        const r = module.setup((key, value) => {
+            if (typeof key === "object") {
+                merge(module.exports, key);
+                return module.exports;
+            }
+            module.exports[key] = value;
+            return value;
+        }, module);
+        module.resolver = () => __awaiter(this, void 0, void 0, function* () {
+            const ds = [];
+            let isCircularDependency;
+            for (const iterator of module.dependencies) {
+                if (iterator.isResolved) {
+                    continue;
+                }
+                if (iterator.isDependentOn(module)) {
+                    isCircularDependency = true;
+                    continue;
+                }
+                ds.push(this.import(iterator));
+            }
+            yield Promise.all(ds);
+            if (isCircularDependency) {
+                yield new Promise((resolve) => setTimeout(resolve, 1));
+            }
+            const { setters } = r;
+            var list = module.dependencies;
+            for (let index = 0; index < list.length; index++) {
+                const element = list[index];
+                setters[index](element.getExports());
+            }
+            const rp = r.execute();
+            module.isResolved = true;
+            if (rp === null || rp === void 0 ? void 0 : rp.then) {
+                yield rp;
+            }
+            module.getExports();
+            if (module.postExports) {
+                module.postExports();
+            }
+            if (module.dynamicImports) {
+                for (const iterator of module.dynamicImports) {
+                    if (iterator.replacedModule.importPromise) {
                         continue;
                     }
-                    all.push(this.import(iterator));
+                    yield this.import(iterator.replacedModule);
                 }
-                const resolved = yield Promise.all(all);
-                const r = setup((key, value) => {
-                    if (typeof key === "object") {
-                        merge(module.exports, key);
-                        return module.exports;
-                    }
-                    module.exports[key] = value;
-                    return value;
-                }, instance);
-                const { setters } = r;
-                for (let index = 0; index < resolved.length; index++) {
-                    const element = resolved[index];
-                    setters[index](element);
-                }
-                module.isResolved = true;
-                const rp = r.execute();
-                if (rp && rp.then) {
-                    yield rp;
-                }
-                (_a = module.postExports) === null || _a === void 0 ? void 0 : _a.call(module);
-                if (module.dynamicImports) {
-                    for (const iterator of module.dynamicImports) {
-                        if (iterator.replacedModule.importPromise) {
-                            continue;
-                        }
-                        yield instance.import(iterator.replacedModule);
-                    }
-                }
-                return module.exports;
-            });
-            module.resolver = loader();
-            module.factory = () => module.exports;
-        };
+            }
+            return module.exports;
+        });
+        return module;
     }
 }
+const globalNS = (typeof window !== "undefined" ? window : global);
 class UMDClass {
     constructor() {
+        this.debug = false;
         this.viewPrefix = "web";
         this.defaultApp = "@web-atoms/core/dist/web/WebApp";
         this.lang = "en-US";
@@ -1451,22 +1998,18 @@ class UMDClass {
     }
     hostView(id, path, designMode) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 this.mock = designMode;
                 AmdLoader.instance.get(path);
                 const m = yield this.load(this.defaultApp, designMode);
-                const app = new (m.default)();
-                app.onReady(() => __awaiter(this, void 0, void 0, function* () {
-                    try {
-                        const viewClass = yield AmdLoader.instance.import(path);
-                        const view = new (viewClass.default)(app);
-                        const element = document.getElementById(id);
-                        element.appendChild(view.element);
-                    }
-                    catch (e) {
-                        console.error(e);
-                    }
-                }));
+                const app = ((_a = globalNS.webApp) !== null && _a !== void 0 ? _a : (globalNS.webApp = new (m.default)()));
+                yield app.initPromise;
+                const viewClass = yield AmdLoader.instance.import(path);
+                const view = new (viewClass.default)(app);
+                const element = typeof id === "string" ? document.getElementById(id) : id;
+                element.appendChild(view.element);
+                return view;
             }
             catch (e) {
                 console.error(e);
@@ -1475,26 +2018,18 @@ class UMDClass {
     }
     loadView(path, designMode, appPath) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
                 this.mock = designMode;
                 appPath = appPath || this.defaultApp;
                 AmdLoader.instance.get(path);
                 const m = yield this.load(appPath, designMode);
-                const app = new (m.default)();
-                return yield new Promise((resolve, reject) => {
-                    app.onReady(() => __awaiter(this, void 0, void 0, function* () {
-                        try {
-                            const viewClass = yield AmdLoader.instance.import(path);
-                            const view = new (viewClass.default)(app);
-                            app.root = view;
-                            resolve(view);
-                        }
-                        catch (e) {
-                            console.error(e);
-                            reject(e);
-                        }
-                    }));
-                });
+                const app = ((_a = globalNS.webApp) !== null && _a !== void 0 ? _a : (globalNS.webApp = new (m.default)()));
+                yield app.initPromise;
+                const viewClass = yield AmdLoader.instance.import(path);
+                const view = new (viewClass.default)(app);
+                app.root = view;
+                return view;
             }
             catch (er) {
                 console.error(er);
@@ -1502,11 +2037,50 @@ class UMDClass {
             }
         });
     }
+    installStyleSheet(path, imports = {}) {
+    }
 }
 const UMD = new UMDClass();
 ((u) => {
-    const globalNS = (typeof window !== "undefined" ? window : global);
     globalNS.UMD = u;
     globalNS.AmdLoader = AmdLoader;
+    globalNS.System = System;
+    AmdLoader.instance.registerModule("tslib", setupTSLib());
 })(UMD);
+if (window) {
+    let first = document.head.firstElementChild;
+    const markers = {};
+    const addMarker = (name) => {
+        const m = document.createElement("meta");
+        m.name = name + "-marker";
+        if (first) {
+            first.insertAdjacentElement("afterend", m);
+        }
+        else {
+            document.head.insertAdjacentElement("afterbegin", m);
+        }
+        first = m;
+        markers[name] = m;
+        return m;
+    };
+    addMarker("global-low");
+    addMarker("global");
+    addMarker("global-high");
+    addMarker("local-low");
+    addMarker("local");
+    addMarker("local-high");
+    window.installStyleSheet = UMD.installStyleSheet = (path, { imports } = {}) => {
+        var _a, _b;
+        const [_, g1] = (_a = /\.((global|local)[^\.]{0,10})\.(css|less|scss)$/i.exec(path)) !== null && _a !== void 0 ? _a : [];
+        let segment = g1 !== null && g1 !== void 0 ? g1 : "local-high";
+        if (!/^(global|local)/.test(segment)) {
+            segment = "local-high";
+        }
+        const marker = ((_b = markers[segment]) !== null && _b !== void 0 ? _b : markers["local"]);
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = path;
+        marker.insertAdjacentElement("beforebegin", link);
+    };
+}
 //# sourceMappingURL=umd.js.map

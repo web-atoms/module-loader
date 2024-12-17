@@ -174,7 +174,6 @@ class System {
                 iterator.linkExports(set);
 
                 if (iterator.isResolved) {
-                    set(iterator.getExports());
                     continue;
                 }
 

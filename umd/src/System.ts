@@ -100,6 +100,9 @@ class System {
         const r = module.setup((key, value) => {
             if (typeof key === "object") {
                 merge(module.exports, key);
+                if (!module.exports.default) {
+                    module.exports.default = module.exports;
+                }
                 return module.exports;
             }
             module.exports[key] = value;

@@ -29,6 +29,14 @@ var define: IDefine = (
         }
     }
 
+    let requires = [];
+
+    if (typeof requiresOrFactory !== "function") {
+        requires = requiresOrFactory;
+    } else {
+        factory = requiresOrFactory;
+    }
+
     if (!module) {
         factory();
         return;
@@ -38,14 +46,6 @@ var define: IDefine = (
         return;
     }
     module.dependencies = [];
-
-    let requires = [];
-
-    if (typeof requiresOrFactory !== "function") {
-        requires = requiresOrFactory;
-    } else {
-        factory = requiresOrFactory;
-    }
 
     const args: any[] = [];
     for (const s of requires) {

@@ -17,74 +17,95 @@ var define: IDefine = (
 
     const loader = AmdLoader.instance;
 
-    function bindFactory(module: Module, requireList: string[], fx: IAnyFunction) {
-        if (module.factory) {
-            return;
-        }
-        module.dependencies = [];
-        let requires: string[] = requireList;
-        requires = requireList;
+    const { currentScript } = document;
 
-        const args: any[] = [];
-        for (const s of requires) {
-            if (s === "require") {
-                args.push(module.require);
-                continue;
-            }
-            if (s === "exports") {
-                args.push(module.emptyExports);
-                continue;
-            }
-            if (/^global/.test(s)) {
-                args.push(loader.get(s).exports);
-            }
-            const name: string = loader.resolveRelativePath(s, module.name);
-            const child: Module = loader.get(name);
-            module.addDependency(child);
+    let module: Module;
+
+    if (currentScript) {
+
+        module = currentScript[currentModuleSymbol];
+        if (module) {
+            AmdLoader.current = module;
         }
-        module.factory = () => {
-            return fx.apply(module, args);
-        };
     }
 
-    if (nested) {
-        // this means this was executed as packed modules..
-        // first parameter is name, second is array and third is factory...
-
-        const name = requiresOrFactory as unknown as string;
-        const rList = factory as unknown as string[];
-        const f = nested as unknown as () => void;
-
-        const module = AmdLoader.instance.get(name);
-
-        bindFactory(module, rList, f);
+    if (!module) {
+        factory();
         return;
     }
 
-    AmdLoader.instance.define = () => {
+    if (module.factory) {
+        return;
+    }
+    module.dependencies = [];
 
-        if (!AmdLoader.current) {
-            // dynamic loader
-            const amdModule = document.currentScript?.[currentModuleSymbol];
+    let requires = [];
 
-            if (amdModule) {
-                AmdLoader.current = amdModule;
-            }
-        }
+    if (typeof requiresOrFactory !== "function") {
+        requires = requiresOrFactory;
+    } else {
+        factory = requiresOrFactory;
+    }
 
-        const current: Module = AmdLoader.current;
-        if (!current) {
-            return;
+    const args: any[] = [];
+    for (const s of requires) {
+        if (s === "require") {
+            args.push(module.require);
+            continue;
         }
-        if (current.factory) {
-            return;
+        if (s === "exports") {
+            args.push(module.emptyExports);
+            continue;
         }
-        if (typeof requiresOrFactory === "function") {
-            bindFactory(current, [], requiresOrFactory);
-        } else {
-            bindFactory(current, requiresOrFactory, factory);
+        if (/^global/.test(s)) {
+            args.push(loader.get(s).exports);
         }
+        const name: string = loader.resolveRelativePath(s, module.name);
+        const child: Module = loader.get(name);
+        module.addDependency(child);
+    }
+    module.factory = () => {
+        return factory.apply(module, args);
     };
+
+    // if (nested) {
+    //     // this means this was executed as packed modules..
+    //     // first parameter is name, second is array and third is factory...
+
+    //     const name = requiresOrFactory as unknown as string;
+    //     const rList = factory as unknown as string[];
+    //     const f = nested as unknown as () => void;
+
+    //     const module = AmdLoader.instance.get(name);
+
+    //     bindFactory(module, rList, f);
+    //     return;
+    // }
+
+    // AmdLoader.instance.define = () => {
+
+    //     if (!AmdLoader.current) {
+    //         // dynamic loader
+    //         const amdModule = document.currentScript?.[currentModuleSymbol];
+
+    //         if (amdModule) {
+    //             AmdLoader.current = amdModule;
+    //         }
+    //     }
+
+    //     const current: Module = AmdLoader.current;
+    //     if (!current) {
+    //         return;
+    //     }
+    //     if (current.factory) {
+    //         return;
+    //     }
+    //     if (typeof requiresOrFactory === "function") {
+    //         bindFactory(current, [], requiresOrFactory);
+    //     } else {
+    //         bindFactory(current, requiresOrFactory, factory);
+    //     }
+    // };
 };
 
 define.amd = {};

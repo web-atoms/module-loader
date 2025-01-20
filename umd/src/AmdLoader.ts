@@ -20,6 +20,9 @@ if (typeof require !== "undefined") {
 
 const promiseDone = Promise.resolve(0);
 
+(Symbol as any).dispose ??= Symbol("dispose");
+(Symbol as any).asyncDispose ??= Symbol("asyncDispose");
+
 class AmdLoader {
 
     public static isMedia = /\.(jpg|jpeg|gif|png|mp4|mp3|css|less|scss|html|svg|webp|webm)$/i;

@@ -411,6 +411,7 @@ class AmdLoader {
                     AmdLoader.httpTextLoader(mUrl, (r) => {
                         try {
                             module.exports = JSON.parse(r);
+                            module.exports.default = module.exports;
                             module.emptyExports = module.exports;
                             module.isLoaded = true;
                             resolve();

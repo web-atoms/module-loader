@@ -29,6 +29,8 @@ var define: IDefine = (
         }
     }
 
+    module ??= AmdLoader.current;
+
     let requires = [];
 
     if (typeof requiresOrFactory !== "function") {

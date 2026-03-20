@@ -109,57 +109,63 @@ class System {
             return value;
         }, module);
 
-        module.resolver = async () => {
+        module.resolver = () => {
 
-            const ds = [];
+            const resolved = (async () => {
+                const ds = [];
 
-            const { setters } = r;
-            let isCircularDependency;
-            let index = 0;
-            for (const iterator of module.dependencies) {
+                const { setters } = r;
+                let isCircularDependency;
+                let index = 0;
+                for (const iterator of module.dependencies) {
 
-                const set = setters[index++];
+                    const set = setters[index++];
 
-                if (iterator.isResolved) {
-                    set(iterator.getExports());
-                    continue;
-                }
-
-                const setP = this.import(iterator).then(set);
-
-                if (iterator.isDependentOn(module)) {
-                    isCircularDependency = true;
-                    continue;
-                }
-                ds.push(setP);
-            }
-
-            await Promise.all(ds);
-
-            if (isCircularDependency) {
-                await new Promise((resolve) => setTimeout(resolve,1));
-            }
-
-            const rp = r.execute() as any;
-            if (rp?.then) {
-                await rp;
-            }
-            module.isResolved = true;
-            module.getExports();
-            if (module.postExports) {
-                module.postExports();
-            }
-    
-            if (module.dynamicImports) {
-                for (const iterator of module.dynamicImports) {
-                    if (iterator.replacedModule.importPromise) {
+                    if (iterator.isResolved) {
+                        set(iterator.getExports());
                         continue;
                     }
-                    await this.import(iterator.replacedModule);
+
+                    const setP = this.import(iterator).then(set);
+
+                    if (iterator.isDependentOn(module)) {
+                        isCircularDependency = true;
+                        continue;
+                    }
+                    ds.push(setP);
                 }
-            }
-            return module.exports;
+
+                await Promise.all(ds);
+
+                if (isCircularDependency) {
+                    await new Promise((resolve) => setTimeout(resolve,1));
+                }
+
+                const rp = r.execute() as any;
+                if (rp?.then) {
+                    await rp;
+                }
+                module.isResolved = true;
+                module.getExports();
+                if (module.postExports) {
+                    module.postExports();
+                }
+        
+                if (module.dynamicImports) {
+                    for (const iterator of module.dynamicImports) {
+                        if (iterator.replacedModule.importPromise) {
+                            continue;
+                        }
+                        await this.import(iterator.replacedModule);
+                    }
+                }
+                return module.exports;
+            })();
+
+            module.resolver = () => resolved;
+            return resolved;
         };
+        
 
         return module;
         

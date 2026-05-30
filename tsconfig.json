@@ -1,10 +1,13 @@
 {
     "compilerOptions": {
         "target": "es6",
+        "ignoreDeprecations": "6.0",
         "sourceMap": true,
         "declaration": true,
         "removeComments": true,
         "outFile": "umd.js",
+        "rootDir": "./umd",
+        "strict": false,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "lib": [

@@ -33,6 +33,8 @@ class AmdLoader {
 
     public static globalVar: any = {};
 
+    public static executing = void 0 as Module;
+
     public static moduleProgress: (name: string, modules: Map<string, Module>, status: "done" | "loading") => void;
 
     public static moduleLoader:
@@ -127,7 +129,7 @@ class AmdLoader {
         if (mock && !this.enableMock) {
             return;
         }
-        const peek: Module = this.currentStack.length ? this.currentStack[this.currentStack.length - 1] : undefined;
+        const peek: Module = AmdLoader.executing ?? (this.currentStack.length ? this.currentStack[this.currentStack.length - 1] : undefined);
         name = this.resolveRelativePath(name, peek.name);
         const rt: MockType = new MockType(peek, type, name, mock);
         rt.replacedModule = this.get(rt.moduleName);

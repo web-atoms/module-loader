@@ -114,6 +114,7 @@ declare class AmdLoader {
     static isCss: RegExp;
     static isJson: RegExp;
     static globalVar: any;
+    static executing: Module;
     static moduleProgress: (name: string, modules: Map<string, Module>, status: "done" | "loading") => void;
     static moduleLoader: (packageName: string, url: string, success: () => void, failed: (error: any) => void) => void;
     static httpTextLoader: (url: string, resolve: (r: any) => void, failed: (error: any) => void) => void;

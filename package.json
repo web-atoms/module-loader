@@ -16,5 +16,8 @@
     "url": "https://github.com/web-atoms/module-loader/issues"
   },
   "homepage": "https://github.com/web-atoms/module-loader#readme",
-  "dependencies": {}
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
 }

@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -1315,11 +1316,14 @@ class Module {
     }
 }
 Module.nextID = 1;
-var _a;
+var _a, _b, _c;
+var _d, _e;
 if (typeof require !== "undefined") {
     md = require("module").Module;
 }
 const promiseDone = Promise.resolve(0);
+(_a = (_d = Symbol).dispose) !== null && _a !== void 0 ? _a : (_d.dispose = Symbol("dispose"));
+(_b = (_e = Symbol).asyncDispose) !== null && _b !== void 0 ? _b : (_e.asyncDispose = Symbol("asyncDispose"));
 class AmdLoader {
     constructor() {
         this.root = null;
@@ -1365,10 +1369,11 @@ class AmdLoader {
         AmdLoader.current = jsModule;
     }
     replace(type, name, mock) {
+        var _a;
         if (mock && !this.enableMock) {
             return;
         }
-        const peek = this.currentStack.length ? this.currentStack[this.currentStack.length - 1] : undefined;
+        const peek = (_a = AmdLoader.executing) !== null && _a !== void 0 ? _a : (this.currentStack.length ? this.currentStack[this.currentStack.length - 1] : undefined);
         name = this.resolveRelativePath(name, peek.name);
         const rt = new MockType(peek, type, name, mock);
         rt.replacedModule = this.get(rt.moduleName);
@@ -1598,6 +1603,7 @@ class AmdLoader {
                     AmdLoader.httpTextLoader(mUrl, (r) => {
                         try {
                             module.exports = JSON.parse(r);
+                            module.exports.default = module.exports;
                             module.emptyExports = module.exports;
                             module.isLoaded = true;
                             resolve();
@@ -1700,6 +1706,7 @@ AmdLoader.isMedia = /\.(jpg|jpeg|gif|png|mp4|mp3|css|less|scss|html|svg|webp|web
 AmdLoader.isCss = /\.(css|less|scss)$/i;
 AmdLoader.isJson = /\.json$/i;
 AmdLoader.globalVar = {};
+AmdLoader.executing = void 0;
 AmdLoader.instance = new AmdLoader();
 AmdLoader.current = null;
 const a = AmdLoader.instance;
@@ -1741,7 +1748,7 @@ AmdLoader.httpTextLoader = (url, success, error) => {
 };
 var amdConfig;
 amdConfig !== null && amdConfig !== void 0 ? amdConfig : (amdConfig = {});
-(_a = amdConfig.moduleProgress) !== null && _a !== void 0 ? _a : (amdConfig.moduleProgress = (() => {
+(_c = amdConfig.moduleProgress) !== null && _c !== void 0 ? _c : (amdConfig.moduleProgress = (() => {
     if (!document) {
         return (name, p) => {
             console.log(`${name} ${p}%`);
@@ -1753,63 +1760,49 @@ amdConfig !== null && amdConfig !== void 0 ? amdConfig : (amdConfig = {});
 AmdLoader.moduleProgress = amdConfig.moduleProgress;
 var define = (requiresOrFactory, factory, nested) => {
     const loader = AmdLoader.instance;
-    function bindFactory(module, requireList, fx) {
-        if (module.factory) {
-            return;
+    const { currentScript } = document;
+    let module;
+    if (currentScript) {
+        module = currentScript[currentModuleSymbol];
+        if (module) {
+            AmdLoader.current = module;
         }
-        module.dependencies = [];
-        let requires = requireList;
-        requires = requireList;
-        const args = [];
-        for (const s of requires) {
-            if (s === "require") {
-                args.push(module.require);
-                continue;
-            }
-            if (s === "exports") {
-                args.push(module.emptyExports);
-                continue;
-            }
-            if (/^global/.test(s)) {
-                args.push(loader.get(s).exports);
-            }
-            const name = loader.resolveRelativePath(s, module.name);
-            const child = loader.get(name);
-            module.addDependency(child);
-        }
-        module.factory = () => {
-            return fx.apply(module, args);
-        };
     }
-    if (nested) {
-        const name = requiresOrFactory;
-        const rList = factory;
-        const f = nested;
-        const module = AmdLoader.instance.get(name);
-        bindFactory(module, rList, f);
+    module !== null && module !== void 0 ? module : (module = AmdLoader.current);
+    let requires = [];
+    if (typeof requiresOrFactory !== "function") {
+        requires = requiresOrFactory;
+    }
+    else {
+        factory = requiresOrFactory;
+    }
+    if (!module) {
+        factory();
         return;
     }
-    AmdLoader.instance.define = () => {
-        var _a;
-        if (!AmdLoader.current) {
-            const amdModule = (_a = document.currentScript) === null || _a === void 0 ? void 0 : _a[currentModuleSymbol];
-            if (amdModule) {
-                AmdLoader.current = amdModule;
-            }
+    if (module.factory) {
+        return;
+    }
+    module.dependencies = [];
+    const args = [];
+    for (const s of requires) {
+        if (s === "require") {
+            args.push(module.require);
+            continue;
         }
-        const current = AmdLoader.current;
-        if (!current) {
-            return;
+        if (s === "exports") {
+            args.push(module.emptyExports);
+            continue;
         }
-        if (current.factory) {
-            return;
+        if (/^global/.test(s)) {
+            args.push(loader.get(s).exports);
         }
-        if (typeof requiresOrFactory === "function") {
-            bindFactory(current, [], requiresOrFactory);
-        }
-        else {
-            bindFactory(current, requiresOrFactory, factory);
-        }
+        const name = loader.resolveRelativePath(s, module.name);
+        const child = loader.get(name);
+        module.addDependency(child);
+    }
+    module.factory = () => {
+        return factory.apply(module, args);
     };
 };
 define.amd = {};
@@ -1869,7 +1862,6 @@ class System {
                 const dm = instance.get(absolutePath);
                 if (/\.(css|less)$/i.test(absolutePath)) {
                     dm.packed = true;
-                    continue;
                 }
                 module.dependencies.push(dm);
             }
@@ -1890,53 +1882,61 @@ class System {
         const r = module.setup((key, value) => {
             if (typeof key === "object") {
                 merge(module.exports, key);
+                if (!module.exports.default) {
+                    module.exports.default = module.exports;
+                }
                 return module.exports;
             }
             module.exports[key] = value;
             return value;
         }, module);
-        module.resolver = () => __awaiter(this, void 0, void 0, function* () {
-            const ds = [];
-            let isCircularDependency;
-            for (const iterator of module.dependencies) {
-                if (iterator.isResolved) {
-                    continue;
-                }
-                if (iterator.isDependentOn(module)) {
-                    isCircularDependency = true;
-                    continue;
-                }
-                ds.push(this.import(iterator));
-            }
-            yield Promise.all(ds);
-            if (isCircularDependency) {
-                yield new Promise((resolve) => setTimeout(resolve, 1));
-            }
-            const { setters } = r;
-            var list = module.dependencies;
-            for (let index = 0; index < list.length; index++) {
-                const element = list[index];
-                setters[index](element.getExports());
-            }
-            const rp = r.execute();
-            module.isResolved = true;
-            if (rp === null || rp === void 0 ? void 0 : rp.then) {
-                yield rp;
-            }
-            module.getExports();
-            if (module.postExports) {
-                module.postExports();
-            }
-            if (module.dynamicImports) {
-                for (const iterator of module.dynamicImports) {
-                    if (iterator.replacedModule.importPromise) {
+        module.resolver = () => {
+            const resolved = (() => __awaiter(this, void 0, void 0, function* () {
+                const ds = [];
+                const { setters } = r;
+                let isCircularDependency;
+                let index = 0;
+                for (const iterator of module.dependencies) {
+                    const set = setters[index++];
+                    if (iterator.isResolved) {
+                        set(iterator.getExports());
                         continue;
                     }
-                    yield this.import(iterator.replacedModule);
+                    const setP = this.import(iterator).then(set);
+                    if (iterator.isDependentOn(module)) {
+                        isCircularDependency = true;
+                        continue;
+                    }
+                    ds.push(setP);
                 }
-            }
-            return module.exports;
-        });
+                yield Promise.all(ds);
+                if (isCircularDependency) {
+                    yield new Promise((resolve) => setTimeout(resolve, 1));
+                }
+                AmdLoader.executing = module;
+                const rp = r.execute();
+                AmdLoader.executing = void 0;
+                if (rp === null || rp === void 0 ? void 0 : rp.then) {
+                    yield rp;
+                }
+                module.isResolved = true;
+                module.getExports();
+                if (module.postExports) {
+                    module.postExports();
+                }
+                if (module.dynamicImports) {
+                    for (const iterator of module.dynamicImports) {
+                        if (iterator.replacedModule.importPromise) {
+                            continue;
+                        }
+                        yield this.import(iterator.replacedModule);
+                    }
+                }
+                return module.exports;
+            }))();
+            module.resolver = () => resolved;
+            return resolved;
+        };
         return module;
     }
 }

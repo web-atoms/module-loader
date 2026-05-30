@@ -141,7 +141,9 @@ class System {
                     await new Promise((resolve) => setTimeout(resolve,1));
                 }
 
+                AmdLoader.executing = module;
                 const rp = r.execute() as any;
+                AmdLoader.executing = void 0;
                 if (rp?.then) {
                     await rp;
                 }
